@@ -141,6 +141,9 @@ sudo apt-get install -qq -y gnome-shell gnome-session gnome-session-fallback gno
 # facultatifs mais jolies...
 sudo apt-get install -qq -y cinnamon-extensions-extended-places-menu | tee -a ./log_install_dd.txt
 sudo apt-get install -qq -y cinnamon-extension-weather cinnamon-extensions-system-monitor | tee -a ./log_install_dd.txt
+sudo add-apt-repository ppa:webupd8team/gnome3 | tee -a ./log_install_dd.txt
+sudo apt-get update -qq | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y gnome-shell gnome-session mgse-bottompanel mgse-menu mgse-windowlist gnome-tweak-tool | tee -a ./log_install_dd.txt
 
 echo "# Configuration des projets et autres éléments" | tee -a ./log_install_dd.txt
 sudo mkdir Workspaces
