@@ -1,0 +1,859 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Testing &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="Validation" href="validation.html" />
+    <link rel="prev" title="Doctrine et les bases de données (« Le Modèle »)" href="doctrine.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="validation.html" title="Validation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="doctrine.html" title="Doctrine et les bases de données (« Le Modèle »)"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="testing">
+<span id="index-0"></span><h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
+<p>A chaque fois que vous écrivez une nouvelle ligne de code, vous ajoutez aussi
+potentiellement de nouveaux bugs. Pour créer de meilleurs applications et plus
+fiables, vous devriez tester votre code avec des tests fonctionnels et des tests
+unitaires.</p>
+<div class="section" id="le-framework-de-test-phpunit">
+<h2>Le Framework de Test PHPUnit<a class="headerlink" href="#le-framework-de-test-phpunit" title="Permalink to this headline">¶</a></h2>
+<p>Symfony2 intègre une bibliothèque indépendante - appelée PHPUnit - qui vous fournit
+un framework de tests complet. Ce chapitre ne couvre par PHPUnit elle-même, mais
+elle a sa propre <a class="reference external" href="http://www.phpunit.de/manual/3.5/en/">documentation</a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Symfony2 fonctionne avec PHPUnit 3.5.11 au minimum, mais la version 3.6.4 est
+nécessaire pour tester le coeur du framework.</p>
+</div>
+<p>Chaque test - que ce soit un test fonctionnel ou un test unitaire - est une classe
+PHP qui devrait se trouver dans le sous-répertoire <cite>Tests/</cite> de vos bundles. Si vous
+suivez cette règle, alors vous pouvez lancer les tests de votre application avec la
+commande suivante :</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># spécifier le répertoire de configuration</span>
+<span class="nv">$ </span>phpunit -c app/
+</pre></div>
+</div>
+<p>L&#8217;option <tt class="docutils literal"><span class="pre">-c</span></tt> indique à PHPUnit de chercher le fichier de configuration dans le
+répertoire <tt class="docutils literal"><span class="pre">app/</span></tt>. Si vous voulez en savoir plus sur les options de PHPUnit, jetez
+un oeil au fichier <tt class="docutils literal"><span class="pre">app/phpunit.xml.dist</span></tt>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">La couverture de code peut être générée avec l&#8217;option <tt class="docutils literal"><span class="pre">--coverage-html</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="tests-unitaires">
+<span id="index-1"></span><h2>Tests unitaires<a class="headerlink" href="#tests-unitaires" title="Permalink to this headline">¶</a></h2>
+<p>Un test unitaire teste habituellement une classe PHP spécifique. Si vous voulez tester
+le comportement général de votre application, lisez la sections sur les <a class="reference internal" href="#tests-fonctionnels">Tests Fonctionnels</a>.</p>
+<p>Ecrire des tests unitaires avec Symfony2 n&#8217;est pas différent d&#8217;écrire des tests
+unitaires standards PHPUnit. Supposez, par exemple, que vous avez un classe
+<em>incroyablement</em> simple appelée <tt class="docutils literal"><span class="pre">Calculator</span></tt> dans le répertoire <tt class="docutils literal"><span class="pre">Utility/</span></tt> de
+votre bundle :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/DemoBundle/Utility/Calculator.php</span>
+<span class="x">namespace Acme\DemoBundle\Utility;</span>
+
+<span class="x">class Calculator</span>
+<span class="x">{</span>
+<span class="x">    public function add($a, $b)</span>
+<span class="x">    {</span>
+<span class="x">        return $a + $b;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Poour tester cela, créez le fichier <tt class="docutils literal"><span class="pre">CalculatorTest</span></tt> dans le dossier <tt class="docutils literal"><span class="pre">Tests/Utility</span></tt>
+de votre:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/DemoBundle/Tests/Utility/CalculatorTest.php</span>
+<span class="x">namespace Acme\DemoBundle\Tests\Utility;</span>
+
+<span class="x">use Acme\DemoBundle\Utility\Calculator;</span>
+
+<span class="x">class CalculatorTest extends \PHPUnit_Framework_TestCase</span>
+<span class="x">{</span>
+<span class="x">    public function testAdd()</span>
+<span class="x">    {</span>
+<span class="x">        $calc = new Calculator();</span>
+<span class="x">        $result = $calc-&gt;add(30, 12);</span>
+
+<span class="x">        // vérifie que votre classe a correctement calculé!</span>
+<span class="x">        $this-&gt;assertEquals(42, $result);</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Par convention, le sous-répertoire <tt class="docutils literal"><span class="pre">Tests/</span></tt> doit reproduire la structure de
+votre bundle. Donc, si vous testez une classe du répertoire <tt class="docutils literal"><span class="pre">Utility/</span></tt> du
+bundle, mettez le test dans le répertoire <tt class="docutils literal"><span class="pre">Tests/Utility/</span></tt>.</p>
+</div>
+<p>Comme dans votre vraie application, le chargement automatique est activé via
+le fichier <tt class="docutils literal"><span class="pre">bootstrap.php.cache</span></tt> (comme configuré par défaut dans le fichier
+<tt class="docutils literal"><span class="pre">phpunit.xml.dist</span></tt>).</p>
+<p>Exécuter les tests pour un fichier ou répertoire donné est aussi très facile :</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># lancer tous les tests du répertoire Utility</span>
+<span class="nv">$ </span>phpunit -c app src/Acme/DemoBundle/Tests/Utility/
+
+<span class="c"># lancer les tests de la classe Calculator</span>
+<span class="nv">$ </span>phpunit -c app src/Acme/DemoBundle/Tests/Utility/CalculatorTest.php
+
+<span class="c"># lancer tous les tests d&#39;un Bundle</span>
+<span class="nv">$ </span>phpunit -c app src/Acme/DemoBundle/
+</pre></div>
+</div>
+</div>
+<div class="section" id="tests-fonctionnels">
+<span id="index-2"></span><h2>Tests Fonctionnels<a class="headerlink" href="#tests-fonctionnels" title="Permalink to this headline">¶</a></h2>
+<p>Les tests fonctionnels vérifient l&#8217;intégration des différentes couches d&#8217;une
+application (du routing jusqu&#8217;aux vues). Ils ne sont pas différents des tests
+unitaires tant que PHPUnit est concerné, mais ils possèdent un workflow très
+spécifique :</p>
+<ul class="simple">
+<li>Faire une requête;</li>
+<li>Tester la réponse;</li>
+<li>Cliquer sur un lien ou soumettre un formulaire;</li>
+<li>Tester la réponse;</li>
+<li>Recommencer ainsi de suite.</li>
+</ul>
+<div class="section" id="votre-premier-test-fonctionnel">
+<h3>Votre premier test fonctionnel<a class="headerlink" href="#votre-premier-test-fonctionnel" title="Permalink to this headline">¶</a></h3>
+<p>Les tests fonctionnels sont de simples fichiers PHP qui se trouvent dans le répertoire
+<tt class="docutils literal"><span class="pre">Tests/Controller</span></tt> du bundle. Si vous voulez tester des pages gérées par la classe
+<tt class="docutils literal"><span class="pre">DemoController</span></tt>, commencez par créer un nouveau fichier <tt class="docutils literal"><span class="pre">DemoControllerTest.php</span></tt>
+qui étend la classe spéciale <tt class="docutils literal"><span class="pre">WebTestCase</span></tt>.</p>
+<p>Par exemple, la Symfony2 Standard Edition fournit un simple test fonctionnel pour
+son <tt class="docutils literal"><span class="pre">DemoController</span></tt> (<a class="reference external" href="https://github.com/symfony/symfony-standard/blob/master/src/Acme/DemoBundle/Tests/Controller/DemoControllerTest.php">DemoControllerTest</a>) :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/DemoBundle/Tests/Controller/DemoControllerTest.php</span>
+<span class="x">namespace Acme\DemoBundle\Tests\Controller;</span>
+
+<span class="x">use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;</span>
+
+<span class="x">class DemoControllerTest extends WebTestCase</span>
+<span class="x">{</span>
+<span class="x">    public function testIndex()</span>
+<span class="x">    {</span>
+<span class="x">        $client = static::createClient();</span>
+
+<span class="x">        $crawler = $client-&gt;request(&#39;GET&#39;, &#39;/demo/hello/Fabien&#39;);</span>
+
+<span class="x">        $this-&gt;assertTrue($crawler-&gt;filter(&#39;html:contains(&quot;Hello Fabien&quot;)&#39;)-&gt;count() &gt; 0);</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Pour lancer vos tests fonctionnels, la classe <tt class="docutils literal"><span class="pre">WebTestCase</span></tt> initie (bootstrap)
+le noyau (kernel) de votre application. Dans la plupart des cas, cela fonctionnera
+automatiquement. Cependant, si votre kernel n&#8217;est pas dans le répertoire habituel,
+vous devrez modifier le fichier <tt class="docutils literal"><span class="pre">phpunit.xml.dist</span></tt> pour définir la variable
+d&#8217;environnement <tt class="docutils literal"><span class="pre">KERNEL_DIR</span></tt> afin qu&#8217;elle pointe vers le répertoire du kernel :</p>
+<div class="last highlight-xml"><pre>&lt;phpunit
+    &lt;!-- ... --&gt;
+    &lt;php&gt;
+        &lt;server name="KERNEL_DIR" value="/path/to/your/app/" /&gt;
+    &lt;/php&gt;
+    &lt;!-- ... --&gt;
+&lt;/phpunit&gt;</pre>
+</div>
+</div>
+<p>La méthode <tt class="docutils literal"><span class="pre">createClient()</span></tt> retourne un client, qui ressemble au navigateur que
+vous utilisez pour surfer sur vos sites:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$crawler = $client-&gt;request(&#39;GET&#39;, &#39;/demo/hello/Fabien&#39;);</span>
+</pre></div>
+</div>
+<p>La méthode <tt class="docutils literal"><span class="pre">request()</span></tt> (plus d&#8217;informations sur <a class="reference internal" href="#book-testing-request-method-sidebar"><em>la méthode Request</em></a>)
+retourne un objet <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\DomCrawler\Crawler</span></tt> qui peut être
+utilisé pour sélectionner les éléments dans la Réponse, cliquer sur les liens, et
+soumettre des formulaires.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Le Crawler peut être utilisé seulement si le contenu de la Réponse est un
+document XML ou HTML.
+Pour obtenir le contenu brut, appelez la méthode <tt class="docutils literal"><span class="pre">$client-&gt;getResponse()-&gt;getContent()</span></tt>.</p>
+</div>
+<p>Cliquez sur un lien en le sélectionnant avec le Crawler en utilisant
+soit une expression XPath ou un sélecteur CSS, puis utilisez le Client pour
+cliquer dessus. Par exemple, le code suivant trouve tous les liens avec le text
+<tt class="docutils literal"><span class="pre">Greet</span></tt>, puis sélectionne le second et clique dessus :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$link = $crawler-&gt;filter(&#39;a:contains(&quot;Greet&quot;)&#39;)-&gt;eq(1)-&gt;link();</span>
+
+<span class="x">$crawler = $client-&gt;click($link);</span>
+</pre></div>
+</div>
+<p>Soumettre un formulaire est très similaire : sélectionnez un bouton de ce dernier,
+ré-écrivez quelques unes de ses valeurs si besoin est puis soumettez-le :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$form = $crawler-&gt;selectButton(&#39;submit&#39;)-&gt;form();</span>
+
+<span class="x">// définit certaines valeurs</span>
+<span class="x">$form[&#39;name&#39;] = &#39;Lucas&#39;;</span>
+<span class="x">$form[&#39;form_name[subject]&#39;] = &#39;Hey there!&#39;;</span>
+
+<span class="x">// soumet le formulaire</span>
+<span class="x">$crawler = $client-&gt;submit($form);</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Le formulaire peut également gérer les envois et contient des méthodes pour
+remplir les différents types des champs de formulaire (ex <tt class="docutils literal"><span class="pre">select()</span></tt> et <tt class="docutils literal"><span class="pre">tick()</span></tt>).
+Pour plus de détails, lisez la section <a class="reference internal" href="#formulaires">Formulaires</a>.</p>
+</div>
+<p>Maintenant que vous pouvez naviguer aisément à travers une application, utilisez
+les assertions pour tester qu&#8217;elle fait effectivement ce que vous souhaitez
+qu&#8217;elle fasse. Utilisez le Crawler pour faire des assertions sur le DOM :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// affirme que la réponse correspond au sélecteur CSS donné</span>
+<span class="x">$this-&gt;assertTrue($crawler-&gt;filter(&#39;h1&#39;)-&gt;count() &gt; 0);</span>
+</pre></div>
+</div>
+<p>Ou alors, testez directement le contenu de la Réponse si vous voulez
+juste vérifier qu&#8217;il contient un certain texte, ou si la Réponse n&#8217;est pas un
+document XML/HTML :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$this-&gt;assertRegExp(&#39;/Hello Fabien/&#39;, $client-&gt;getResponse()-&gt;getContent());</span>
+</pre></div>
+</div>
+<div class="sidebar" id="book-testing-request-method-sidebar">
+<p class="first sidebar-title">Plus d&#8217;infos sur la méthode <tt class="docutils literal"><span class="pre">request()</span></tt>:</p>
+<p>La signature complète de la méthdode <tt class="docutils literal"><span class="pre">request()</span></tt> est:</p>
+<div class="highlight-python"><pre>request(
+    $method,
+    $uri,
+    array $parameters = array(),
+    array $files = array(),
+    array $server = array(),
+    $content = null,
+    $changeHistory = true
+)</pre>
+</div>
+<p>Le tableau <tt class="docutils literal"><span class="pre">server</span></tt> contient les valeurs brutes que vous trouveriez normalement
+dans la variable superglobale <a class="reference external" href="http://php.net/manual/en/reserved.variables.server.php">$_SERVER</a>. Par exemple, pour définir les entêtes
+HTTP <cite>Content-Type</cite> et <cite>Referer</cite>, vous procéderiez comme suit :</p>
+<div class="last highlight-php"><div class="highlight"><pre><span class="x">$client-&gt;request(</span>
+<span class="x">    &#39;GET&#39;,</span>
+<span class="x">    &#39;/demo/hello/Fabien&#39;,</span>
+<span class="x">    array(),</span>
+<span class="x">    array(),</span>
+<span class="x">    array(</span>
+<span class="x">        &#39;CONTENT_TYPE&#39; =&gt; &#39;application/json&#39;,</span>
+<span class="x">        &#39;HTTP_REFERER&#39; =&gt; &#39;/foo/bar&#39;,</span>
+<span class="x">    )</span>
+<span class="x">);</span>
+</pre></div>
+</div>
+</div>
+<span class="target" id="index-3"></span></div>
+</div>
+<div class="section" id="travailler-avec-le-client-test">
+<span id="index-4"></span><h2>Travailler avec le Client Test<a class="headerlink" href="#travailler-avec-le-client-test" title="Permalink to this headline">¶</a></h2>
+<p>Le Client test simule un client HTTP comme un navigateur et lance des requêtes à
+votre application Symfony2 :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$crawler = $client-&gt;request(&#39;GET&#39;, &#39;/hello/Fabien&#39;);</span>
+</pre></div>
+</div>
+<p>La méthode <tt class="docutils literal"><span class="pre">request()</span></tt> prend en arguments la méthode HTTP et une URL, et
+retourne une instance de <tt class="docutils literal"><span class="pre">Crawler</span></tt>.</p>
+<p>Utilisez le Crawler pour trouver des éléments DOM dans la Réponse. Ces éléments
+peuvent ainsi être utilisés pour cliquer sur des liens et soumettre des formulaires :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$link = $crawler-&gt;selectLink(&#39;Go elsewhere...&#39;)-&gt;link();</span>
+<span class="x">$crawler = $client-&gt;click($link);</span>
+
+<span class="x">$form = $crawler-&gt;selectButton(&#39;validate&#39;)-&gt;form();</span>
+<span class="x">$crawler = $client-&gt;submit($form, array(&#39;name&#39; =&gt; &#39;Fabien&#39;));</span>
+</pre></div>
+</div>
+<p>Les méthodes <tt class="docutils literal"><span class="pre">click()</span></tt> et <tt class="docutils literal"><span class="pre">submit()</span></tt> retournent toutes deux un objet
+<tt class="docutils literal"><span class="pre">Crawler</span></tt>. Ces méthodes sont le meilleur moyen de naviguer dans une
+application car elles s&#8217;occupent de beaucoup de choses pour vous, comme détecter
+la méthode HTTP à partir d&#8217;un formulaire et vous fournir une bonne API pour uploader
+des fichiers.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Vous en apprendrez davantage sur les objets <tt class="docutils literal"><span class="pre">Link</span></tt> et <tt class="docutils literal"><span class="pre">Form</span></tt> dans la
+section <a class="reference internal" href="#book-testing-crawler"><em>Crawler</em></a> ci-dessous.</p>
+</div>
+<p>Mais vous pouvez aussi simuler les soumissions de formulaires et des requêtes
+complexes grâce à la méthode <tt class="docutils literal"><span class="pre">request()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// Soumettre directement un formulaire (mais utiliser le Crawler est plus simple)</span>
+<span class="x">$client-&gt;request(&#39;POST&#39;, &#39;/submit&#39;, array(&#39;name&#39; =&gt; &#39;Fabien&#39;));</span>
+
+<span class="x">// Soumission de formulaire avec upload de fichier</span>
+<span class="x">use Symfony\Component\HttpFoundation\File\UploadedFile;</span>
+
+<span class="x">$photo = new UploadedFile(</span>
+<span class="x">    &#39;/path/to/photo.jpg&#39;,</span>
+<span class="x">    &#39;photo.jpg&#39;,</span>
+<span class="x">    &#39;image/jpeg&#39;,</span>
+<span class="x">    123</span>
+<span class="x">);</span>
+<span class="x">// or</span>
+<span class="x">$photo = array(</span>
+<span class="x">    &#39;tmp_name&#39; =&gt; &#39;/path/to/photo.jpg&#39;,</span>
+<span class="x">    &#39;name&#39; =&gt; &#39;photo.jpg&#39;,</span>
+<span class="x">    &#39;type&#39; =&gt; &#39;image/jpeg&#39;,</span>
+<span class="x">    &#39;size&#39; =&gt; 123,</span>
+<span class="x">    &#39;error&#39; =&gt; UPLOAD_ERR_OK</span>
+<span class="x">);</span>
+<span class="x">$client-&gt;request(</span>
+<span class="x">    &#39;POST&#39;,</span>
+<span class="x">    &#39;/submit&#39;,</span>
+<span class="x">    array(&#39;name&#39; =&gt; &#39;Fabien&#39;),</span>
+<span class="x">    array(&#39;photo&#39; =&gt; $photo)</span>
+<span class="x">);</span>
+
+<span class="x">// Exécute une requête DELETE et passe des entête HTTP</span>
+<span class="x">$client-&gt;request(</span>
+<span class="x">    &#39;DELETE&#39;,</span>
+<span class="x">    &#39;/post/12&#39;,</span>
+<span class="x">    array(),</span>
+<span class="x">    array(),</span>
+<span class="x">    array(&#39;PHP_AUTH_USER&#39; =&gt; &#39;username&#39;, &#39;PHP_AUTH_PW&#39; =&gt; &#39;pa$$word&#39;)</span>
+<span class="x">);</span>
+</pre></div>
+</div>
+<p>Enfin, vous pouvez forcer chaque requête à être exécutée
+dans son propre processus PHP afin d&#8217;éviter quelconques effets secondaires
+quand vous travaillez avec plusieurs clients dans le même script :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$client-&gt;insulate();</span>
+</pre></div>
+</div>
+<div class="section" id="naviguer">
+<h3>Naviguer<a class="headerlink" href="#naviguer" title="Permalink to this headline">¶</a></h3>
+<p>Le Client supporte de nombreuses opérations qui peuvent être effectuées
+à travers un navigateur réel :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$client-&gt;back();</span>
+<span class="x">$client-&gt;forward();</span>
+<span class="x">$client-&gt;reload();</span>
+
+<span class="x">// efface tous les cookies et l&#39;historique</span>
+<span class="x">$client-&gt;restart();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="acceder-aux-objets-internes">
+<h3>Accéder aux Objets Internes<a class="headerlink" href="#acceder-aux-objets-internes" title="Permalink to this headline">¶</a></h3>
+<p>Si vous utilisez le client pour tester votre application, vous pourriez vouloir
+accéder aux objets internes du client :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$history   = $client-&gt;getHistory();</span>
+<span class="x">$cookieJar = $client-&gt;getCookieJar();</span>
+</pre></div>
+</div>
+<p>Vous pouvez aussi obtenir les objets liés à la dernière requête :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$request  = $client-&gt;getRequest();</span>
+<span class="x">$response = $client-&gt;getResponse();</span>
+<span class="x">$crawler  = $client-&gt;getCrawler();</span>
+</pre></div>
+</div>
+<p>Si vos requêtes ne sont pas isolées, vous pouvez aussi accéder au <tt class="docutils literal"><span class="pre">Container</span></tt>
+et au <tt class="docutils literal"><span class="pre">Kernel</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$container = $client-&gt;getContainer();</span>
+<span class="x">$kernel    = $client-&gt;getKernel();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="acceder-au-container">
+<h3>Accéder au Container<a class="headerlink" href="#acceder-au-container" title="Permalink to this headline">¶</a></h3>
+<p>Il est fortement recommandé qu&#8217;un test fonctionnel teste seulement la Réponse.
+Mais dans certains cas rares, vous pourriez vouloir accéder à
+quelques objets internes pour écrire des assertions. Dans tels cas, vous
+pouvez accéder au conteneur d&#8217;injection de dépendances :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$container = $client-&gt;getContainer();</span>
+</pre></div>
+</div>
+<p>Notez bien que cela ne fonctionne pas si vous isolez le client ou si vous
+utilisez une couche HTTP. Pour une liste des services disponibles dans votre
+application, utilisez la commande <tt class="docutils literal"><span class="pre">container:debug</span></tt>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Si les informations que vous avez besoin de vérifier sont disponibles via le
+profileur, utilisez le.</p>
+</div>
+</div>
+<div class="section" id="acceder-aux-donnees-du-profileur">
+<h3>Accéder aux données du profileur<a class="headerlink" href="#acceder-aux-donnees-du-profileur" title="Permalink to this headline">¶</a></h3>
+<p>Pour chaque requête, le profileur Symfony collecte et stocke plein d&#8217;informations
+sur la gestion interne des requêtes. Par exemple, le profileur peut être utilisé
+pour vérifier qu&#8217;une page donnée ne dépasse pas un certain nombre de requêtes en
+base de données lors de son chargement.</p>
+<p>Pour obtenir le profileur de la dernière requête, utilisez le code suivant:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$profile = $client-&gt;getProfile();</span>
+</pre></div>
+</div>
+<p>Pour des détails spécifique sur l&#8217;utilisation du profileur au sein d&#8217;un test,
+lisez la documentation du cookbook <a class="reference internal" href="../cookbook/testing/profiling.html"><em>How to use the Profiler in a Functional Test</em></a>.</p>
+</div>
+<div class="section" id="redirection">
+<h3>Redirection<a class="headerlink" href="#redirection" title="Permalink to this headline">¶</a></h3>
+<p>Lorsqu&#8217;une requête retourne une réponse redirigée, le client la suit automatiquement.
+Si vous voulez examiner la Réponse avant qu&#8217;elle soit redirigée, vous pouvez forcer
+le client à ne pas suivre la redirection grâce à la méthode <tt class="docutils literal"><span class="pre">followRedirects()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$client-&gt;followRedirects(false);</span>
+</pre></div>
+</div>
+<p>Lorsque le client ne suit pas les redirections, vous pouvez le forcer grâce à la
+méthode <tt class="docutils literal"><span class="pre">followRedirect()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$crawler = $client-&gt;followRedirect();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="le-crawler">
+<span id="book-testing-crawler"></span><span id="index-5"></span><h2>Le Crawler<a class="headerlink" href="#le-crawler" title="Permalink to this headline">¶</a></h2>
+<p>Une instance de Crawler est retournée chaque fois que vous effectuez une requête
+avec le Client. Elle vous permet de naviguer à travers des documents HTML, de
+sélectionner des noeuds, de trouver des liens et des formulaires.</p>
+<div class="section" id="traverser">
+<h3>Traverser<a class="headerlink" href="#traverser" title="Permalink to this headline">¶</a></h3>
+<p>Comme jQuery, le Crawler possède des méthodes lui permettant de naviguer à travers
+le DOM d&#8217;un document HTML/XML. Par exemple, le code suivant trouve tout les éléments
+<tt class="docutils literal"><span class="pre">input[type=submit]</span></tt>, sélectionne le dernier de la page et sélectionne son élément
+parent immédiat :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$newCrawler = $crawler-&gt;filter(&#39;input[type=submit]&#39;)</span>
+<span class="x">    -&gt;last()</span>
+<span class="x">    -&gt;parents()</span>
+<span class="x">    -&gt;first()</span>
+<span class="x">;</span>
+</pre></div>
+</div>
+<p>Beaucoup d&#8217;autres méthodes sont également disponibles :</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Method</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">filter('h1.title')</span></tt></td>
+<td>Noeuds qui correspondent au sélecteur CSS</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">filterXpath('h1')</span></tt></td>
+<td>Noeuds qui correspondent à l&#8217;expression XPath</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">eq(1)</span></tt></td>
+<td>Noeud pour l&#8217;index spécifié</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">first()</span></tt></td>
+<td>Premier noeud</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">last()</span></tt></td>
+<td>Dernier noeud</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">siblings()</span></tt></td>
+<td>Eléments de même niveau (siblings)</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">nextAll()</span></tt></td>
+<td>Tous les siblings suivants</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">previousAll()</span></tt></td>
+<td>Tous les siblings précédents</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">parents()</span></tt></td>
+<td>Noeuds parents</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">children()</span></tt></td>
+<td>Enfants</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">reduce($lambda)</span></tt></td>
+<td>Noeuds pour lesquels $lambda ne retourne pas false</td>
+</tr>
+</tbody>
+</table>
+<p>Puisque chacune de ses méthodes retourne une instance de <tt class="docutils literal"><span class="pre">Crawler</span></tt>, vous pouvez
+affiner votre sélection de noeud en enchainant les appels de méthodes :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$crawler</span>
+<span class="x">    -&gt;filter(&#39;h1&#39;)</span>
+<span class="x">    -&gt;reduce(function ($node, $i)</span>
+<span class="x">    {</span>
+<span class="x">        if (!$node-&gt;getAttribute(&#39;class&#39;)) {</span>
+<span class="x">            return false;</span>
+<span class="x">        }</span>
+<span class="x">    })</span>
+<span class="x">    -&gt;first();</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Utilisez la fonction <tt class="docutils literal"><span class="pre">count()</span></tt> pour avoir le nombre de noeud contenus dans
+le Crawler :
+<tt class="docutils literal"><span class="pre">count($crawler)</span></tt></p>
+</div>
+</div>
+<div class="section" id="extraction-d-informations">
+<h3>Extraction d&#8217;informations<a class="headerlink" href="#extraction-d-informations" title="Permalink to this headline">¶</a></h3>
+<p>Le Crawler peut extraire des informations des noeuds :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// retourne la valeur de l&#39;attribut du premier noeud</span>
+<span class="x">$crawler-&gt;attr(&#39;class&#39;);</span>
+
+<span class="x">// retourne la valeur du noeud pour le premier noeud</span>
+<span class="x">$crawler-&gt;text();</span>
+
+<span class="x">// extrait un tableau d&#39;attributs pour tous les noeuds (_text retourne</span>
+<span class="x">// la valeur du noeud)</span>
+<span class="x">// retourne un tableau de chaque élément du crawler, chacun avec les attributs</span>
+<span class="x">// value et href</span>
+<span class="x">$info = $crawler-&gt;extract(array(&#39;_text&#39;, &#39;href&#39;));</span>
+
+<span class="x">// exécute une lambda pour chaque noeud et retourne un tableau de résultats</span>
+<span class="x">$data = $crawler-&gt;each(function ($node, $i)</span>
+<span class="x">{</span>
+<span class="x">    return $node-&gt;attr(&#39;href&#39;);</span>
+<span class="x">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="liens">
+<h3>Liens<a class="headerlink" href="#liens" title="Permalink to this headline">¶</a></h3>
+<p>Vous pouvez sélectionner les liens grâce aux méthodes ci-dessus ou grâce au raccourci
+très pratique <tt class="docutils literal"><span class="pre">selectLink()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$crawler-&gt;selectLink(&#39;Click here&#39;);</span>
+</pre></div>
+</div>
+<p>Cela sélectionne tous les liens qui contiennent le texte donné, ou les images
+cliquables dont l&#8217;attribut <tt class="docutils literal"><span class="pre">alt``contient</span> <span class="pre">ce</span> <span class="pre">texte.</span> <span class="pre">Comme</span> <span class="pre">les</span> <span class="pre">autres</span> <span class="pre">méthodes</span>
+<span class="pre">de</span> <span class="pre">filtre,</span> <span class="pre">cela</span> <span class="pre">retourne</span> <span class="pre">un</span> <span class="pre">autre</span> <span class="pre">objet</span> <span class="pre">``Crawler</span></tt>.</p>
+<p>Une fois que vous avez sélectionné un lien, vous avez accès à l&#8217;objet spécial <tt class="docutils literal"><span class="pre">Link</span></tt>,
+qui possède des méthodes utiles et spécifiques aux liens (comme <tt class="docutils literal"><span class="pre">getMethod()</span></tt>
+et <tt class="docutils literal"><span class="pre">getUri()</span></tt>).Pour cliquer sur un lien, utiliser la méthode <tt class="docutils literal"><span class="pre">click()</span></tt> du Client
+et passez la à un objet <tt class="docutils literal"><span class="pre">Link</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$link = $crawler-&gt;selectLink(&#39;Click here&#39;)-&gt;link();</span>
+
+<span class="x">$client-&gt;click($link);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="formulaires">
+<h3>Formulaires<a class="headerlink" href="#formulaires" title="Permalink to this headline">¶</a></h3>
+<p>Comme pour les liens, vous sélectionnez les formulaires à l&#8217;aide de la méthode
+<tt class="docutils literal"><span class="pre">selectButton()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$buttonCrawlerNode = $crawler-&gt;selectButton(&#39;submit&#39;);</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Notez que nous sélectionnons les boutons de formulaire et non pas les formulaires
+eux-mêmes car un formulaire peut contenir plusieurs boutons; si vous utilisez l&#8217;API
+de traversement, gardez en mémoire que vous devez chercher un bouton.</p>
+</div>
+<p>La méthode <tt class="docutils literal"><span class="pre">selectButton()</span></tt> peut sélectionner des balises <tt class="docutils literal"><span class="pre">button</span></tt> et des
+balises <tt class="docutils literal"><span class="pre">input</span></tt> de type submit; elle utilise plusieurs parties du bouton pour les trouver :</p>
+<ul class="simple">
+<li>La valeur de l&#8217;attribut <tt class="docutils literal"><span class="pre">value</span></tt>;</li>
+<li>La valeur de l&#8217;attribut <tt class="docutils literal"><span class="pre">id</span></tt> ou <tt class="docutils literal"><span class="pre">alt</span></tt> pour les images;</li>
+<li>La valeur de l&#8217;attribut <tt class="docutils literal"><span class="pre">id</span></tt> ou <tt class="docutils literal"><span class="pre">name</span></tt> pour les balises <tt class="docutils literal"><span class="pre">button</span></tt>.</li>
+</ul>
+<p>Lorsque vous avez un Crawler qui représente un bouton, appelez la méthode <tt class="docutils literal"><span class="pre">form()</span></tt>
+pour obtenir une instance de <tt class="docutils literal"><span class="pre">Form</span></tt> pour le formulaire contenant le noeud du bouton :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$form = $buttonCrawlerNode-&gt;form();</span>
+</pre></div>
+</div>
+<p>Quand vous appelez la méthode <tt class="docutils literal"><span class="pre">form()</span></tt>, vous pouvez aussi passer un tableau de
+valeurs de champs qui ré-écrit les valeurs par défaut :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$form = $buttonCrawlerNode-&gt;form(array(</span>
+<span class="x">    &#39;name&#39;              =&gt; &#39;Fabien&#39;,</span>
+<span class="x">    &#39;my_form[subject]&#39;  =&gt; &#39;Symfony rocks!&#39;,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+<p>Et si vous voulez simuler une méthode HTTP spécifique pour le formulaire, passez la
+comme second argument :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$form = $crawler-&gt;form(array(), &#39;DELETE&#39;);</span>
+</pre></div>
+</div>
+<p>Le Client peut soumettre des instances de <tt class="docutils literal"><span class="pre">Form</span></tt> :</p>
+<p>Les valeurs des champs peuvent aussi être passées en second argument de la
+méthode <tt class="docutils literal"><span class="pre">submit()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$client-&gt;submit($form, array(</span>
+<span class="x">    &#39;name&#39;              =&gt; &#39;Fabien&#39;,</span>
+<span class="x">    &#39;my_form[subject]&#39;  =&gt; &#39;Symfony rocks!&#39;,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+<p>Pour les situations plus complexes, utilisez l&#8217;instance de <tt class="docutils literal"><span class="pre">Form</span></tt> en tant
+que tableau pour définir la valeur de chaque champ individuellement :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// Change la valeur d&#39;un champ</span>
+<span class="x">$form[&#39;name&#39;] = &#39;Fabien&#39;;</span>
+<span class="x">$form[&#39;my_form[subject]&#39;] = &#39;Symfony rocks!&#39;;</span>
+</pre></div>
+</div>
+<p>Il y a aussi une sympathique API qui permet de manipuler les valeurs des champs
+selon leur type :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// sélectionne une option/radio</span>
+<span class="x">$form[&#39;country&#39;]-&gt;select(&#39;France&#39;);</span>
+
+<span class="x">// Coche une checkbox</span>
+<span class="x">$form[&#39;like_symfony&#39;]-&gt;tick();</span>
+
+<span class="x">// Upload un fichier</span>
+<span class="x">$form[&#39;photo&#39;]-&gt;upload(&#39;/path/to/lucas.jpg&#39;);</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Vous pouvez obtenir les valeurs qui sont soumises en appelant la méthode
+<tt class="docutils literal"><span class="pre">getValues()</span></tt> de l&#8217;objet <tt class="docutils literal"><span class="pre">Form</span></tt>. Les fichiers uploadés sont disponibles
+dans un tableau séparé retourné par <tt class="docutils literal"><span class="pre">getFiles()</span></tt>. Les méthodes <tt class="docutils literal"><span class="pre">getPhpValues()</span></tt> et
+<tt class="docutils literal"><span class="pre">getPhpFiles()</span></tt> retournent aussi les valeurs soumises, mais au format
+PHP (cela convertit les clés avec la notation entre crochets - ex
+<tt class="docutils literal"><span class="pre">my_form[subject]</span></tt> - en tableaux PHP).</p>
+</div>
+</div>
+</div>
+<div class="section" id="configuration-de-test">
+<span id="index-6"></span><h2>Configuration de Test<a class="headerlink" href="#configuration-de-test" title="Permalink to this headline">¶</a></h2>
+<p>Le Client utilisé par les tests fonctionnels crée un Kernel qui est exécuté dans
+un environnement de <tt class="docutils literal"><span class="pre">test</span></tt>. Puisque Symfony charge le <tt class="docutils literal"><span class="pre">app/config/config_test.yml</span></tt>
+dans l&#8217;environnement de <tt class="docutils literal"><span class="pre">test</span></tt>, vous pouvez modifier la configuration de votre
+application spécifiquement pour les tests.</p>
+<p>Par exemple, par défaut, le swiftmailer est configuré pour ne <em>pas</em> envoyer de mails
+en environnement de <tt class="docutils literal"><span class="pre">test</span></tt>. Vous pouvez le voir sous l&#8217;option de configuration
+<tt class="docutils literal"><span class="pre">swiftmailer</span></tt> :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config_test.yml</span>
+<span class="c1"># ...</span>
+
+<span class="l-Scalar-Plain">swiftmailer</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">disable_delivery</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config_test.xml --&gt;</span>
+<span class="nt">&lt;container&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+
+    <span class="nt">&lt;swiftmailer:config</span> <span class="na">disable-delivery=</span><span class="s">&quot;true&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/container&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config_test.php</span>
+<span class="x">// ...</span>
+
+<span class="x">$container-&gt;loadFromExtension(&#39;swiftmailer&#39;, array(</span>
+<span class="x">    &#39;disable_delivery&#39; =&gt; true</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Vous pouvez aussi utiliser un environnement entièrement différent, ou surcharger le
+mode debug par défaut (<tt class="docutils literal"><span class="pre">true</span></tt>) en les passant en tant qu&#8217;option à la méthode
+<tt class="docutils literal"><span class="pre">createClient()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$client = static::createClient(array(</span>
+<span class="x">    &#39;environment&#39; =&gt; &#39;my_test_env&#39;,</span>
+<span class="x">    &#39;debug&#39;       =&gt; false,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+<p>Si votre application se comporte selon certaines en-têtes HTTP, passez les en
+tant que second argument de <tt class="docutils literal"><span class="pre">createClient()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$client = static::createClient(array(), array(</span>
+<span class="x">    &#39;HTTP_HOST&#39;       =&gt; &#39;en.example.com&#39;,</span>
+<span class="x">    &#39;HTTP_USER_AGENT&#39; =&gt; &#39;MySuperBrowser/1.0&#39;,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+<p>Vous pouvez aussi ré-écrire les en-têtes HTTP par requête (i.e. et non pas pour
+toutes les requêtes) :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$client-&gt;request(&#39;GET&#39;, &#39;/&#39;, array(), array(), array(</span>
+<span class="x">    &#39;HTTP_HOST&#39;       =&gt; &#39;en.example.com&#39;,</span>
+<span class="x">    &#39;HTTP_USER_AGENT&#39; =&gt; &#39;MySuperBrowser/1.0&#39;,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Le client test est disponible en tant que service dans le conteneur en
+environnement de <tt class="docutils literal"><span class="pre">test</span></tt> (ou n&#8217;importe où si l&#8217;option <a class="reference internal" href="../reference/configuration/framework.html#reference-framework-test"><em>framework.test</em></a>
+est activée). Cela signifie que vous pouvez surcharge entièrement le service
+en cas de besoin.</p>
+</div>
+<div class="section" id="configuration-phpunit">
+<span id="index-7"></span><h3>Configuration PHPUnit<a class="headerlink" href="#configuration-phpunit" title="Permalink to this headline">¶</a></h3>
+<p>Chaque application possède sa propre configuration PHPUnit, stockée dans le
+fichier <tt class="docutils literal"><span class="pre">phpunit.xml.dist</span></tt>. Vous pouvez éditer ce fichier pour changer les
+valeurs par défaut ou vous pouvez créer un fichier <tt class="docutils literal"><span class="pre">phpunit.xml</span></tt> pour personnaliser
+la configuration de votre machine locale.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Stockez le fichier <tt class="docutils literal"><span class="pre">phpunit.xml.dist</span></tt> dans votre gestionnaire de code, et
+ignorez le fichier <tt class="docutils literal"><span class="pre">phpunit.xml</span></tt>.</p>
+</div>
+<p>Par défaut, seulement les tests situés dans des bundles « standards » sont exécutés
+par la commande <tt class="docutils literal"><span class="pre">phpunit</span></tt> (standard étant des tests situés dans les répertoires
+<tt class="docutils literal"><span class="pre">src/*/Bundle/Tests</span></tt> ou <tt class="docutils literal"><span class="pre">src/*/Bundle/*Bundle/Tests</span></tt>). Mais vous pouvez aisément
+ajouter d&#8217;autres répertoires. Par exemple, la configuration suivante ajoute les tests
+de bundles tiers installés :</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- hello/phpunit.xml.dist --&gt;</span>
+<span class="nt">&lt;testsuites&gt;</span>
+    <span class="nt">&lt;testsuite</span> <span class="na">name=</span><span class="s">&quot;Project Test Suite&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;directory&gt;</span>../src/*/*Bundle/Tests<span class="nt">&lt;/directory&gt;</span>
+        <span class="nt">&lt;directory&gt;</span>../src/Acme/Bundle/*Bundle/Tests<span class="nt">&lt;/directory&gt;</span>
+    <span class="nt">&lt;/testsuite&gt;</span>
+<span class="nt">&lt;/testsuites&gt;</span>
+</pre></div>
+</div>
+<p>Pour inclure d&#8217;autres répertoires dans la couverture du code, éditez aussi
+la section <tt class="docutils literal"><span class="pre">&lt;filter&gt;</span></tt> :</p>
+<div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;filter&gt;</span>
+    <span class="nt">&lt;whitelist&gt;</span>
+        <span class="nt">&lt;directory&gt;</span>../src<span class="nt">&lt;/directory&gt;</span>
+        <span class="nt">&lt;exclude&gt;</span>
+            <span class="nt">&lt;directory&gt;</span>../src/*/*Bundle/Resources<span class="nt">&lt;/directory&gt;</span>
+            <span class="nt">&lt;directory&gt;</span>../src/*/*Bundle/Tests<span class="nt">&lt;/directory&gt;</span>
+            <span class="nt">&lt;directory&gt;</span>../src/Acme/Bundle/*Bundle/Resources<span class="nt">&lt;/directory&gt;</span>
+            <span class="nt">&lt;directory&gt;</span>../src/Acme/Bundle/*Bundle/Tests<span class="nt">&lt;/directory&gt;</span>
+        <span class="nt">&lt;/exclude&gt;</span>
+    <span class="nt">&lt;/whitelist&gt;</span>
+<span class="nt">&lt;/filter&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="en-savoir-plus-grace-au-cookbook">
+<h2>En savoir plus grâce au Cookbook<a class="headerlink" href="#en-savoir-plus-grace-au-cookbook" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="../cookbook/testing/http_authentication.html"><em>How to simulate HTTP Authentication in a Functional Test</em></a></li>
+<li><a class="reference internal" href="../cookbook/testing/insulating_clients.html"><em>How to test the Interaction of several Clients</em></a></li>
+<li><a class="reference internal" href="../cookbook/testing/profiling.html"><em>How to use the Profiler in a Functional Test</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Testing</a><ul>
+<li><a class="reference internal" href="#le-framework-de-test-phpunit">Le Framework de Test PHPUnit</a></li>
+<li><a class="reference internal" href="#tests-unitaires">Tests unitaires</a></li>
+<li><a class="reference internal" href="#tests-fonctionnels">Tests Fonctionnels</a><ul>
+<li><a class="reference internal" href="#votre-premier-test-fonctionnel">Votre premier test fonctionnel</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#travailler-avec-le-client-test">Travailler avec le Client Test</a><ul>
+<li><a class="reference internal" href="#naviguer">Naviguer</a></li>
+<li><a class="reference internal" href="#acceder-aux-objets-internes">Accéder aux Objets Internes</a></li>
+<li><a class="reference internal" href="#acceder-au-container">Accéder au Container</a></li>
+<li><a class="reference internal" href="#acceder-aux-donnees-du-profileur">Accéder aux données du profileur</a></li>
+<li><a class="reference internal" href="#redirection">Redirection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#le-crawler">Le Crawler</a><ul>
+<li><a class="reference internal" href="#traverser">Traverser</a></li>
+<li><a class="reference internal" href="#extraction-d-informations">Extraction d&#8217;informations</a></li>
+<li><a class="reference internal" href="#liens">Liens</a></li>
+<li><a class="reference internal" href="#formulaires">Formulaires</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration-de-test">Configuration de Test</a><ul>
+<li><a class="reference internal" href="#configuration-phpunit">Configuration PHPUnit</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#en-savoir-plus-grace-au-cookbook">En savoir plus grâce au Cookbook</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="doctrine.html"
+                        title="previous chapter">Doctrine et les bases de données (« Le Modèle »)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="validation.html"
+                        title="next chapter">Validation</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/testing.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="validation.html" title="Validation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="doctrine.html" title="Doctrine et les bases de données (« Le Modèle »)"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

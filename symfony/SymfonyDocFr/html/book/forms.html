@@ -1,0 +1,1634 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Formulaires &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="La sécurité" href="security.html" />
+    <link rel="prev" title="Validation" href="validation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="security.html" title="La sécurité"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="validation.html" title="Validation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="formulaires">
+<span id="index-0"></span><h1>Formulaires<a class="headerlink" href="#formulaires" title="Permalink to this headline">¶</a></h1>
+<p>Intéragir avec les formulaires HTML est l&#8217;une des plus communes - et stimulantes -
+tâches pour un développeur web. Symfony2 intègre un composant « Form » qui rend
+la chose facile. Dans ce chapitre, vous allez construire un formulaire complexe
+depuis la base, tout en apprenant au fur et à mesure les caractéristiques les
+plus importantes de la bibliothèque des formulaires.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Le composant formulaire de Symfony est une bibliothèque autonome qui peut être
+utilisée en dehors des projets Symfony2. Pour plus d&#8217;informations, voir le
+<a class="reference external" href="https://github.com/symfony/Form">Composant Formulaire Symfony2</a> sur Github.</p>
+</div>
+<div class="section" id="creer-un-formulaire-simple">
+<span id="index-1"></span><h2>Créer un Formulaire Simple<a class="headerlink" href="#creer-un-formulaire-simple" title="Permalink to this headline">¶</a></h2>
+<p>Supposez que vous construisiez une application « todo list » (en français : « liste
+de choses à faire ») simple qui doit afficher des « tâches ». Parce que vos
+utilisateurs devront éditer et créer des tâches, vous allez avoir besoin de
+construire des formulaires. Mais avant de commencer, concentrez-vous
+d&#8217;abord sur la classe générique <tt class="docutils literal"><span class="pre">Task</span></tt> qui représente et stocke les données
+pour une tâche :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Entity/Task.php</span>
+<span class="x">namespace Acme\TaskBundle\Entity;</span>
+
+<span class="x">class Task</span>
+<span class="x">{</span>
+<span class="x">    protected $task;</span>
+
+<span class="x">    protected $dueDate;</span>
+
+<span class="x">    public function getTask()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;task;</span>
+<span class="x">    }</span>
+<span class="x">    public function setTask($task)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;task = $task;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getDueDate()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;dueDate;</span>
+<span class="x">    }</span>
+<span class="x">    public function setDueDate(\DateTime $dueDate = null)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;dueDate = $dueDate;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Si vous codez en même temps que vous lisez cet exemple, créez en premier
+le bundle <tt class="docutils literal"><span class="pre">AcmeTaskBundle</span></tt> en exécutant la commande suivante (et en
+acceptant toutes les options par défaut) :</p>
+<div class="last highlight-bash"><div class="highlight"><pre>php app/console generate:bundle --namespace<span class="o">=</span>Acme/TaskBundle
+</pre></div>
+</div>
+</div>
+<p>Cette classe est un « bon vieil objet PHP » parce que, jusqu&#8217;ici, elle n&#8217;a rien
+à voir avec Symfony ou quelconque autre bibliothèque. C&#8217;est tout simplement
+un objet PHP normal qui répond directement à un besoin dans <em>votre</em>
+application (c-a-d le besoin de représenter une tâche dans votre application).
+Bien sûr, à la fin de ce chapitre, vous serez capable de soumettre des données
+à une instance de <tt class="docutils literal"><span class="pre">Task</span></tt> (via un formulaire HTML), de valider ses données,
+et de les persister dans la base de données.</p>
+<div class="section" id="construire-le-formulaire">
+<span id="index-2"></span><h3>Construire le Formulaire<a class="headerlink" href="#construire-le-formulaire" title="Permalink to this headline">¶</a></h3>
+<p>Maintenant que vous avez créé une classe <tt class="docutils literal"><span class="pre">Task</span></tt>, la prochaine étape est
+de créer et de retourner le formulaire HTML. Dans Symfony2, cela se fait
+en construisant un objet formulaire qui est ensuite rendu dans un template.
+Pour l&#8217;instant, tout ceci peut être effectué depuis un contrôleur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Controller/DefaultController.php</span>
+<span class="x">namespace Acme\TaskBundle\Controller;</span>
+
+<span class="x">use Symfony\Bundle\FrameworkBundle\Controller\Controller;</span>
+<span class="x">use Acme\TaskBundle\Entity\Task;</span>
+<span class="x">use Symfony\Component\HttpFoundation\Request;</span>
+
+<span class="x">class DefaultController extends Controller</span>
+<span class="x">{</span>
+<span class="x">    public function newAction(Request $request)</span>
+<span class="x">    {</span>
+<span class="x">        // crée une tâche et lui donne quelques données par défaut pour cet exemple</span>
+<span class="x">        $task = new Task();</span>
+<span class="x">        $task-&gt;setTask(&#39;Write a blog post&#39;);</span>
+<span class="x">        $task-&gt;setDueDate(new \DateTime(&#39;tomorrow&#39;));</span>
+
+<span class="x">        $form = $this-&gt;createFormBuilder($task)</span>
+<span class="x">            -&gt;add(&#39;task&#39;, &#39;text&#39;)</span>
+<span class="x">            -&gt;add(&#39;dueDate&#39;, &#39;date&#39;)</span>
+<span class="x">            -&gt;getForm();</span>
+
+<span class="x">        return $this-&gt;render(&#39;AcmeTaskBundle:Default:new.html.twig&#39;, array(</span>
+<span class="x">            &#39;form&#39; =&gt; $form-&gt;createView(),</span>
+<span class="x">        ));</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Cet exemple vous montre comment construire votre formulaire directement
+depuis le contrôleur. Plus tard, dans la section
+« <a class="reference internal" href="#book-form-creating-form-classes"><em>Créer des Classes de Formulaire</em></a> », vous apprendrez à construire
+votre formulaire dans une classe autonome, ce qui est recommandé car comme
+cela, vos formulaires deviennent réutilisables.</p>
+</div>
+<p>Créer un formulaire requiert relativement peu de code car les objets formulaires
+de Symfony2 sont construits avec un « constructeur de formulaire » (« form builder »).
+Le principe du constructeur de formulaire est de vous permettre d&#8217;écrire des
+« conteneurs » de formulaire simples, et de le laisser prendre en charge toute
+la plus grosse partie du travail qu&#8217;est la construction du formulaire.</p>
+<p>Dans cet exemple, vous avez ajouté deux champs à votre formulaire - <tt class="docutils literal"><span class="pre">task</span></tt> et
+<tt class="docutils literal"><span class="pre">dueDate</span></tt> - correspondants aux propriétés <tt class="docutils literal"><span class="pre">task</span></tt> et <tt class="docutils literal"><span class="pre">dueDate</span></tt> de votre
+classe <tt class="docutils literal"><span class="pre">Task</span></tt>. Vous avez aussi assigné à chaque champ un « type » (par exemple :
+<tt class="docutils literal"><span class="pre">text</span></tt>, <tt class="docutils literal"><span class="pre">date</span></tt>), qui, entre autres, détermine quelle(s) balise(s) HTML
+est rendue pour ce champ.</p>
+<p>Symfony2 est livré avec beaucoup de types pré-définis qui seront présentés
+rapidement plus tard (voir <a class="reference internal" href="#book-forms-type-reference"><em>Types de Champ Intégrés</em></a>).</p>
+</div>
+<div class="section" id="rendu-du-formulaire">
+<span id="index-3"></span><h3>Rendu du Formulaire<a class="headerlink" href="#rendu-du-formulaire" title="Permalink to this headline">¶</a></h3>
+<p>Maintenant que le formulaire a été créé, la prochaine étape est de le rendre.
+Ceci est fait en passant un objet spécial « vue de formulaire » à votre template
+(notez le <tt class="docutils literal"><span class="pre">$form-&gt;createView()</span></tt> dans le contrôleur ci-dessus) et en utilisant
+un ensemble de fonctions d&#8217;aide (helpers) pour les formulaires :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# src/Acme/TaskBundle/Resources/views/Default/new.html.twig #}</span>
+
+<span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">path</span><span class="o">(</span><span class="s1">&#39;task_new&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="cp">{{</span> <span class="nv">form_enctype</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">form_widget</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="c">&lt;!-- src/Acme/TaskBundle/Resources/views/Default/new.html.php --&gt;</span>
+
+<span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;router&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">generate</span><span class="p">(</span><span class="s1">&#39;task_new&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="s">&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">enctype</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span> <span class="nt">&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">widget</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<img alt="../_images/form-simple.png" class="align-center" src="../_images/form-simple.png" />
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Cet exemple assume que vous avez créé une route nommée <tt class="docutils literal"><span class="pre">task_new</span></tt>
+qui pointe sur le contrôleur <tt class="docutils literal"><span class="pre">AcmeTaskBundle:Default:new</span></tt> qui a
+été créé plus tôt.</p>
+</div>
+<p>C&#8217;est tout ! En affichant <tt class="docutils literal"><span class="pre">form_widget(form)</span></tt>, chaque champ du formulaire
+est rendu, avec un label et un message d&#8217;erreur (si erreur il y a). Aussi
+facile que cela soit, ce n&#8217;est pas (encore) très flexible. Habituellement,
+vous voudrez rendre chaque champ du formulaire individuellement afin de
+pouvoir contrôler ce à quoi le formulaire ressemble. Vous apprendrez comment
+faire cela dans la section «<a class="reference internal" href="#form-rendering-template"><em>Rendre un Formulaire dans un Template</em></a>».</p>
+<p>Avant de continuer, notez comment le champ <tt class="docutils literal"><span class="pre">task</span></tt> rendu possède la
+valeur de la propriété <tt class="docutils literal"><span class="pre">task</span></tt> de l&#8217;objet <tt class="docutils literal"><span class="pre">$task</span></tt> (c-a-d « Write a blog
+post »). C&#8217;est le premier travail d&#8217;un formulaire : de prendre les données
+d&#8217;un objet et de les traduire dans un format adapté pour être rendues dans
+un formulaire HTML.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Le système de formulaire est assez intelligent pour accéder la valeur de la
+propriété protégée <tt class="docutils literal"><span class="pre">task</span></tt> via les méthodes <tt class="docutils literal"><span class="pre">getTask()</span></tt> et <tt class="docutils literal"><span class="pre">setTask()</span></tt>
+de la classe <tt class="docutils literal"><span class="pre">Task</span></tt>. A moins qu&#8217;une propriété soit publique, elle <em>doit</em>
+avoir une méthode « getter » et une « setter » afin que le composant formulaire
+puisse récupérer et assigner des données à cette propriété. Pour une propriété
+booléenne, vous pouvez utiliser une méthode « isser » (par exemple :
+<tt class="docutils literal"><span class="pre">isPublished()</span></tt>) à la place d&#8217;un getter (par exemple : <tt class="docutils literal"><span class="pre">getPublished()</span></tt>).</p>
+</div>
+</div>
+<div class="section" id="gerer-la-soumission-des-formulaires">
+<span id="index-4"></span><h3>Gérer la Soumission des Formulaires<a class="headerlink" href="#gerer-la-soumission-des-formulaires" title="Permalink to this headline">¶</a></h3>
+<p>Le second travail d&#8217;un formulaire est de transmettre les données soumises par
+l&#8217;utilisateur aux propriétés d&#8217;un objet. Pour réaliser cela, les données
+soumises par l&#8217;utilisateur doivent être liées au formulaire. Ajoutez la
+fonctionnalité suivante à votre contrôleur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// ...</span>
+
+<span class="x">public function newAction(Request $request)</span>
+<span class="x">{</span>
+<span class="x">    // initialisez simplement un objet $task (supprimez les données fictives)</span>
+<span class="x">    $task = new Task();</span>
+
+<span class="x">    $form = $this-&gt;createFormBuilder($task)</span>
+<span class="x">        -&gt;add(&#39;task&#39;, &#39;text&#39;)</span>
+<span class="x">        -&gt;add(&#39;dueDate&#39;, &#39;date&#39;)</span>
+<span class="x">        -&gt;getForm();</span>
+
+<span class="x">    if ($request-&gt;getMethod() == &#39;POST&#39;) {</span>
+<span class="x">        $form-&gt;bindRequest($request);</span>
+
+<span class="x">        if ($form-&gt;isValid()) {</span>
+<span class="x">            // effectuez quelques actions, comme sauvegarder la tâche dans</span>
+<span class="x">            // la base de données</span>
+<span class="x">            return $this-&gt;redirect($this-&gt;generateUrl(&#39;task_success&#39;));</span>
+<span class="x">        }</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Maintenant, lorsque vous soumettez le formulaire, le contrôleur lie les données
+soumises avec le formulaire, qui transmet ces données en retour aux propriétés
+<tt class="docutils literal"><span class="pre">task</span></tt> et <tt class="docutils literal"><span class="pre">dueDate</span></tt> de l&#8217;objet <tt class="docutils literal"><span class="pre">$task</span></tt>. Tout ceci a lieu grâce à la
+méthode <tt class="docutils literal"><span class="pre">bindRequest()</span></tt>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Aussitôt que <tt class="docutils literal"><span class="pre">bindRequest()</span></tt> est appelée, les données soumises sont
+transférées immédiatement à l&#8217;objet sous-jacent. Ceci intervient
+indépendamment du fait que les données sous-jacentes soient valides ou non.</p>
+</div>
+<p>Ce contrôleur suit un pattern commun dans la manière de gérer les formulaires,
+et a trois scénarios possibles :</p>
+<ol class="arabic simple">
+<li>Lors du chargement initial de la page dans votre navigateur, la méthode
+de la requête est <tt class="docutils literal"><span class="pre">GET</span></tt> et le formulaire est simplement créé et rendu ;</li>
+<li>Lorsque l&#8217;utilisateur soumet le formulaire (la méthode est <tt class="docutils literal"><span class="pre">POST</span></tt>)
+avec des données non-valides (la validation est expliquée dans la prochaine
+section), le formulaire est lié puis rendu, affichant cette fois toutes les
+erreurs de validation ;</li>
+<li>Lorsque l&#8217;utilisateur soumet le formulaire avec des données valides, ce
+dernier est lié et vous avez l&#8217;opportunité d&#8217;effectuer quelques actions
+en utilisant l&#8217;objet <tt class="docutils literal"><span class="pre">$task</span></tt> (par exemple : le persister dans la base
+de données) avant de rediriger l&#8217;utilisateur vers une autre page (par
+exemple : une page « merci » ou de « succès »).</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Rediriger un utilisateur après une soumission de formulaire réussie empêche
+l&#8217;utilisateur de pouvoir rafraichir la page et de re-soumettre les données.</p>
+</div>
+</div>
+</div>
+<div class="section" id="validation-de-formulaire">
+<span id="index-5"></span><h2>Validation de Formulaire<a class="headerlink" href="#validation-de-formulaire" title="Permalink to this headline">¶</a></h2>
+<p>Dans la section précédente, vous avez appris comment un formulaire peut être
+soumis avec des données valides ou non-valides. Dans Symfony2, la validation
+est appliquée à l&#8217;objet sous-jacent (par exemple : <tt class="docutils literal"><span class="pre">Task</span></tt>). En d&#8217;autres termes,
+la question n&#8217;est pas de savoir si le « formulaire » est valide, mais plutôt de
+savoir si l&#8217;objet <tt class="docutils literal"><span class="pre">$task</span></tt> est valide ou non après que le formulaire lui ait
+appliqué les données. Appeler <tt class="docutils literal"><span class="pre">$form-&gt;isValid()</span></tt> est un raccourci qui demande
+à l&#8217;objet <tt class="docutils literal"><span class="pre">$task</span></tt> si oui ou non il possède des données valides.</p>
+<p>La validation est effectuée en ajoutant un ensemble de règles (appelées contraintes)
+à une classe. Pour voir cela en action, ajoutez des contraintes de validation
+afin que le champ <tt class="docutils literal"><span class="pre">task</span></tt> ne puisse pas être vide et que le champ <tt class="docutils literal"><span class="pre">dueDate</span></tt> ne
+puisse pas être vide et qu&#8217;il doive être un objet DateTime valide.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># Acme/TaskBundle/Resources/config/validation.yml</span>
+<span class="l-Scalar-Plain">Acme\TaskBundle\Entity\Task</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">properties</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">task</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">NotBlank</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+        <span class="l-Scalar-Plain">dueDate</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">NotBlank</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+            <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">Type</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">\DateTime</span>
+</pre></div>
+</div>
+</li>
+<li><em>Annotations</em><div class="highlight-php-annotations"><pre>// Acme/TaskBundle/Entity/Task.php
+use Symfony\Component\Validator\Constraints as Assert;
+
+class Task
+{
+    /**
+     * @Assert\NotBlank()
+     */
+    public $task;
+
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Type("\DateTime")
+     */
+    protected $dueDate;
+}</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- Acme/TaskBundle/Resources/config/validation.xml --&gt;</span>
+<span class="nt">&lt;class</span> <span class="na">name=</span><span class="s">&quot;Acme\TaskBundle\Entity\Task&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;task&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;constraint</span> <span class="na">name=</span><span class="s">&quot;NotBlank&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+    <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">&quot;dueDate&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;constraint</span> <span class="na">name=</span><span class="s">&quot;NotBlank&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;constraint</span> <span class="na">name=</span><span class="s">&quot;Type&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;value&gt;</span>\DateTime<span class="nt">&lt;/value&gt;</span>
+        <span class="nt">&lt;/constraint&gt;</span>
+    <span class="nt">&lt;/property&gt;</span>
+<span class="nt">&lt;/class&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// Acme/TaskBundle/Entity/Task.php</span>
+<span class="x">use Symfony\Component\Validator\Mapping\ClassMetadata;</span>
+<span class="x">use Symfony\Component\Validator\Constraints\NotBlank;</span>
+<span class="x">use Symfony\Component\Validator\Constraints\Type;</span>
+
+<span class="x">class Task</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    public static function loadValidatorMetadata(ClassMetadata $metadata)</span>
+<span class="x">    {</span>
+<span class="x">        $metadata-&gt;addPropertyConstraint(&#39;task&#39;, new NotBlank());</span>
+
+<span class="x">        $metadata-&gt;addPropertyConstraint(&#39;dueDate&#39;, new NotBlank());</span>
+<span class="x">        $metadata-&gt;addPropertyConstraint(&#39;dueDate&#39;, new Type(&#39;\DateTime&#39;));</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>C&#8217;est tout ! Si vous re-soumettez le formulaire avec des données non-valides,
+vous allez voir les erreurs correspondantes affichées avec le formulaire.</p>
+<div class="sidebar" id="book-forms-html5-validation-disable">
+<p class="first sidebar-title">Validation HTML5</p>
+<p>Grâce à HTML5, beaucoup de navigateurs peuvent nativement forcer certaines
+contraintes de validation côté client. La validation la plus commune est
+activée en rendant un attribut <tt class="docutils literal"><span class="pre">required</span></tt> sur les champs qui sont requis.
+Pour les navigateurs qui supportent HTML5, cela résultera en l&#8217;affichage
+d&#8217;un message natif du navigateur si l&#8217;utilisateur essaye de soumettre le
+formulaire avec ce champ vide.</p>
+<p class="last">Les formulaires générés profitent pleinement de cette nouvelle fonctionnalité
+en ajoutant des attributs HTML qui déclenchent la validation. La validation
+côté client, néanmoins, peut être désactivée en ajoutant l&#8217;attribut <tt class="docutils literal"><span class="pre">novalidate</span></tt>
+à la balise <tt class="docutils literal"><span class="pre">form</span></tt> ou <tt class="docutils literal"><span class="pre">formnovalidate</span></tt> à la balise <tt class="docutils literal"><span class="pre">submit</span></tt>. Ceci est
+particulièrement utile quand vous voulez tester vos contraintes de validation
+côté serveur, mais que vous en êtes empêché par le formulaire de votre
+navigateur, par exemple, quand vous soumettez des champs vides.</p>
+</div>
+<p>La validation est une fonctionnalité très puissante de Symfony2 et possède son
+<a class="reference internal" href="validation.html"><em>propre chapitre</em></a>.</p>
+<div class="section" id="les-groupes-de-validation">
+<span id="book-forms-validation-groups"></span><span id="index-6"></span><h3>Les Groupes de Validation<a class="headerlink" href="#les-groupes-de-validation" title="Permalink to this headline">¶</a></h3>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Si vous n&#8217;utilisez pas <a class="reference internal" href="validation.html#book-validation-validation-groups"><em>les groupes de validation</em></a>,
+alors vous pouvez sauter cette section.</p>
+</div>
+<p>Si votre objet profite des avantages des <a class="reference internal" href="validation.html#book-validation-validation-groups"><em>groupes de validation</em></a>,
+vous aurez besoin de spécifier quel(s) groupe(s) de validation votre formulaire doit utiliser :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$form = $this-&gt;createFormBuilder($users, array(</span>
+<span class="x">    &#39;validation_groups&#39; =&gt; array(&#39;registration&#39;),</span>
+<span class="x">))-&gt;add(...)</span>
+<span class="x">;</span>
+</pre></div>
+</div>
+<p>Si vous créez <a class="reference internal" href="#book-form-creating-form-classes"><em>des classes de formulaire</em></a> (une
+bonne pratique), alors vous devrez ajouter ce qui suit à la méthode <tt class="docutils literal"><span class="pre">getDefaultOptions()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function getDefaultOptions(array $options)</span>
+<span class="x">{</span>
+<span class="x">    return array(</span>
+<span class="x">        &#39;validation_groups&#39; =&gt; array(&#39;registration&#39;)</span>
+<span class="x">    );</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Dans les deux cas, <em>uniquement</em> le groupe de validation <tt class="docutils literal"><span class="pre">registration</span></tt>
+sera utilisé pour valider l&#8217;objet sous-jacent.</p>
+</div>
+<div class="section" id="groupes-bases-sur-les-donnees-soumises">
+<h3>Groupes basés sur les données soumises<a class="headerlink" href="#groupes-bases-sur-les-donnees-soumises" title="Permalink to this headline">¶</a></h3>
+<p class="versionadded">
+<span class="versionmodified">New in version 2.1: </span>La possibilité de spécifier un callback ou une Closure dans <tt class="docutils literal"><span class="pre">validation_groups</span></tt>
+date de la version 2.1</p>
+<p>Si vous avez besoin de plus de logique pour déterminer les groupes de validation
+(c&#8217;est-à-dire basés sur les données), vous pouvez définir l&#8217;option <tt class="docutils literal"><span class="pre">validation_groups</span></tt>
+comme un tableau callbak, ou une <tt class="docutils literal"><span class="pre">Closure</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function getDefaultOptions(array $options)</span>
+<span class="x">{</span>
+<span class="x">    return array(</span>
+<span class="x">        &#39;validation_groups&#39; =&gt; array(&#39;Acme\\AcmeBundle\\Entity\\Client&#39;, &#39;determineValidationGroups&#39;),</span>
+<span class="x">    );</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Cela appelera la méthode statique  <tt class="docutils literal"><span class="pre">determineValidationGroups()</span></tt> de la classe
+<tt class="docutils literal"><span class="pre">Client</span></tt> après que le formulaire soit associé, mais avant que la validation soit faite.
+L&#8217;objet Form est passé comme argument à cette méthode (regardez l&#8217;exemple suivant).
+Vous pouvez aussi définir une logique entière en utilisant une Closure :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function getDefaultOptions(array $options)</span>
+<span class="x">{</span>
+<span class="x">    return array(</span>
+<span class="x">        &#39;validation_groups&#39; =&gt; function(FormInterface $form) {</span>
+<span class="x">            $data = $form-&gt;getData();</span>
+<span class="x">            if (Entity\Client::TYPE_PERSON == $data-&gt;getType()) {</span>
+<span class="x">                return array(&#39;person&#39;)</span>
+<span class="x">            } else {</span>
+<span class="x">                return array(&#39;company&#39;);</span>
+<span class="x">            }</span>
+<span class="x">        },</span>
+<span class="x">    );</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="types-de-champ-integres">
+<span id="book-forms-type-reference"></span><span id="index-7"></span><h2>Types de Champ Intégrés<a class="headerlink" href="#types-de-champ-integres" title="Permalink to this headline">¶</a></h2>
+<p>Symfony vient par défaut avec un grand nombre de types de champ qui couvre
+la plupart des champs de formulaire existants et des types de données que vous
+pourrez rencontrer :</p>
+<div class="section" id="text-fields">
+<h3>Text Fields<a class="headerlink" href="#text-fields" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/forms/types/text.html"><em>text</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/textarea.html"><em>textarea</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/email.html"><em>email</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/integer.html"><em>integer</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/money.html"><em>money</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/number.html"><em>number</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/password.html"><em>password</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/percent.html"><em>percent</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/search.html"><em>search</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/url.html"><em>url</em></a></li>
+</ul>
+</div>
+<div class="section" id="choice-fields">
+<h3>Choice Fields<a class="headerlink" href="#choice-fields" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/forms/types/choice.html"><em>choice</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/entity.html"><em>entity</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/country.html"><em>country</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/language.html"><em>language</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/locale.html"><em>locale</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/timezone.html"><em>timezone</em></a></li>
+</ul>
+</div>
+<div class="section" id="date-and-time-fields">
+<h3>Date and Time Fields<a class="headerlink" href="#date-and-time-fields" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/forms/types/date.html"><em>date</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/datetime.html"><em>datetime</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/time.html"><em>time</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/birthday.html"><em>birthday</em></a></li>
+</ul>
+</div>
+<div class="section" id="other-fields">
+<h3>Other Fields<a class="headerlink" href="#other-fields" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/forms/types/checkbox.html"><em>checkbox</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/file.html"><em>file</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/radio.html"><em>radio</em></a></li>
+</ul>
+</div>
+<div class="section" id="field-groups">
+<h3>Field Groups<a class="headerlink" href="#field-groups" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/forms/types/collection.html"><em>collection</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/repeated.html"><em>repeated</em></a></li>
+</ul>
+</div>
+<div class="section" id="hidden-fields">
+<h3>Hidden Fields<a class="headerlink" href="#hidden-fields" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/forms/types/hidden.html"><em>hidden</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/csrf.html"><em>csrf</em></a></li>
+</ul>
+</div>
+<div class="section" id="base-fields">
+<h3>Base Fields<a class="headerlink" href="#base-fields" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference internal" href="../reference/forms/types/field.html"><em>field</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/form.html"><em>form</em></a></li>
+</ul>
+<p>Vous pouvez aussi créer vos propres types de champ personnalisés. Ce sujet
+est couvert par l&#8217;article du cookbook « <a class="reference internal" href="../cookbook/form/create_custom_field_type.html"><em>How to Create a Custom Form Field Type</em></a> ».</p>
+</div>
+<div class="section" id="options-des-types-de-champ">
+<span id="index-8"></span><h3>Options des types de champ<a class="headerlink" href="#options-des-types-de-champ" title="Permalink to this headline">¶</a></h3>
+<p>Chaque type de champ possède un nombre d&#8217;options qui peuvent être utilisées
+pour le configurer. Par exemple, le champ <tt class="docutils literal"><span class="pre">dueDate</span></tt> est rendu par défaut
+comme 3 champs select. Cependant, le <a class="reference internal" href="../reference/forms/types/date.html"><em>champ date</em></a>
+peut être configuré pour être rendu en tant qu&#8217;un unique champ texte (où
+l&#8217;utilisateur entrerait la date « manuellement » comme une chaîne de caractères)</p>
+<div class="highlight-python"><pre>-&gt;add('dueDate', 'date', array('widget' =&gt; 'single_text'))</pre>
+</div>
+<img alt="../_images/form-simple2.png" class="align-center" src="../_images/form-simple2.png" />
+<p>Chaque type de champ a un nombre d&#8217;options différentes qui peuvent lui être
+passées. Beaucoup d&#8217;entre elles sont spécifiques à chacun et vous pouvez trouver
+ces détails dans la documentation de chaque type.</p>
+<div class="sidebar">
+<p class="first sidebar-title">L&#8217;option <tt class="docutils literal"><span class="pre">required</span></tt></p>
+<p>La plus commune des options est l&#8217;option <tt class="docutils literal"><span class="pre">required</span></tt>, qui peut être appliquée à
+tous les champs. Par défaut, cette dernière est définie comme <tt class="docutils literal"><span class="pre">true</span></tt>,
+signifiant que les navigateurs supportant HTML5 vont appliquer la validation
+côté client si le champ est laissé vide. Si vous ne souhaitez pas ce
+comportement, vous pouvez soit définir l&#8217;option <tt class="docutils literal"><span class="pre">required</span></tt> de vos champs
+à <tt class="docutils literal"><span class="pre">false</span></tt>, ou soit <a class="reference internal" href="#book-forms-html5-validation-disable"><em>désactiver la validation HTML5</em></a>.</p>
+<p>Notez aussi que définir l&#8217;option <tt class="docutils literal"><span class="pre">required</span></tt> à <tt class="docutils literal"><span class="pre">true</span></tt> <strong>ne</strong> créera
+<strong>aucune</strong> validation côté serveur. En d&#8217;autres termes, si un utilisateur
+soumet une valeur vide pour le champ (soit avec un vieux navigateur ou via
+un service web, par exemple), cette valeur sera acceptée comme valide à moins
+que vous n&#8217;utilisiez la contrainte de validation de Symfony <tt class="docutils literal"><span class="pre">NotBlank</span></tt> ou
+<tt class="docutils literal"><span class="pre">NotNull</span></tt>.</p>
+<p class="last">En d&#8217;autres termes, l&#8217;option <tt class="docutils literal"><span class="pre">required</span></tt> est « cool », mais une réelle validation
+côté serveur devrait <em>toujours</em> être mise en place.</p>
+</div>
+</div>
+</div>
+<div class="section" id="prediction-de-type-de-champ">
+<span id="book-forms-field-guessing"></span><span id="index-9"></span><h2>Prédiction de Type de Champ<a class="headerlink" href="#prediction-de-type-de-champ" title="Permalink to this headline">¶</a></h2>
+<p>Maintenant que vous avez ajouté les métadonnées de validation à la classe
+<tt class="docutils literal"><span class="pre">Task</span></tt>, Symfony en sait déjà un peu plus à propos de vos champs. Si vous
+l&#8217;autorisez, Symfony peut « prédire » le type de vos champs et les mettre
+en place pour vous. Dans cet exemple, Symfony peut deviner depuis les règles
+de validation que le champ <tt class="docutils literal"><span class="pre">task</span></tt> est un champ <tt class="docutils literal"><span class="pre">texte</span></tt> normal et que
+<tt class="docutils literal"><span class="pre">dueDate</span></tt> est un champ <tt class="docutils literal"><span class="pre">date</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function newAction()</span>
+<span class="x">{</span>
+<span class="x">    $task = new Task();</span>
+
+<span class="x">    $form = $this-&gt;createFormBuilder($task)</span>
+<span class="x">        -&gt;add(&#39;task&#39;)</span>
+<span class="x">        -&gt;add(&#39;dueDate&#39;, null, array(&#39;widget&#39; =&gt; &#39;single_text&#39;))</span>
+<span class="x">        -&gt;getForm();</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>La « prédiction » est activée lorsque vous omettez le second argument de
+la méthode <tt class="docutils literal"><span class="pre">add()</span></tt> (ou si vous lui passez <tt class="docutils literal"><span class="pre">null</span></tt>). Si vous passez un
+tableau d&#8217;options en tant que troisième argument (comme pour <tt class="docutils literal"><span class="pre">dueDate</span></tt>
+un peu plus haut), ces options sont appliquées au champ prédit.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">Si votre formulaire utilise un groupe de validation spéficique, le
+prédicteur de type de champ continuera toujours à considérer <em>toutes</em>
+les contraintes de validation lorsqu&#8217;il essaie de deviner ces derniers
+(incluant les contraintes qui ne font pas partie du ou des groupe(s)
+étant utilisés).</p>
+</div>
+<div class="section" id="prediction-des-options-de-type-de-champ">
+<span id="index-10"></span><h3>Prédiction des Options de Type de Champ<a class="headerlink" href="#prediction-des-options-de-type-de-champ" title="Permalink to this headline">¶</a></h3>
+<p>En plus de pouvoir prédire le « type » d&#8217;un champ, Symfony peut aussi essayer
+de deviner les valeurs correctes d&#8217;un certain nombre d&#8217;options de champ :</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Lorsque ces options sont définies, le champ sera rendu avec des attributs HTML
+spécifiques qui permettent la validation du champ côté client. Cependant, cela
+ne génère pas l&#8217;équivalent côté serveur (ex <tt class="docutils literal"><span class="pre">Assert\MaxLength</span></tt>). Et puisque
+vous aurez besoin d&#8217;ajouter la validation côté serveur manuellement, ces options
+peuvent être déduites de cette information.</p>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">required</span></tt> : L&#8217;option <tt class="docutils literal"><span class="pre">required</span></tt> peut être devinée grâce aux règles de
+validation (c-a-d est-ce que le champ est <tt class="docutils literal"><span class="pre">NotBlank</span></tt> ou <tt class="docutils literal"><span class="pre">NotNull</span></tt>) ou
+grâce aux métadonnées de Doctrine (c-a-d est-ce que le champ est <tt class="docutils literal"><span class="pre">nullable</span></tt>).
+Ceci est très utile car votre validation côté client va automatiquement
+correspondre à vos règles de validation.</li>
+<li><tt class="docutils literal"><span class="pre">min_length</span></tt> : Si le champ est de type texte, alors l&#8217;option <tt class="docutils literal"><span class="pre">min_length</span></tt>
+peut être devinée grâce aux contraintes de validation (si <tt class="docutils literal"><span class="pre">MinLength</span></tt> ou <tt class="docutils literal"><span class="pre">Min</span></tt>
+est utilisée) ou grâce aux métadonnées de Doctrine (via la longueur du champ).</li>
+<li><tt class="docutils literal"><span class="pre">max_length</span></tt> : Similaire à <tt class="docutils literal"><span class="pre">min_length</span></tt>, la longueur maximale peut aussi
+être prédite.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Ces options de champ sont <em>uniquement</em> devinées si vous utilisez Symfony pour
+prédire le type des champs (c-a-d en omettant ou en passant <tt class="docutils literal"><span class="pre">null</span></tt> en tant
+que deuxième argument de la méthode <tt class="docutils literal"><span class="pre">add()</span></tt>).</p>
+</div>
+<p>Si vous voulez changer une des valeurs prédites, vous pouvez l&#8217;outrepasser en
+passant l&#8217;option au tableau des options de champ</p>
+<div class="highlight-python"><pre>-&gt;add('task', null, array('min_length' =&gt; 4))</pre>
+</div>
+</div>
+</div>
+<div class="section" id="rendre-un-formulaire-dans-un-template">
+<span id="form-rendering-template"></span><span id="index-11"></span><h2>Rendre un Formulaire dans un Template<a class="headerlink" href="#rendre-un-formulaire-dans-un-template" title="Permalink to this headline">¶</a></h2>
+<p>Jusqu&#8217;içi, vous avez vu comment un formulaire entier peut être rendu avec
+seulement une ligne de code. Bien sûr, vous aurez probablement besoin de
+bien plus de flexibilité :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# src/Acme/TaskBundle/Resources/views/Default/new.html.twig #}</span>
+
+<span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">path</span><span class="o">(</span><span class="s1">&#39;task_new&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="cp">{{</span> <span class="nv">form_enctype</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">form_errors</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+
+    <span class="cp">{{</span> <span class="nv">form_row</span><span class="o">(</span><span class="nv">form.task</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">form_row</span><span class="o">(</span><span class="nv">form.dueDate</span><span class="o">)</span> <span class="cp">}}</span>
+
+    <span class="cp">{{</span> <span class="nv">form_rest</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="c">&lt;!-- // src/Acme/TaskBundle/Resources/views/Default/newAction.html.php --&gt;</span>
+
+<span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;router&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">generate</span><span class="p">(</span><span class="s1">&#39;task_new&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="s">&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span> <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">enctype</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="nt">&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">errors</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;dueDate&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">rest</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Jetons un coup d&#8217;oeil à chaque partie :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">form_enctype(form)</span></tt> - Si au moins un champ est un upload de fichier, ceci
+se charge de rendre l&#8217;attribut obligatoire <tt class="docutils literal"><span class="pre">enctype=&quot;multipart/form-data&quot;</span></tt> ;</li>
+<li><tt class="docutils literal"><span class="pre">form_errors(form)</span></tt> - Rend toutes les erreurs globales du formulaire (les
+erreurs spécifiques aux champs sont affichées à côté de chaque champ) ;</li>
+<li><tt class="docutils literal"><span class="pre">form_row(form.dueDate)</span></tt> - Rend le label, toutes les erreurs, ainsi que le
+widget HTML pour le champ donné (par exemple : <tt class="docutils literal"><span class="pre">dueDate</span></tt>) qui, par défaut, est
+dans une balise <tt class="docutils literal"><span class="pre">div</span></tt> ;</li>
+<li><tt class="docutils literal"><span class="pre">form_rest(form)</span></tt> - Rend tous les champs qui n&#8217;ont pas encore été rendus.
+C&#8217;est généralement une bonne idée de placer un appel à cette fonction d&#8217;aide
+à la fin de chaque formulaire (au cas où vous auriez oublié d&#8217;afficher un
+champ ou si vous ne souhaitez pas vous embêter à rendre manuellement les
+champs cachés). Cette fonction d&#8217;aide est aussi utile pour profiter
+de la <a class="reference internal" href="#forms-csrf"><em>Protection CSRF</em></a> automatique.</li>
+</ul>
+<p>La plus grande partie du travail est effectuée par la fonction d&#8217;aide <tt class="docutils literal"><span class="pre">form_row</span></tt>,
+qui rend le label, les erreurs et le widget HTML de chaque champ dans une balise
+<tt class="docutils literal"><span class="pre">div</span></tt> par défaut. Dans la section <a class="reference internal" href="#form-theming"><em>Habillage de Formulaire (« Theming »)</em></a>, vous apprendrez comment
+le rendu de <tt class="docutils literal"><span class="pre">form_row</span></tt> peut être personnalisé à différents niveaux.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Vous pouvez accéder à la donnée courante de votre formulaire via <tt class="docutils literal"><span class="pre">form.vars.value</span></tt>:</p>
+<div class="last configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-jinja"><div class="highlight"><pre><span class="cp">{{</span> <span class="nv">form.vars.value.task</span> <span class="cp">}}</span><span class="x"></span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span><span class="o">-&gt;</span><span class="na">getTask</span><span class="p">()</span> <span class="cp">?&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="rendre-chaque-champ-a-la-main">
+<span id="index-12"></span><h3>Rendre chaque Champ à la Main<a class="headerlink" href="#rendre-chaque-champ-a-la-main" title="Permalink to this headline">¶</a></h3>
+<p>La fonction d&#8217;aide <tt class="docutils literal"><span class="pre">form_row</span></tt> est géniale car, grâce à elle, vous pouvez
+rendre très rapidement chaque champ de votre formulaire (et les balises
+utilisées pour ce champ peuvent être personnalisées aussi). Mais comme la
+vie n&#8217;est pas toujours simple, vous pouvez aussi rendre chaque champ
+entièrement à la main. Le produit fini décrit dans la suite revient au même
+que lorsque vous avez utilisé la fonction d&#8217;aide <tt class="docutils literal"><span class="pre">form_row</span></tt> :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{{</span> <span class="nv">form_errors</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+
+<span class="nt">&lt;div&gt;</span>
+    <span class="cp">{{</span> <span class="nv">form_label</span><span class="o">(</span><span class="nv">form.task</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">form_errors</span><span class="o">(</span><span class="nv">form.task</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">form_widget</span><span class="o">(</span><span class="nv">form.task</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="nt">&lt;div&gt;</span>
+    <span class="cp">{{</span> <span class="nv">form_label</span><span class="o">(</span><span class="nv">form.dueDate</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">form_errors</span><span class="o">(</span><span class="nv">form.dueDate</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="cp">{{</span> <span class="nv">form_widget</span><span class="o">(</span><span class="nv">form.dueDate</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="cp">{{</span> <span class="nv">form_rest</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">errors</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+
+<span class="nt">&lt;div&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">label</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">errors</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">widget</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="nt">&lt;div&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">label</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;dueDate&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">errors</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;dueDate&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">widget</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;dueDate&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">rest</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Si le label auto-généré pour un champ n&#8217;est pas tout à fait correct, vous
+pouvez le spécifier explicitement :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{{</span> <span class="nv">form_label</span><span class="o">(</span><span class="nv">form.task</span><span class="o">,</span> <span class="s1">&#39;Task Description&#39;</span><span class="o">)</span> <span class="cp">}}</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">label</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">],</span> <span class="s1">&#39;Task Description&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Finalement, quelques types de champ ont des options de rendu supplémentaires
+qui peuvent être passées au widget. Ces options sont documentées avec chaque
+type, mais une qui est commune est l&#8217;option <tt class="docutils literal"><span class="pre">attr</span></tt>, qui vous permet de modifier
+les attributs d&#8217;un élément de formulaire. Ce qui suit ajouterait la classe
+<tt class="docutils literal"><span class="pre">task_field</span></tt> au champ texte rendu :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{{</span> <span class="nv">form_widget</span><span class="o">(</span><span class="nv">form.task</span><span class="o">,</span> <span class="o">{</span> <span class="s1">&#39;attr&#39;</span><span class="o">:</span> <span class="o">{</span><span class="s1">&#39;class&#39;</span><span class="o">:</span> <span class="s1">&#39;task_field&#39;</span><span class="o">}</span> <span class="o">})</span> <span class="cp">}}</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">widget</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;task&#39;</span><span class="p">],</span> <span class="k">array</span><span class="p">(</span>
+    <span class="s1">&#39;attr&#39;</span> <span class="o">=&gt;</span> <span class="k">array</span><span class="p">(</span><span class="s1">&#39;class&#39;</span> <span class="o">=&gt;</span> <span class="s1">&#39;task_field&#39;</span><span class="p">),</span>
+<span class="p">))</span> <span class="cp">?&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="fonctions-de-reference-des-templates-twig">
+<h3>Fonctions de Référence des Templates Twig<a class="headerlink" href="#fonctions-de-reference-des-templates-twig" title="Permalink to this headline">¶</a></h3>
+<p>Si vous utilisez Twig, un <a class="reference internal" href="../reference/forms/twig_reference.html"><em>manuel de référence</em></a>
+complet des fonctions de rendu de formulaire est mis à votre disposition.
+Lisez-le afin de tout connaître sur des fonctions d&#8217;aide disponibles
+ainsi que les options qui peuvent être utilisées avec ces dernières.</p>
+</div>
+</div>
+<div class="section" id="creer-des-classes-de-formulaire">
+<span id="book-form-creating-form-classes"></span><span id="index-13"></span><h2>Créer des Classes de Formulaire<a class="headerlink" href="#creer-des-classes-de-formulaire" title="Permalink to this headline">¶</a></h2>
+<p>Comme vous l&#8217;avez vu, un formulaire peut être créé et utilisé directement dans
+un contrôleur. Cependant, une meilleure pratique est de construire le formulaire
+dans une classe PHP séparée et autonome, qui peut ainsi être réutilisée n&#8217;importe
+où dans votre application. Créez une nouvelle classe qui va héberger la logique
+de construction du formulaire « task » :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Form/Type/TaskType.php</span>
+
+<span class="x">namespace Acme\TaskBundle\Form\Type;</span>
+
+<span class="x">use Symfony\Component\Form\AbstractType;</span>
+<span class="x">use Symfony\Component\Form\FormBuilder;</span>
+
+<span class="x">class TaskType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">    {</span>
+<span class="x">        $builder-&gt;add(&#39;task&#39;);</span>
+<span class="x">        $builder-&gt;add(&#39;dueDate&#39;, null, array(&#39;widget&#39; =&gt; &#39;single_text&#39;));</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getName()</span>
+<span class="x">    {</span>
+<span class="x">        return &#39;task&#39;;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Cette nouvelle classe contient toutes les directives nécessaires à la création
+du formulaire « task » (notez que la méthode <tt class="docutils literal"><span class="pre">getName()</span></tt> doit retourner un
+identifiant unique pour ce « type » de formulaire). Il peut être utilisé pour
+construire rapidement un objet formulaire dans le contrôleur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Controller/DefaultController.php</span>
+
+<span class="x">// ajoutez cette nouvelle déclaration « use » en haut de la classe</span>
+<span class="x">use Acme\TaskBundle\Form\Type\TaskType;</span>
+
+<span class="x">public function newAction()</span>
+<span class="x">{</span>
+<span class="x">    $task = // ...</span>
+<span class="x">    $form = $this-&gt;createForm(new TaskType(), $task);</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Placer la logique du formulaire dans sa propre classe signifie que le formulaire
+peut être réutilisé facilement ailleurs dans votre projet. C&#8217;est la meilleure
+manière de créer des formulaires, mais le choix final vous revient.</p>
+<div class="sidebar" id="book-forms-data-class">
+<p class="first sidebar-title">Définir la <tt class="docutils literal"><span class="pre">data_class</span></tt></p>
+<p>Chaque formulaire a besoin de savoir le nom de la classe qui détient les
+données sous-jacentes (par exemple : <tt class="docutils literal"><span class="pre">Acme\TaskBundle\Entity\Task</span></tt>).
+Généralement, cette information est devinée grâce à l&#8217;objet passé en
+second argument de la méthode <tt class="docutils literal"><span class="pre">createForm</span></tt> (c-a-d <tt class="docutils literal"><span class="pre">$task</span></tt>).
+Plus tard, quand vous commencerez à embarquer des formulaires les uns avec
+les autres, cela ne sera plus suffisant. Donc, bien que facultatif,
+c&#8217;est généralement une bonne idée de spécifier explicitement l&#8217;option
+<tt class="docutils literal"><span class="pre">data_class</span></tt> en ajoutant ce qui suit à votre classe formulaire :</p>
+<div class="last highlight-php"><div class="highlight"><pre><span class="x">public function getDefaultOptions(array $options)</span>
+<span class="x">{</span>
+<span class="x">    return array(</span>
+<span class="x">        &#39;data_class&#39; =&gt; &#39;Acme\TaskBundle\Entity\Task&#39;,</span>
+<span class="x">    );</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="formulaires-et-doctrine">
+<span id="index-14"></span><h2>Formulaires et Doctrine<a class="headerlink" href="#formulaires-et-doctrine" title="Permalink to this headline">¶</a></h2>
+<p>Le but d&#8217;un formulaire est de traduire les données d&#8217;un objet (par exemple :
+<tt class="docutils literal"><span class="pre">Task</span></tt>) en un formulaire HTML et puis de transcrire en retour les données
+soumises par l&#8217;utilisateur à l&#8217;objet original. En tant que tel, le sujet de la
+persistance de l&#8217;objet <tt class="docutils literal"><span class="pre">Task</span></tt> dans la base de données n&#8217;a rien à voir avec
+le sujet des formulaires. Mais, si vous avez configuré la classe <tt class="docutils literal"><span class="pre">Task</span></tt> de
+telle sorte qu&#8217;elle soit persistée via Doctrine (c-a-d qye vous avez ajouté des
+<a class="reference internal" href="doctrine.html#book-doctrine-adding-mapping"><em>métadonnées de correspondance</em></a> pour cela),
+alors sa persistance peut être effectuée après la soumission d&#8217;un formulaire
+lorsque ce dernier est valide :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">if ($form-&gt;isValid()) {</span>
+<span class="x">    $em = $this-&gt;getDoctrine()-&gt;getEntityManager();</span>
+<span class="x">    $em-&gt;persist($task);</span>
+<span class="x">    $em-&gt;flush();</span>
+
+<span class="x">    return $this-&gt;redirect($this-&gt;generateUrl(&#39;task_success&#39;));</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Si, pour une quelconque raison, vous n&#8217;avez pas accès à votre objet <tt class="docutils literal"><span class="pre">$task</span></tt>
+d&#8217;origine, vous pouvez le récupérer depuis le formulaire :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$task = $form-&gt;getData();</span>
+</pre></div>
+</div>
+<p>Pour plus d&#8217;informations, voir le <a class="reference internal" href="doctrine.html"><em>chapitre Doctrine ORM</em></a>.</p>
+<p>La chose principale à comprendre est que lorsque le formulaire est lié (« bindé »),
+les données soumises sont transférées à l&#8217;objet sous-jacent immédiatement. Si
+vous souhaitez persister ces données, vous avez simplement besoin de persister
+l&#8217;objet lui-même (qui contient déjà les données soumises).</p>
+</div>
+<div class="section" id="formulaires-imbriques">
+<span id="index-15"></span><h2>Formulaires imbriqués<a class="headerlink" href="#formulaires-imbriques" title="Permalink to this headline">¶</a></h2>
+<p>Souvent, vous allez vouloir construire un formulaire qui inclura des champs
+de beaucoup d&#8217;objets différents. Par exemple, un formulaire de souscription
+pourrait contenir des données appartenant à un objet <tt class="docutils literal"><span class="pre">User</span></tt> ainsi qu&#8217;à
+plusieurs objets <tt class="docutils literal"><span class="pre">Address</span></tt>. Heureusement, gérer cela est facile et naturel
+avec le composant formulaire.</p>
+<div class="section" id="imbriquer-un-objet-unique">
+<h3>Imbriquer un Objet Unique<a class="headerlink" href="#imbriquer-un-objet-unique" title="Permalink to this headline">¶</a></h3>
+<p>Supposez que chaque <tt class="docutils literal"><span class="pre">Task</span></tt> appartienne à un simple objet <tt class="docutils literal"><span class="pre">Category</span></tt>.
+Commencez, bien sûr, par créer l&#8217;objet <tt class="docutils literal"><span class="pre">Category</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Entity/Category.php</span>
+<span class="x">namespace Acme\TaskBundle\Entity;</span>
+
+<span class="x">use Symfony\Component\Validator\Constraints as Assert;</span>
+
+<span class="x">class Category</span>
+<span class="x">{</span>
+<span class="x">    /**</span>
+<span class="x">     * @Assert\NotBlank()</span>
+<span class="x">     */</span>
+<span class="x">    public $name;</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Ensuite, ajoutez une nouvelle propriété <tt class="docutils literal"><span class="pre">category</span></tt> à la classe <tt class="docutils literal"><span class="pre">Task</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// ...</span>
+
+<span class="x">class Task</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    /**</span>
+<span class="x">     * @Assert\Type(type=&quot;Acme\TaskBundle\Entity\Category&quot;)</span>
+<span class="x">     */</span>
+<span class="x">    protected $category;</span>
+
+<span class="x">    // ...</span>
+
+<span class="x">    public function getCategory()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;category;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function setCategory(Category $category = null)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;category = $category;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Maintenant que votre application a été mise à jour pour refléter nos nouvelles
+conditions requises, créez une classe formulaire afin que l&#8217;objet <tt class="docutils literal"><span class="pre">Category</span></tt>
+puisse être modifié par l&#8217;utilisateur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/TaskBundle/Form/Type/CategoryType.php</span>
+<span class="x">namespace Acme\TaskBundle\Form\Type;</span>
+
+<span class="x">use Symfony\Component\Form\AbstractType;</span>
+<span class="x">use Symfony\Component\Form\FormBuilder;</span>
+
+<span class="x">class CategoryType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">    {</span>
+<span class="x">        $builder-&gt;add(&#39;name&#39;);</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getDefaultOptions(array $options)</span>
+<span class="x">    {</span>
+<span class="x">        return array(</span>
+<span class="x">            &#39;data_class&#39; =&gt; &#39;Acme\TaskBundle\Entity\Category&#39;,</span>
+<span class="x">        );</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getName()</span>
+<span class="x">    {</span>
+<span class="x">        return &#39;category&#39;;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Le but final est d&#8217;autoriser la <tt class="docutils literal"><span class="pre">Category</span></tt> d&#8217;une <tt class="docutils literal"><span class="pre">Task</span></tt> à être modifiée
+directement dans le formulaire de la tâche lui-même. Pour accomplir cela,
+ajoutez un champ <tt class="docutils literal"><span class="pre">category</span></tt> à l&#8217;objet <tt class="docutils literal"><span class="pre">TaskType</span></tt> dont le type est une
+instance de la nouvelle classe <tt class="docutils literal"><span class="pre">CategoryType</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function buildForm(FormBuilder $builder, array $options)</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    $builder-&gt;add(&#39;category&#39;, new CategoryType());</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Les champs de <tt class="docutils literal"><span class="pre">CategoryType</span></tt> peuvent maintenant être rendus à côté de ceux
+de la classe <tt class="docutils literal"><span class="pre">TaskType</span></tt>. Rendez les champs de <tt class="docutils literal"><span class="pre">Category</span></tt> de la même manière
+que les champs de la classe <tt class="docutils literal"><span class="pre">Task</span></tt> :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# ... #}</span>
+
+<span class="nt">&lt;h3&gt;</span>Category<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;category&quot;</span><span class="nt">&gt;</span>
+    <span class="cp">{{</span> <span class="nv">form_row</span><span class="o">(</span><span class="nv">form.category.name</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="cp">{{</span> <span class="nv">form_rest</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="c">{# ... #}</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="c">&lt;!-- ... --&gt;</span>
+
+<span class="nt">&lt;h3&gt;</span>Category<span class="nt">&lt;/h3&gt;</span>
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;category&quot;</span><span class="nt">&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">row</span><span class="p">(</span><span class="nv">$form</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">])</span> <span class="cp">?&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+
+<span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">rest</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+<span class="c">&lt;!-- ... --&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Lorsque l&#8217;utilisateur soumet le formulaire, les données soumises pour les champs
+de <tt class="docutils literal"><span class="pre">Category</span></tt> sont utilisées pour construire une instance de <tt class="docutils literal"><span class="pre">Category</span></tt>, qui
+est ensuite affectée au champ <tt class="docutils literal"><span class="pre">category</span></tt> de l&#8217;instance de <cite>Task`</cite>.</p>
+<p>L&#8217;instance <tt class="docutils literal"><span class="pre">Category</span></tt> est accessible naturellement via <tt class="docutils literal"><span class="pre">$task-&gt;getCategory()</span></tt>
+et peut être persistée dans la base de données ou utilisée de quelconque manière
+que vous souhaitez.</p>
+</div>
+<div class="section" id="imbriquer-une-collection-de-formulaires">
+<h3>Imbriquer une Collection de Formulaires<a class="headerlink" href="#imbriquer-une-collection-de-formulaires" title="Permalink to this headline">¶</a></h3>
+<p>Vous pouvez aussi imbriquer une collection de formulaire dans un formulaire
+(imaginez un formulaire <tt class="docutils literal"><span class="pre">Catégorie</span></tt> avec plusieurs sous-formulaires <tt class="docutils literal"><span class="pre">Produit</span></tt>).
+Cela peut être accompli en utilisant le type de champ <tt class="docutils literal"><span class="pre">collection</span></tt>.</p>
+<p>Pour plus d&#8217;informations, lisez le chapitre du cookbook &#8220;<a class="reference internal" href="../cookbook/form/form_collections.html"><em>How to Embed a Collection of Forms</em></a>&#8221;
+et le chapitre sur le type de champ <em class="xref std std-ref">collection</em>.</p>
+</div>
+</div>
+<div class="section" id="habillage-de-formulaire-theming">
+<span id="form-theming"></span><span id="index-16"></span><h2>Habillage de Formulaire (« Theming »)<a class="headerlink" href="#habillage-de-formulaire-theming" title="Permalink to this headline">¶</a></h2>
+<p>Chaque partie de l&#8217;affichage d&#8217;un formulaire peut être personnalisée. Vous êtes
+libre de changer comment chaque ligne du formulaire est rendue, de changer les
+balises utilisées pour afficher les erreurs, ou même de personnaliser comment
+la balise <tt class="docutils literal"><span class="pre">textarea</span></tt> devrait être rendue. Rien n&#8217;est limité, et des différentes
+personnalisations peuvent être utilisées à différents endroits.</p>
+<p>Symfony utilise des templates pour rendre chaque partie d&#8217;un formulaire, comme
+les balises <tt class="docutils literal"><span class="pre">tags</span></tt>, les balises <tt class="docutils literal"><span class="pre">input</span></tt>, les messages d&#8217;erreur et tout le reste.</p>
+<p>Dans Twig, chaque « fragment » de formulaire est représenté par un bloc Twig. Pour
+personnaliser n&#8217;importe quelle partie d&#8217;un formulaire, vous avez juste besoin de
+réécrire le bloc approprié.</p>
+<p>En PHP, chaque « fragment » de formulaire est rendu via un fichier de template
+individuel. Pour personnaliser n&#8217;importe quelle partie d&#8217;un formulaire, vous avez
+juste besoin de réécrire le template existant en en créant un nouveau.</p>
+<p>Pour comprendre comment tout cela fonctionne, personnalisons le fragment <tt class="docutils literal"><span class="pre">form_row</span></tt>
+et ajoutons l&#8217;attribut « class » à l&#8217;élément <tt class="docutils literal"><span class="pre">div</span></tt> qui entoure chaque ligne. Pour
+faire cela, créez un nouveau fichier de template qui va stocker la nouvelle
+balise :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# src/Acme/TaskBundle/Resources/views/Form/fields.html.twig #}</span>
+
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">field_row</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">spaceless</span> <span class="cp">%}</span>
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form_row&quot;</span><span class="nt">&gt;</span>
+        <span class="cp">{{</span> <span class="nv">form_label</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+        <span class="cp">{{</span> <span class="nv">form_errors</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+        <span class="cp">{{</span> <span class="nv">form_widget</span><span class="o">(</span><span class="nv">form</span><span class="o">)</span> <span class="cp">}}</span>
+    <span class="nt">&lt;/div&gt;</span>
+<span class="cp">{%</span> <span class="k">endspaceless</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">endblock</span> <span class="nv">field_row</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="c">&lt;!-- src/Acme/TaskBundle/Resources/views/Form/field_row.html.php --&gt;</span>
+
+<span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">&quot;form_row&quot;</span><span class="nt">&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">label</span><span class="p">(</span><span class="nv">$form</span><span class="p">,</span> <span class="nv">$label</span><span class="p">)</span> <span class="cp">?&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">errors</span><span class="p">(</span><span class="nv">$form</span><span class="p">)</span> <span class="cp">?&gt;</span>
+    <span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;form&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">widget</span><span class="p">(</span><span class="nv">$form</span><span class="p">,</span> <span class="nv">$parameters</span><span class="p">)</span> <span class="cp">?&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Le fragment de formulaire <tt class="docutils literal"><span class="pre">field_row</span></tt> est utilisé pour rendre la plupart
+des champs via la fonction <tt class="docutils literal"><span class="pre">form_row</span></tt>. Pour dire au composant formulaire
+d&#8217;utiliser votre nouveau fragment <tt class="docutils literal"><span class="pre">field_row</span></tt> defini ci-dessus, ajoutez
+ce qui suit en haut du template qui rend le formulaire :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><pre>{# src/Acme/TaskBundle/Resources/views/Default/new.html.twig #}
+
+{% form_theme form 'AcmeTaskBundle:Form:fields.html.twig' %}
+
+&lt;form ...&gt;</pre>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><pre>&lt;!-- src/Acme/TaskBundle/Resources/views/Default/new.html.php --&gt;
+
+&lt;?php $view['form']-&gt;setTheme($form, array('AcmeTaskBundle:Form')) ?&gt;
+
+&lt;form ...&gt;</pre>
+</div>
+</li>
+</ul>
+</div>
+<p>La balise <tt class="docutils literal"><span class="pre">form_theme</span></tt> (dans Twig) « importe » les fragments définis dans le
+template donné et les utilise lorsqu&#8217;il rend le formulaire. En d&#8217;autres termes,
+quand la fonction <tt class="docutils literal"><span class="pre">form_row</span></tt> est appelée plus tard dans ce template, elle va
+utiliser le bloc <tt class="docutils literal"><span class="pre">field_row</span></tt> de votre thème personnalisé (à la place du bloc
+par défaut <tt class="docutils literal"><span class="pre">field_row</span></tt> qui est délivré avec Symfony).</p>
+<p>Pour personnaliser n&#8217;importe quelle portion d&#8217;un formulaire, vous devez juste
+réécrire le fragment approprié. Connaître exactement quel bloc ou fichier
+réécrire est le sujet de la prochaine section.</p>
+<p>Pour une discussion plus développée, voir <a class="reference internal" href="../cookbook/form/form_customization.html"><em>How to customize Form Rendering</em></a>.</p>
+<div class="section" id="nommage-de-fragment-de-formulaire">
+<span id="form-template-blocks"></span><span id="index-17"></span><h3>Nommage de Fragment de Formulaire<a class="headerlink" href="#nommage-de-fragment-de-formulaire" title="Permalink to this headline">¶</a></h3>
+<p>Dans Symfony, chaque partie d&#8217;un formulaire qui est rendue - éléments de formulaire
+HTML, erreurs, labels, etc - est définie dans un thème de base, qui est une
+collection de blocs dans Twig et une collection de fichiers de template dans PHP.</p>
+<p>Dans Twig, chaque bloc nécessaire est défini dans un unique fichier de template
+(<a class="reference external" href="https://github.com/symfony/symfony/blob/master/src/Symfony/Bridge/Twig/Resources/views/Form/form_div_layout.html.twig">form_div_layout.html.twig</a>) qui réside dans le <a class="reference external" href="https://github.com/symfony/symfony/tree/master/src/Symfony/Bridge/Twig">Twig Bridge</a>. Dans ce fichier,
+vous pouvez voir chaque bloc requis pour rendre un formulaire et chaque type
+de champ par défaut.</p>
+<p>En PHP, les fragments sont des fichiers de template individuels. Par défaut, ils
+sont situés dans le répertoire <cite>Resources/views/Form</cite> du bundle du framework
+(<a class="reference external" href="https://github.com/symfony/symfony/tree/master/src/Symfony/Bundle/FrameworkBundle/Resources/views/Form">voir sur GitHub</a>).</p>
+<p>Chaque nom de fragment suit le même pattern de base et est divisé en deux parties,
+séparées par un unique underscore (<tt class="docutils literal"><span class="pre">_</span></tt>). Quelques exemples sont :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">field_row</span></tt> - utilisé par <tt class="docutils literal"><span class="pre">form_row</span></tt> pour rendre la plupart des champs ;</li>
+<li><tt class="docutils literal"><span class="pre">textarea_widget</span></tt> - utilisé par <tt class="docutils literal"><span class="pre">form_widget</span></tt> pour rendre un champ de
+type <tt class="docutils literal"><span class="pre">textarea</span></tt> ;</li>
+<li><tt class="docutils literal"><span class="pre">field_errors</span></tt> - utilisé par <tt class="docutils literal"><span class="pre">form_errors</span></tt> pour rendre les erreurs d&#8217;un champ.</li>
+</ul>
+<p>Chaque fragment suit le même pattern de base : <tt class="docutils literal"><span class="pre">type_part</span></tt>. La partie <tt class="docutils literal"><span class="pre">type</span></tt>
+correspond au <em>type</em> du champ qui doit être rendu (par exemple : <tt class="docutils literal"><span class="pre">textarea</span></tt>,
+<tt class="docutils literal"><span class="pre">checkbox</span></tt>, <tt class="docutils literal"><span class="pre">date</span></tt>, etc) alors que la partie <tt class="docutils literal"><span class="pre">part</span></tt> correspond à <em>ce qui</em>
+va être rendu (par exemple : <tt class="docutils literal"><span class="pre">label</span></tt>, <tt class="docutils literal"><span class="pre">widget</span></tt>, <tt class="docutils literal"><span class="pre">errors</span></tt>, etc). Par défaut,
+il y a 4 <em>parts</em> possibles d&#8217;un formulaire qui peuvent être rendues :</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="32%" />
+<col width="56%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">label</span></tt></td>
+<td>(par exemple : <tt class="docutils literal"><span class="pre">field_label</span></tt>)</td>
+<td>rend le label du champ</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">widget</span></tt></td>
+<td>(par exemple : <tt class="docutils literal"><span class="pre">field_widget</span></tt>)</td>
+<td>rend la représentation HTML du champ</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">errors</span></tt></td>
+<td>(par exemple : <tt class="docutils literal"><span class="pre">field_errors</span></tt>)</td>
+<td>rend les erreurs du champ</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">row</span></tt></td>
+<td>(par exemple : <tt class="docutils literal"><span class="pre">field_row</span></tt>)</td>
+<td>rend la ligne entière du champ (label, widget, et erreurs)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Il y a en fait 3 autres <em>parts</em> - <tt class="docutils literal"><span class="pre">rows</span></tt>, <tt class="docutils literal"><span class="pre">rest</span></tt>, et <tt class="docutils literal"><span class="pre">enctype</span></tt> - mais
+vous ne devriez que rarement, voire jamais, avoir besoin de les réécrire.</p>
+</div>
+<p>En connaissant le type du champ (par exemple : <tt class="docutils literal"><span class="pre">textarea</span></tt>) et quelle partie de
+ce dernier vous souhaitez personnaliser (par exemple : <tt class="docutils literal"><span class="pre">widget</span></tt>), vous pouvez
+construire le nom du fragment qui a besoin d&#8217;être réécrit (par exemple : <tt class="docutils literal"><span class="pre">textarea_widget</span></tt>).</p>
+</div>
+<div class="section" id="heritage-de-fragment-de-template">
+<span id="index-18"></span><h3>Héritage de Fragment de Template<a class="headerlink" href="#heritage-de-fragment-de-template" title="Permalink to this headline">¶</a></h3>
+<p>Dans certains cas, le fragment que vous voulez personnaliser sera absent.
+Par exemple, il n&#8217;y a pas de fragment <tt class="docutils literal"><span class="pre">textarea_errors</span></tt> dans les thèmes
+fournis par défaut par Symfony.</p>
+<p>La réponse est : via le fragment <tt class="docutils literal"><span class="pre">field_errors</span></tt>. Quand Symfony rend les erreurs
+d&#8217;un champ de type textarea, il recherche en premier un fragment <tt class="docutils literal"><span class="pre">textarea_errors</span></tt>
+avant de se replier sur le fragment de secours <tt class="docutils literal"><span class="pre">field_errors</span></tt>. Chaque type de
+champ a un type <em>parent</em> (le type parent de <tt class="docutils literal"><span class="pre">textarea</span></tt> est <tt class="docutils literal"><span class="pre">field</span></tt>), et
+Symfony l&#8217;utilise si le fragment de base n&#8217;existe pas.</p>
+<p>Donc, afin de réécrire les erreurs pour les champs <tt class="docutils literal"><span class="pre">textarea</span></tt> <em>seulement</em>, copiez
+le fragment <tt class="docutils literal"><span class="pre">field_errors</span></tt>, renommez-le en <tt class="docutils literal"><span class="pre">textarea_errors</span></tt> et personnalisez-le.
+Pour réécrire le rendu d&#8217;erreur par défaut pour <em>tous</em> les champs, copiez et personnalisez
+le fragment <tt class="docutils literal"><span class="pre">field_errors</span></tt> directement.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Le type « parent » de chaque type de champ est disponible dans la
+<a class="reference internal" href="../reference/forms/types.html"><em>référence de type de formulaire</em></a> pour
+chaque type de champ.</p>
+</div>
+</div>
+<div class="section" id="habillage-global-de-formulaire">
+<span id="index-19"></span><h3>Habillage Global de Formulaire<a class="headerlink" href="#habillage-global-de-formulaire" title="Permalink to this headline">¶</a></h3>
+<p>Dans l&#8217;exemple ci-dessus, vous avez utilisé la fonction d&#8217;aide <tt class="docutils literal"><span class="pre">form_theme</span></tt>
+(dans Twig) pour « importer » les fragments personnalisés de formulaire à
+l&#8217;intérieur de ce formulaire uniquement. Vous pouvez aussi dire à Symfony
+d&#8217;importer les personnalisations de formulaire à travers votre projet entier.</p>
+<div class="section" id="twig">
+<h4>Twig<a class="headerlink" href="#twig" title="Permalink to this headline">¶</a></h4>
+<p>Pour inclure automatiquement les blocs personnalisés du template <tt class="docutils literal"><span class="pre">fields.html.twig</span></tt>
+créés plus tôt dans <em>tous</em> les templates, modifiez votre fichier de configuration
+d&#8217;application :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config.yml</span>
+
+<span class="l-Scalar-Plain">twig</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">form</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">resources</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span> <span class="s">&#39;AcmeTaskBundle:Form:fields.html.twig&#39;</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><pre>&lt;!-- app/config/config.xml --&gt;
+
+&lt;twig:config ...&gt;
+        &lt;twig:form&gt;
+            &lt;resource&gt;AcmeTaskBundle:Form:fields.html.twig&lt;/resource&gt;
+        &lt;/twig:form&gt;
+        &lt;!-- ... --&gt;
+&lt;/twig:config&gt;</pre>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+
+<span class="x">$container-&gt;loadFromExtension(&#39;twig&#39;, array(</span>
+<span class="x">    &#39;form&#39; =&gt; array(&#39;resources&#39; =&gt; array(</span>
+<span class="x">        &#39;AcmeTaskBundle:Form:fields.html.twig&#39;,</span>
+<span class="x">     ))</span>
+<span class="x">    // ...</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Tous les blocs se trouvant dans le template <tt class="docutils literal"><span class="pre">fields.html.twig</span></tt> sont
+maintenant utilisés globalement pour définir le rendu de formulaire en sortie.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Personnaliser le Rendu de Formulaire en Sortie dans un Fichier Unique avec Twig</p>
+<p>Dans Twig, vous pouvez aussi personnaliser un bloc de formulaire directement
+à l&#8217;intérieur du template nécessitant une personnalisation :</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">extends</span> <span class="s1">&#39;::base.html.twig&#39;</span> <span class="cp">%}</span>
+
+<span class="c">{# importe « _self » en tant qu&#39;habillage du formulaire #}</span>
+<span class="cp">{%</span> <span class="k">form_theme</span> <span class="nv">form</span> <span class="p">_</span><span class="nv">self</span> <span class="cp">%}</span>
+
+<span class="c">{# effectue la personnalisation du fragment de formulaire #}</span>
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">field_row</span> <span class="cp">%}</span>
+    <span class="c">{# personnalisez le rendu en sortie de la ligne du champ #}</span>
+<span class="cp">{%</span> <span class="k">endblock</span> <span class="nv">field_row</span> <span class="cp">%}</span>
+
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">content</span> <span class="cp">%}</span>
+    <span class="c">{# ... #}</span>
+
+    <span class="cp">{{</span> <span class="nv">form_row</span><span class="o">(</span><span class="nv">form.task</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p class="last">La balise <tt class="docutils literal"><span class="pre">{%</span> <span class="pre">form_theme</span> <span class="pre">form</span> <span class="pre">_self</span> <span class="pre">%}</span></tt> permet aux blocs de formulaire d&#8217;être
+personnalisés directement à l&#8217;intérieur du template qui va utiliser ces
+personnalisations. Utilisez cette méthode pour faire des personnalisations
+de formulaire qui ne seront nécessaires que dans un unique template.</p>
+</div>
+</div>
+<div class="section" id="php">
+<h4>PHP<a class="headerlink" href="#php" title="Permalink to this headline">¶</a></h4>
+<p>Pour inclure automatiquement les templates personnalisés du répertoire
+<tt class="docutils literal"><span class="pre">Acme/TaskBundle/Resources/views/Form</span></tt> créés plus tôt dans <em>tous</em> les templates,
+modifiez votre fichier de configuration d&#8217;application :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config.yml</span>
+
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">templating</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">form</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">resources</span><span class="p-Indicator">:</span>
+                <span class="p-Indicator">-</span> <span class="s">&#39;AcmeTaskBundle:Form&#39;</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><pre>&lt;!-- app/config/config.xml --&gt;
+
+&lt;framework:config ...&gt;
+    &lt;framework:templating&gt;
+        &lt;framework:form&gt;
+            &lt;resource&gt;AcmeTaskBundle:Form&lt;/resource&gt;
+        &lt;/framework:form&gt;
+    &lt;/framework:templating&gt;
+    &lt;!-- ... --&gt;
+&lt;/framework:config&gt;</pre>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;templating&#39; =&gt; array(&#39;form&#39; =&gt;</span>
+<span class="x">        array(&#39;resources&#39; =&gt; array(</span>
+<span class="x">            &#39;AcmeTaskBundle:Form&#39;,</span>
+<span class="x">     )))</span>
+<span class="x">    // ...</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Tous les fragments à l&#8217;intérieur du répertoire <tt class="docutils literal"><span class="pre">Acme/TaskBundle/Resources/views/Form</span></tt>
+sont maintenant utilisés globalement pour définir le rendu en sortie des formulaires.</p>
+</div>
+</div>
+</div>
+<div class="section" id="protection-csrf">
+<span id="forms-csrf"></span><span id="index-20"></span><h2>Protection CSRF<a class="headerlink" href="#protection-csrf" title="Permalink to this headline">¶</a></h2>
+<p>CSRF - ou <a class="reference external" href="http://en.wikipedia.org/wiki/Cross-site_request_forgery">Cross-site request forgery</a> - est une méthode grâce à laquelle
+un utilisateur malveillant tente de faire soumettre inconsciemment des
+données à un utilisateur légitime qui n&#8217;avait pas l&#8217;intention de les soumettre.
+Heureusement, les attaques CSRF peuvent être contrées en utilisant un jeton CSRF
+à l&#8217;intérieur de vos formulaires.</p>
+<p>La bonne nouvelle est que, par défaut, Symfony embarque et valide automatiquement
+les jetons CSRF pour vous. Cela signifie que vous pouvez profiter de la protection
+CSRF sans n&#8217;avoir rien à faire. En fait, chaque formulaire dans ce chapitre
+a profité de la protection CSRF !</p>
+<p>La protection CSRF fonctionne en ajoutant un champ caché dans votre formulaire -
+appelé <tt class="docutils literal"><span class="pre">_token</span></tt> par défaut - qui contient une valeur que seul vous et votre
+utilisateur connaissez. Cela garantit que l&#8217;utilisateur - et non pas une autre
+entité - soumet les informations données. Symfony valide automatiquement la
+présence et l&#8217;exactitude de ce jeton.</p>
+<p>Le champ <tt class="docutils literal"><span class="pre">_token</span></tt> est un champ caché et sera rendu automatiquement si vous
+incluez la fonction <tt class="docutils literal"><span class="pre">form_rest()</span></tt> dans votre template, qui garantit que
+tous les champs non-rendus sont délivrés en sortie.</p>
+<p>Le jeton CSRF peut être personnalisé pour chacun des formulaires. Par exemple :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">class TaskType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    public function getDefaultOptions(array $options)</span>
+<span class="x">    {</span>
+<span class="x">        return array(</span>
+<span class="x">            &#39;data_class&#39;      =&gt; &#39;Acme\TaskBundle\Entity\Task&#39;,</span>
+<span class="x">            &#39;csrf_protection&#39; =&gt; true,</span>
+<span class="x">            &#39;csrf_field_name&#39; =&gt; &#39;_token&#39;,</span>
+<span class="x">            // une clé unique pour aider à la génération du jeton secret</span>
+<span class="x">            &#39;intention&#39;       =&gt; &#39;task_item&#39;,</span>
+<span class="x">        );</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Pour désactiver la protection CSRF, définissez l&#8217;option <tt class="docutils literal"><span class="pre">csrf_protection</span></tt>
+à false. Les personnalisations peuvent aussi être effectuées globalement dans
+votre projet. Pour plus d&#8217;informations, voir la section de
+<em class="xref std std-ref">référence de configuration de formulaire</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">L&#8217;option <tt class="docutils literal"><span class="pre">intention</span></tt> est optionnelle mais améliore grandement la sécurité
+du jeton généré en le rendant différent pour chaque formulaire.</p>
+</div>
+</div>
+<div class="section" id="utiliser-un-formulaire-sans-classe">
+<h2>Utiliser un formulaire sans classe<a class="headerlink" href="#utiliser-un-formulaire-sans-classe" title="Permalink to this headline">¶</a></h2>
+<p>Dans la plupart des cas, un formulaire est associé à un objet, et les champs du
+formulaire affichent et stockent leur données dans les propriétés d&#8217;un objet. C&#8217;est
+exactement ce que vous avez vu jusqu&#8217;ici dans ce chapitre avec la classe <cite>Task</cite>.</p>
+<p>Mais parfois, vous voudrez juste utiliser un formulaire sans une classe, et obtenir
+un tableau des données soumises. C&#8217;est en fait très facile :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// Assurez vous d&#39;avoir importé le namespace Request namespace en haut de la classe</span>
+<span class="x">use Symfony\Component\HttpFoundation\Request</span>
+<span class="x">// ...</span>
+
+<span class="x">public function contactAction(Request $request)</span>
+<span class="x">{</span>
+<span class="x">    $defaultData = array(&#39;message&#39; =&gt; &#39;Type your message here&#39;);</span>
+<span class="x">    $form = $this-&gt;createFormBuilder($defaultData)</span>
+<span class="x">        -&gt;add(&#39;name&#39;, &#39;text&#39;)</span>
+<span class="x">        -&gt;add(&#39;email&#39;, &#39;email&#39;)</span>
+<span class="x">        -&gt;add(&#39;message&#39;, &#39;textarea&#39;)</span>
+<span class="x">        -&gt;getForm();</span>
+
+<span class="x">        if ($request-&gt;getMethod() == &#39;POST&#39;) {</span>
+<span class="x">            $form-&gt;bindRequest($request);</span>
+
+<span class="x">            // les données sont un tableau avec les clés &quot;name&quot;, &quot;email&quot;, et &quot;message&quot;</span>
+<span class="x">            $data = $form-&gt;getData();</span>
+<span class="x">        }</span>
+
+<span class="x">    // ... rend le formulaire</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Par défaut, en fait, un formulaire part du principe que vous voulez travailler avec
+un tableau de données plutôt qu&#8217;avec un objet.Il y a exactement deux façons de changer
+ce comportement et d&#8217;associer le formulaire avec un objet à la place:</p>
+<ol class="arabic simple">
+<li>Passez un objet lors de la création du formulaire (comme premier argument de <tt class="docutils literal"><span class="pre">createFormBuilder</span></tt>
+ou deuxième argument de <tt class="docutils literal"><span class="pre">createForm</span></tt>);</li>
+<li>Définissez l&#8217;option <tt class="docutils literal"><span class="pre">data_class</span></tt> de votre formulaire.</li>
+</ol>
+<p>Si vous ne faites <em>pas</em> l&#8217;un ou l&#8217;autre, alors le formulaire retournera les données
+dans un tableau. Dans cet exemple, puisque <tt class="docutils literal"><span class="pre">$defaultData</span></tt> n&#8217;est pas un objet (et
+que l&#8217;option <tt class="docutils literal"><span class="pre">data_class</span></tt> n&#8217;est pas définie), <tt class="docutils literal"><span class="pre">$form-&gt;getData()</span></tt> retournera
+finalement un tableau.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Vous pouvez également accéder directement aux valeurs POST (dans ce cas &#8220;name&#8221;)
+par le biais de l&#8217;objet Request, comme ceci :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$this-&gt;get(&#39;request&#39;)-&gt;request-&gt;get(&#39;name&#39;);</span>
+</pre></div>
+</div>
+<p class="last">Notez cependant que, dans la plupart des cas, utiliser la méthode getData() est le
+meilleur choix, puisqu&#8217;elle retourne la donnée (souvent un objet) après qu&#8217;elle
+soit transformée par le framework.</p>
+</div>
+<div class="section" id="ajouter-la-validation">
+<h3>Ajouter la Validation<a class="headerlink" href="#ajouter-la-validation" title="Permalink to this headline">¶</a></h3>
+<p>La seule pièce manquante est la validation. D&#8217;habitude, quand vous appelez <tt class="docutils literal"><span class="pre">$form-&gt;isValid()</span></tt>,
+l&#8217;objet est validé en parcourant les contraintes que vous appliquez à sa classe.
+Mais sans classe, comment ajouter des contraintes aux données de votre formulaire?</p>
+<p>La réponse est de définir les contraintes vous-même, et les passer au formulaire.
+L&#8217;approche globale est un peu plus expliquée dans le <a class="reference internal" href="validation.html#book-validation-raw-values"><em>chapitre validation</em></a>,
+mais voici un petit exemple:</p>
+<div class="highlight-python"><pre>// importez les namespaces en haut de votre classe
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\MinLength;
+use Symfony\Component\Validator\Constraints\Collection;
+
+$collectionConstraint = new Collection(array(
+    'name' =&gt; new MinLength(5),
+    'email' =&gt; new Email(array('message' =&gt; 'Invalid email address')),
+));
+
+// créez un formulaire, sans valeurs par défaut, et passez les contraintes
+$form = $this-&gt;createFormBuilder(null, array(
+    'validation_constraint' =&gt; $collectionConstraint,
+))-&gt;add('email', 'email')
+    // ...
+;</pre>
+</div>
+<p>Maintenant, quand vous appelez <cite>$form-&gt;isValid()</cite>, les contraintes configurées sont
+appliquées aux données de votre formulaire. Si vous utilisez une classe de formulaire,
+surchargez la méthode <tt class="docutils literal"><span class="pre">getDefaultOptions</span></tt> pour les spécifier :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\TaskBundle\Form\Type;</span>
+
+<span class="x">use Symfony\Component\Form\AbstractType;</span>
+<span class="x">use Symfony\Component\Form\FormBuilder;</span>
+<span class="x">use Symfony\Component\Validator\Constraints\Email;</span>
+<span class="x">use Symfony\Component\Validator\Constraints\MinLength;</span>
+<span class="x">use Symfony\Component\Validator\Constraints\Collection;</span>
+
+<span class="x">class ContactType extends AbstractType</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    public function getDefaultOptions(array $options)</span>
+<span class="x">    {</span>
+<span class="x">        $collectionConstraint = new Collection(array(</span>
+<span class="x">            &#39;name&#39; =&gt; new MinLength(5),</span>
+<span class="x">            &#39;email&#39; =&gt; new Email(array(&#39;message&#39; =&gt; &#39;Invalid email address&#39;)),</span>
+<span class="x">        ));</span>
+
+<span class="x">        return array(&#39;validation_constraint&#39; =&gt; $collectionConstraint);</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Maintenant, vous avez la flexibilité de créer des formulaires - avec validation -
+qui retourne un tableau de données plutôt qu&#8217;un objet. Dans la plupart des cas, il
+est préférable - et certainement plus robuste - d&#8217;associer le formulaire à un objet.
+Mais pour les formulaires simple, cette approche est suffisante.</p>
+</div>
+</div>
+<div class="section" id="reflexions-finales">
+<h2>Réflexions finales<a class="headerlink" href="#reflexions-finales" title="Permalink to this headline">¶</a></h2>
+<p>Vous connaissez maintenant tout sur les bases nécessaires à la construction
+de formulaires complexes et fonctionnels pour votre application. Quand vous
+construisez des formulaires, gardez à l&#8217;esprit que le but premier d&#8217;un
+formulaire est de transcrire les données d&#8217;un objet (<tt class="docutils literal"><span class="pre">Task</span></tt>) en un formulaire
+HTML afin que l&#8217;utilisateur puisse modifier ces données. Le second objectif d&#8217;un
+formulaire est de prendre les données soumises par l&#8217;utilisateur et de les
+ré-appliquer à l&#8217;objet.</p>
+<p>Il y a beaucoup plus à apprendre à propos de la puissance du monde des
+formulaires, comme par exemple comment gérer les <a class="reference internal" href="../cookbook/doctrine/file_uploads.html"><em>uploads de fichier
+avec Doctrine</em></a> ou comment créer un
+formulaire où un nombre dynamique de sous-formulaires peut être ajouté
+(par exemple : une liste de choses à faire où vous pouvez continuer d&#8217;ajouter
+des champs via Javascript avant de soumettre le formulaire).
+Voyez le cookbook pour ces sujets. Aussi, assurez-vous de vous appuyer sur la
+<a class="reference internal" href="../reference/forms/types.html"><em>documentation de référence des types de champ</em></a>,
+qui inclut des exemples de comment utiliser chaque type de champ et ses options.</p>
+</div>
+<div class="section" id="en-savoir-plus-grace-au-cookbook">
+<h2>En savoir plus grâce au Cookbook<a class="headerlink" href="#en-savoir-plus-grace-au-cookbook" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="../cookbook/doctrine/file_uploads.html"><em>How to handle File Uploads with Doctrine</em></a></li>
+<li><a class="reference internal" href="../reference/forms/types/file.html"><em>Référence du Champ Fichier</em></a></li>
+<li><a class="reference internal" href="../cookbook/form/create_custom_field_type.html"><em>Créer des Types de Champ Personnalisés</em></a></li>
+<li><a class="reference internal" href="../cookbook/form/form_customization.html"><em>How to customize Form Rendering</em></a></li>
+<li><a class="reference internal" href="../cookbook/form/dynamic_form_generation.html"><em>How to Dynamically Generate Forms Using Form Events</em></a></li>
+<li><a class="reference internal" href="../cookbook/form/data_transformers.html"><em>Using Data Transformers</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Formulaires</a><ul>
+<li><a class="reference internal" href="#creer-un-formulaire-simple">Créer un Formulaire Simple</a><ul>
+<li><a class="reference internal" href="#construire-le-formulaire">Construire le Formulaire</a></li>
+<li><a class="reference internal" href="#rendu-du-formulaire">Rendu du Formulaire</a></li>
+<li><a class="reference internal" href="#gerer-la-soumission-des-formulaires">Gérer la Soumission des Formulaires</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#validation-de-formulaire">Validation de Formulaire</a><ul>
+<li><a class="reference internal" href="#les-groupes-de-validation">Les Groupes de Validation</a></li>
+<li><a class="reference internal" href="#groupes-bases-sur-les-donnees-soumises">Groupes basés sur les données soumises</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#types-de-champ-integres">Types de Champ Intégrés</a><ul>
+<li><a class="reference internal" href="#text-fields">Text Fields</a></li>
+<li><a class="reference internal" href="#choice-fields">Choice Fields</a></li>
+<li><a class="reference internal" href="#date-and-time-fields">Date and Time Fields</a></li>
+<li><a class="reference internal" href="#other-fields">Other Fields</a></li>
+<li><a class="reference internal" href="#field-groups">Field Groups</a></li>
+<li><a class="reference internal" href="#hidden-fields">Hidden Fields</a></li>
+<li><a class="reference internal" href="#base-fields">Base Fields</a></li>
+<li><a class="reference internal" href="#options-des-types-de-champ">Options des types de champ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#prediction-de-type-de-champ">Prédiction de Type de Champ</a><ul>
+<li><a class="reference internal" href="#prediction-des-options-de-type-de-champ">Prédiction des Options de Type de Champ</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rendre-un-formulaire-dans-un-template">Rendre un Formulaire dans un Template</a><ul>
+<li><a class="reference internal" href="#rendre-chaque-champ-a-la-main">Rendre chaque Champ à la Main</a></li>
+<li><a class="reference internal" href="#fonctions-de-reference-des-templates-twig">Fonctions de Référence des Templates Twig</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#creer-des-classes-de-formulaire">Créer des Classes de Formulaire</a></li>
+<li><a class="reference internal" href="#formulaires-et-doctrine">Formulaires et Doctrine</a></li>
+<li><a class="reference internal" href="#formulaires-imbriques">Formulaires imbriqués</a><ul>
+<li><a class="reference internal" href="#imbriquer-un-objet-unique">Imbriquer un Objet Unique</a></li>
+<li><a class="reference internal" href="#imbriquer-une-collection-de-formulaires">Imbriquer une Collection de Formulaires</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#habillage-de-formulaire-theming">Habillage de Formulaire (« Theming »)</a><ul>
+<li><a class="reference internal" href="#nommage-de-fragment-de-formulaire">Nommage de Fragment de Formulaire</a></li>
+<li><a class="reference internal" href="#heritage-de-fragment-de-template">Héritage de Fragment de Template</a></li>
+<li><a class="reference internal" href="#habillage-global-de-formulaire">Habillage Global de Formulaire</a><ul>
+<li><a class="reference internal" href="#twig">Twig</a></li>
+<li><a class="reference internal" href="#php">PHP</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#protection-csrf">Protection CSRF</a></li>
+<li><a class="reference internal" href="#utiliser-un-formulaire-sans-classe">Utiliser un formulaire sans classe</a><ul>
+<li><a class="reference internal" href="#ajouter-la-validation">Ajouter la Validation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#reflexions-finales">Réflexions finales</a></li>
+<li><a class="reference internal" href="#en-savoir-plus-grace-au-cookbook">En savoir plus grâce au Cookbook</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="validation.html"
+                        title="previous chapter">Validation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="security.html"
+                        title="next chapter">La sécurité</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/forms.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="security.html" title="La sécurité"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="validation.html" title="Validation"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

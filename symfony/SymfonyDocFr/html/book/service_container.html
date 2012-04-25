@@ -1,0 +1,1142 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Service Container &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="Performance" href="performance.html" />
+    <link rel="prev" title="Traductions" href="translation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="performance.html" title="Performance"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="translation.html" title="Traductions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="service-container">
+<span id="index-0"></span><h1>Service Container<a class="headerlink" href="#service-container" title="Permalink to this headline">¶</a></h1>
+<p>Une application PHP moderne est plein d&#8217;objets. Un objet peut faciliter l&#8217;envoi
+des messages e-mail, tandis qu&#8217;un autre peut vous permettre de persister les informations
+dans une base de données. Dans votre application, vous pouvez créer un objet qui gère
+votre inventaire de produits, ou tout autre objet qui traite des données via une API
+tierce. Le fait est qu&#8217;une application moderne fait beaucoup de choses et est organisée
+entre de nombreux objets qui gèrent chaque tâche.</p>
+<p>Dans ce chapitre, nous allons parler d&#8217;un objet spécial PHP dans Symfony2 qui vous aide
+à instancier, organiser et récupérer les nombreux objets de votre application.
+Cet objet, appelé un conteneur de services, vous permettra de standardiser et
+centraliser la façon dont les objets sont construits dans votre application. Le conteneur
+vous facilite la vie, est super rapide, et met en valeur une architecture qui
+encourage un code réutilisable et découplé. Et puisque toutes les classes fondamentales de Symfony2
+utilisent le conteneur, vous allez apprendre comment étendre, configurer et utiliser n&#8217;importe quel objet
+dans Symfony2. En bien des aspects, le conteneur de services est le principal responsable
+de la vitesse et de l&#8217;extensibilité de Symfony2.</p>
+<p>Enfin, configurer et utiliser le conteneur de services est facile. A la fin
+de ce chapitre, vous serez à l&#8217;aise pour créer vos propres objets via le
+conteneur et pour personnaliser des objets provenant de bundles tiers. Vous allez commencer
+à écrire du code qui est plus réutilisable, testable et découplé, tout simplement parce
+le conteneur de services facilite l&#8217;écriture de code de qualité.</p>
+<div class="section" id="qu-est-ce-qu-un-service">
+<span id="index-1"></span><h2>Qu&#8217;est-ce qu&#8217;un Service ?<a class="headerlink" href="#qu-est-ce-qu-un-service" title="Permalink to this headline">¶</a></h2>
+<p>Plus simplement, un <a class="reference internal" href="../glossary.html#term-service"><em class="xref std std-term">Service</em></a> désigne tout objet PHP qui effectue une sorte de
+tâche « globale ». C&#8217;est un nom générique utilisé en informatique
+pour décrire un objet qui est créé dans un but précis (par ex. l&#8217;envoi des
+emails). Chaque service est utilisé tout au long de votre application lorsque vous avez besoin
+de la fonctionnalité spécifique qu&#8217;il fournit. Vous n&#8217;avez pas à faire quelque chose de spécial
+pour fabriquer un service : il suffit d&#8217;écrire une classe PHP avec un code qui accomplit
+une tâche spécifique. Félicitations, vous venez tout juste de créer un service !</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">En règle générale, un objet PHP est un service s&#8217;il est utilisé de façon globale dans votre
+application. Un seul service <tt class="docutils literal"><span class="pre">Mailer</span></tt> est utilisé globalement pour envoyer des
+messages email tandis que les nombreux objets <tt class="docutils literal"><span class="pre">Message</span></tt> qu&#8217;il délivre
+ne sont <em>pas</em> des services. De même, un objet <tt class="docutils literal"><span class="pre">Product</span></tt> n&#8217;est pas un service,
+mais un objet qui persiste des objets <tt class="docutils literal"><span class="pre">Product</span></tt> dans une base de données <em>est</em> un service.</p>
+</div>
+<p>Alors quel est l&#8217;avantage ? L&#8217;avantage de réfléchir sur les « services » est
+que vous commencez à penser à séparer chaque morceau de fonctionnalité dans votre
+application dans une série de services. Puisque chaque service ne réalise qu&#8217;une fonction,
+vous pouvez facilement accéder à chaque service et utiliser ses fonctionnalités chaque fois que vous
+en avez besoin. Chaque service peut également être plus facilement testé et configuré puisqu&#8217;il
+est séparé des autres fonctionnalités de votre application. Cette idée
+est appelée <a class="reference external" href="http://wikipedia.org/wiki/Service-oriented_architecture">service-oriented architecture</a> et n&#8217;est pas unique à Symfony2
+ou encore PHP. Structurer votre application autour d&#8217;un ensemble de classes de services indépendants
+est une bonne pratique orientée objet célèbre et fiable. Ces compétences
+sont les clés pour devenir un bon développeur dans presque tous les langages.</p>
+</div>
+<div class="section" id="definition-d-un-conteneur-de-services">
+<span id="index-2"></span><h2>Définition d&#8217;un Conteneur de Services<a class="headerlink" href="#definition-d-un-conteneur-de-services" title="Permalink to this headline">¶</a></h2>
+<p>Un <a class="reference internal" href="../glossary.html#term-service-container"><em class="xref std std-term">Service Container</em></a> (ou <em>dependency injection container</em>) est simplement
+un objet PHP qui gère l&#8217;instanciation des services (c-a-d objets).
+Par exemple, supposons que nous avons une simple classe PHP qui envoie des messages email.
+Sans un conteneur de services, nous devons manuellement créer l&#8217;objet chaque fois que
+nous en avons besoin :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\HelloBundle\Mailer;</span>
+
+<span class="x">$mailer = new Mailer(&#39;sendmail&#39;);</span>
+<span class="x">$mailer-&gt;send(&#39;ryan@foobar.net&#39;, ... );</span>
+</pre></div>
+</div>
+<p>Ceci est assez facile. La classe imaginaire <tt class="docutils literal"><span class="pre">Mailer</span></tt> nous permet de configurer
+la méthode utilisée pour envoyer les messages par e-mail (par exemple <tt class="docutils literal"><span class="pre">sendmail</span></tt>, <tt class="docutils literal"><span class="pre">smtp</span></tt>, etc)
+Mais que faire si nous voulions utiliser le service mailer ailleurs ? Nous ne
+voulons certainement pas répéter la configuration du mailer <em>chaque</em> fois que nous devons utiliser
+l&#8217;objet <tt class="docutils literal"><span class="pre">Mailer</span></tt>. Que se passe-t-il si nous avions besoin de changer le <tt class="docutils literal"><span class="pre">transport</span></tt> de
+<tt class="docutils literal"><span class="pre">sendmail</span></tt> à <tt class="docutils literal"><span class="pre">smtp</span></tt> partout dans l&#8217;application ? Nous aurions besoin de traquer
+chaque endroit où nous avons créé un service <tt class="docutils literal"><span class="pre">Mailer</span></tt> et de le changer.</p>
+</div>
+<div class="section" id="creer-configurer-les-services-dans-le-conteneur">
+<span id="index-3"></span><h2>Créer/Configurer les services dans le Conteneur<a class="headerlink" href="#creer-configurer-les-services-dans-le-conteneur" title="Permalink to this headline">¶</a></h2>
+<p>Une meilleure solution est de laisser le conteneur de services créer l&#8217;objet <tt class="docutils literal"><span class="pre">Mailer</span></tt>
+pour vous. Pour que cela fonctionne, nous devons <em>spécifier</em> au conteneur comment
+créer le <tt class="docutils literal"><span class="pre">Mailer</span></tt>. Cela se fait via la configuration, qui peut
+être spécifiée en YAML, XML ou PHP :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config.yml</span>
+<span class="l-Scalar-Plain">services</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">my_mailer</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">class</span><span class="p-Indicator">:</span>        <span class="l-Scalar-Plain">Acme\HelloBundle\Mailer</span>
+        <span class="l-Scalar-Plain">arguments</span><span class="p-Indicator">:</span>    <span class="p-Indicator">[</span><span class="nv">sendmail</span><span class="p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config.xml --&gt;</span>
+<span class="nt">&lt;services&gt;</span>
+    <span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;my_mailer&quot;</span> <span class="na">class=</span><span class="s">&quot;Acme\HelloBundle\Mailer&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;argument&gt;</span>sendmail<span class="nt">&lt;/argument&gt;</span>
+    <span class="nt">&lt;/service&gt;</span>
+<span class="nt">&lt;/services&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+<span class="x">use Symfony\Component\DependencyInjection\Definition;</span>
+
+<span class="x">$container-&gt;setDefinition(&#39;my_mailer&#39;, new Definition(</span>
+<span class="x">    &#39;Acme\HelloBundle\Mailer&#39;,</span>
+<span class="x">    array(&#39;sendmail&#39;)</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Lorsque Symfony2 s&#8217;initialise, il construit le conteneur de services en utilisant la
+configuration de l&#8217;application (<tt class="docutils literal"><span class="pre">app/config/config.yml</span></tt> par défaut). Le
+fichier exact qui est chargé est dicté par la méthode <tt class="docutils literal"><span class="pre">AppKernel::registerContainerConfiguration()</span></tt>,
+qui charge un fichier de configuration spécifique à l&#8217;environnement (par exemple
+<tt class="docutils literal"><span class="pre">config_dev.yml</span></tt> pour l&#8217;environnement de <tt class="docutils literal"><span class="pre">dev</span></tt> ou <tt class="docutils literal"><span class="pre">config_prod.yml</span></tt>
+pour la <tt class="docutils literal"><span class="pre">prod</span></tt>).</p>
+</div>
+<p>Une instance de l&#8217;objet <tt class="docutils literal"><span class="pre">Acme\HelloBundle\Mailer</span></tt> est maintenant disponible via
+le conteneur de services. Le conteneur est disponible dans tous les contrôleurs traditionnels
+de Symfony2 où vous pouvez accéder aux services du conteneur via la méthode
+de raccourci <tt class="docutils literal"><span class="pre">get()</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">class HelloController extends Controller</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    public function sendEmailAction()</span>
+<span class="x">    {</span>
+<span class="x">        // ...</span>
+<span class="x">        $mailer = $this-&gt;get(&#39;my_mailer&#39;);</span>
+<span class="x">        $mailer-&gt;send(&#39;ryan@foobar.net&#39;, ... );</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Lorsque nous demandons le service <tt class="docutils literal"><span class="pre">my_mailer</span></tt>  du conteneur, le conteneur
+construit l&#8217;objet et le retourne. Ceci est un autre avantage majeur
+d&#8217;utiliser le conteneur de services. A savoir, un service est <em>jamais</em> construit avant
+qu&#8217;il ne soit nécessaire. Si vous définissez un service et ne l&#8217;utilisez jamais sur une demande, le service
+n&#8217;est jamais créé. Cela permet d&#8217;économiser la mémoire et d&#8217;augmenter la vitesse de votre application.
+Cela signifie aussi qu&#8217;il y a très peu ou pas d&#8217;impact de performance en définissant
+beaucoup de services. Les services qui ne sont jamais utilisés ne sont jamais construits.</p>
+<p>Comme bonus supplémentaire, le service <tt class="docutils literal"><span class="pre">Mailer</span></tt> est seulement créé une fois et la même
+instance est retournée chaque fois que vous demandez le service. Ceci est presque toujours
+le comportement dont vous aurez besoin (c&#8217;est plus souple et plus puissant), mais nous allons apprendre
+plus tard, comment vous pouvez configurer un service qui a de multiples instances.</p>
+</div>
+<div class="section" id="parametres-de-service">
+<span id="book-service-container-parameters"></span><h2>Paramètres de Service<a class="headerlink" href="#parametres-de-service" title="Permalink to this headline">¶</a></h2>
+<p>La création de nouveaux services (c-a-d objets) via le conteneur est assez
+simple. Les paramètres rendent les définitions de services plus organisées et flexibles :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre># app/config/config.yml
+parameters:
+    my_mailer.class:      Acme\HelloBundle\Mailer
+    my_mailer.transport:  sendmail
+
+services:
+    my_mailer:
+        class:        %my_mailer.class%
+        arguments:    [%my_mailer.transport%]</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config.xml --&gt;</span>
+<span class="nt">&lt;parameters&gt;</span>
+    <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;my_mailer.class&quot;</span><span class="nt">&gt;</span>Acme\HelloBundle\Mailer<span class="nt">&lt;/parameter&gt;</span>
+    <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;my_mailer.transport&quot;</span><span class="nt">&gt;</span>sendmail<span class="nt">&lt;/parameter&gt;</span>
+<span class="nt">&lt;/parameters&gt;</span>
+
+<span class="nt">&lt;services&gt;</span>
+    <span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;my_mailer&quot;</span> <span class="na">class=</span><span class="s">&quot;%my_mailer.class%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;argument&gt;</span>%my_mailer.transport%<span class="nt">&lt;/argument&gt;</span>
+    <span class="nt">&lt;/service&gt;</span>
+<span class="nt">&lt;/services&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+<span class="x">use Symfony\Component\DependencyInjection\Definition;</span>
+
+<span class="x">$container-&gt;setParameter(&#39;my_mailer.class&#39;, &#39;Acme\HelloBundle\Mailer&#39;);</span>
+<span class="x">$container-&gt;setParameter(&#39;my_mailer.transport&#39;, &#39;sendmail&#39;);</span>
+
+<span class="x">$container-&gt;setDefinition(&#39;my_mailer&#39;, new Definition(</span>
+<span class="x">    &#39;%my_mailer.class%&#39;,</span>
+<span class="x">    array(&#39;%my_mailer.transport%&#39;)</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Le résultat final est exactement le même que précédemment - la différence est seulement dans
+* comment * nous avons défini le service. En entourant les chaînes <tt class="docutils literal"><span class="pre">my_mailer.class</span></tt> et
+<tt class="docutils literal"><span class="pre">my_mailer.transport</span></tt> par le signe pourcent (<tt class="docutils literal"><span class="pre">%</span></tt>), le conteneur sait qu&#8217;il
+faut chercher des paramètres avec ces noms. Quand le conteneur est construit, il
+cherche la valeur de chaque paramètre et l&#8217;utilise dans la définition du service.</p>
+<p>Le but des paramètres est de fournir l&#8217;information dans les services. Bien sûr,
+il n&#8217;y avait rien de mal à définir le service sans utiliser de paramètre.
+Les paramètres, cependant, ont plusieurs avantages :</p>
+<ul class="simple">
+<li>la séparation et l&#8217;organisation de toutes les « options » de service sous une seule
+clé de <tt class="docutils literal"><span class="pre">paramètres</span></tt> ;</li>
+<li>les valeurs de paramètres peuvent être utilisées dans de multiples définitions de service ;</li>
+<li>Lors de la création d&#8217;un service dans un bundle (nous allons voir ceci sous peu), utiliser les paramètres
+permet au service d&#8217;être facilement personnalisé dans votre application.</li>
+</ul>
+<p>Le choix d&#8217;utiliser ou non des paramètres dépend de vous. Les bundles
+tiers de haute qualité utiliseront <em>toujours</em> les paramètres puisqu&#8217;ils rendent le service
+stocké dans le conteneur plus configurable. Pour les services dans votre application,
+cependant, vous pouvez ne pas avoir besoin de la flexibilité des paramètres.</p>
+<div class="section" id="tableaux-de-parametres">
+<h3>Tableaux de paramètres<a class="headerlink" href="#tableaux-de-parametres" title="Permalink to this headline">¶</a></h3>
+<p>Les paramètres ne sont pas obligatoirement des chaines de caractères, ils peuvent aussi
+être des tableaux. Pour le format XML, vous devez utiliser l&#8217;attribut type=&#8221;collection&#8221;
+pour tous les paramètres qui sont des tableaux.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config.yml</span>
+<span class="l-Scalar-Plain">parameters</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">my_mailer.gateways</span><span class="p-Indicator">:</span>
+        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">mail1</span>
+        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">mail2</span>
+        <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">mail3</span>
+    <span class="l-Scalar-Plain">my_multilang.language_fallback</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">en</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">en</span>
+            <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">fr</span>
+        <span class="l-Scalar-Plain">fr</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">fr</span>
+            <span class="p-Indicator">-</span> <span class="l-Scalar-Plain">en</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config.xml --&gt;</span>
+<span class="nt">&lt;parameters&gt;</span>
+    <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;my_mailer.gateways&quot;</span> <span class="na">type=</span><span class="s">&quot;collection&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;parameter&gt;</span>mail1<span class="nt">&lt;/parameter&gt;</span>
+        <span class="nt">&lt;parameter&gt;</span>mail2<span class="nt">&lt;/parameter&gt;</span>
+        <span class="nt">&lt;parameter&gt;</span>mail3<span class="nt">&lt;/parameter&gt;</span>
+    <span class="nt">&lt;/parameter&gt;</span>
+    <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;my_multilang.language_fallback&quot;</span> <span class="na">type=</span><span class="s">&quot;collection&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;en&quot;</span> <span class="na">type=</span><span class="s">&quot;collection&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;parameter&gt;</span>en<span class="nt">&lt;/parameter&gt;</span>
+            <span class="nt">&lt;parameter&gt;</span>fr<span class="nt">&lt;/parameter&gt;</span>
+        <span class="nt">&lt;/parameter&gt;</span>
+        <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;fr&quot;</span> <span class="na">type=</span><span class="s">&quot;collection&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;parameter&gt;</span>fr<span class="nt">&lt;/parameter&gt;</span>
+            <span class="nt">&lt;parameter&gt;</span>en<span class="nt">&lt;/parameter&gt;</span>
+        <span class="nt">&lt;/parameter&gt;</span>
+    <span class="nt">&lt;/parameter&gt;</span>
+<span class="nt">&lt;/parameters&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+<span class="x">use Symfony\Component\DependencyInjection\Definition;</span>
+
+<span class="x">$container-&gt;setParameter(&#39;my_mailer.gateways&#39;, array(&#39;mail1&#39;, &#39;mail2&#39;, &#39;mail3&#39;));</span>
+<span class="x">$container-&gt;setParameter(&#39;my_multilang.language_fallback&#39;,</span>
+<span class="x">                         array(&#39;en&#39; =&gt; array(&#39;en&#39;, &#39;fr&#39;),</span>
+<span class="x">                               &#39;fr&#39; =&gt; array(&#39;fr&#39;, &#39;en&#39;),</span>
+<span class="x">                        ));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="section" id="importer-d-autres-ressources-de-configuration-de-conteneur">
+<h2>Importer d&#8217;autres Ressources de Configuration de Conteneur<a class="headerlink" href="#importer-d-autres-ressources-de-configuration-de-conteneur" title="Permalink to this headline">¶</a></h2>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Dans cette section, nous allons faire référence aux fichiers de configuration de service comme des <em>ressources</em>.
+C&#8217;est pour souligner le fait que, alors que la plupart des ressources de configuration
+sont des fichiers (par exemple YAML, XML, PHP), Symfony2 est si flexible que la configuration
+pourrait être chargée de n&#8217;importe où (par exemple une base de données ou même via un service
+web externe).</p>
+</div>
+<p>Le conteneur de services est construit en utilisant une ressource de configuration unique
+(<tt class="docutils literal"><span class="pre">app/config/config.yml</span></tt> par défaut). Toutes les autres configurations de service
+(y compris la configuration du noyau de Symfony2 et des bundle tiers) doivent
+être importées à l&#8217;intérieur de ce fichier d&#8217;une manière ou d&#8217;une autre. Cela vous donne une
+flexibilité absolue sur les services dans votre application.</p>
+<p>La configuration des services externes peut être importée de deux manières différentes. Tout d&#8217;abord,
+nous allons parler de la méthode que vous utiliserez le plus souvent dans votre application :
+la directive <tt class="docutils literal"><span class="pre">imports</span></tt>. Dans la section suivante, nous allons introduire la
+deuxième méthode, qui est la méthode flexible et préférée pour l&#8217;importation de
+configuration de services des bundles tiers.</p>
+<div class="section" id="importer-la-configuration-avec-imports">
+<span id="service-container-imports-directive"></span><span id="index-4"></span><h3>Importer la Configuration avec <tt class="docutils literal"><span class="pre">imports</span></tt><a class="headerlink" href="#importer-la-configuration-avec-imports" title="Permalink to this headline">¶</a></h3>
+<p>Jusqu&#8217;ici, nous avons placé notre définition de conteneur de service <tt class="docutils literal"><span class="pre">my_mailer</span></tt> directement
+dans le fichier de configuration de l&#8217;application (par exemple <tt class="docutils literal"><span class="pre">app/config/config.yml</span></tt>).
+Bien sûr, puisque la classe <tt class="docutils literal"><span class="pre">Mailer</span></tt> elle-même vit à l&#8217;intérieur de <tt class="docutils literal"><span class="pre">AcmeHelloBundle</span></tt>,
+il est plus logique de mettre la définition du conteneur <tt class="docutils literal"><span class="pre">my_mailer</span></tt> à l&#8217;intérieur du
+bundle aussi.</p>
+<p>Tout d&#8217;abord, déplacez la définition du conteneur <tt class="docutils literal"><span class="pre">my_mailer</span></tt> dans un nouveau fichier de ressource
+de conteneur à l&#8217;intérieur d&#8217; <tt class="docutils literal"><span class="pre">AcmeHelloBundle</span></tt>. Si les répertoires <tt class="docutils literal"><span class="pre">Resources</span></tt> ou
+<tt class="docutils literal"><span class="pre">Resources/config</span></tt> n&#8217;existent pas, créez-les.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre># src/Acme/HelloBundle/Resources/config/services.yml
+parameters:
+    my_mailer.class:      Acme\HelloBundle\Mailer
+    my_mailer.transport:  sendmail
+
+services:
+    my_mailer:
+        class:        %my_mailer.class%
+        arguments:    [%my_mailer.transport%]</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- src/Acme/HelloBundle/Resources/config/services.xml --&gt;</span>
+<span class="nt">&lt;parameters&gt;</span>
+    <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;my_mailer.class&quot;</span><span class="nt">&gt;</span>Acme\HelloBundle\Mailer<span class="nt">&lt;/parameter&gt;</span>
+    <span class="nt">&lt;parameter</span> <span class="na">key=</span><span class="s">&quot;my_mailer.transport&quot;</span><span class="nt">&gt;</span>sendmail<span class="nt">&lt;/parameter&gt;</span>
+<span class="nt">&lt;/parameters&gt;</span>
+
+<span class="nt">&lt;services&gt;</span>
+    <span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;my_mailer&quot;</span> <span class="na">class=</span><span class="s">&quot;%my_mailer.class%&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;argument&gt;</span>%my_mailer.transport%<span class="nt">&lt;/argument&gt;</span>
+    <span class="nt">&lt;/service&gt;</span>
+<span class="nt">&lt;/services&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/HelloBundle/Resources/config/services.php</span>
+<span class="x">use Symfony\Component\DependencyInjection\Definition;</span>
+
+<span class="x">$container-&gt;setParameter(&#39;my_mailer.class&#39;, &#39;Acme\HelloBundle\Mailer&#39;);</span>
+<span class="x">$container-&gt;setParameter(&#39;my_mailer.transport&#39;, &#39;sendmail&#39;);</span>
+
+<span class="x">$container-&gt;setDefinition(&#39;my_mailer&#39;, new Definition(</span>
+<span class="x">    &#39;%my_mailer.class%&#39;,</span>
+<span class="x">    array(&#39;%my_mailer.transport%&#39;)</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>La définition elle-même n&#8217;a pas changé, seulement son emplacement. Bien sûr, le conteneur
+de service ne connait pas le nouveau fichier de ressources. Heureusement, nous pouvons
+facilement importer le fichier de ressources en utilisant la clé <tt class="docutils literal"><span class="pre">imports</span></tt> dans
+la configuration de l&#8217;application.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre># app/config/config.yml
+imports:
+    hello_bundle:
+         - { resource: @AcmeHelloBundle/Resources/config/services.yml }</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config.xml --&gt;</span>
+<span class="nt">&lt;imports&gt;</span>
+    <span class="nt">&lt;import</span> <span class="na">resource=</span><span class="s">&quot;@AcmeHelloBundle/Resources/config/services.xml&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/imports&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+<span class="x">$this-&gt;import(&#39;@AcmeHelloBundle/Resources/config/services.php&#39;);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>La directive <tt class="docutils literal"><span class="pre">imports</span></tt> permet à votre application d&#8217;inclure des ressources de configuration
+de conteneur de services de n&#8217;importe quel autre emplacement (le plus souvent à partir de bundles).
+L&#8217;emplacement <tt class="docutils literal"><span class="pre">resource</span></tt>, pour les fichiers, est le chemin absolu du fichier de
+ressource. La syntaxe spéciale <tt class="docutils literal"><span class="pre">&#64;AcmeHello</span></tt> résout le chemin du répertoire du
+bundle <tt class="docutils literal"><span class="pre">AcmeHelloBundle</span></tt>. Cela vous aide à spécifier le chemin vers la ressource
+sans se soucier plus tard, si vous déplacez le <tt class="docutils literal"><span class="pre">AcmeHelloBundle</span></tt> dans un autre
+répertoire.</p>
+</div>
+<div class="section" id="importer-la-configuration-via-les-extensions-de-conteneur">
+<span id="service-container-extension-configuration"></span><span id="index-5"></span><h3>Importer la Configuration via les Extensions de Conteneur<a class="headerlink" href="#importer-la-configuration-via-les-extensions-de-conteneur" title="Permalink to this headline">¶</a></h3>
+<p>Quand vous développerez avec Symfony2, vous utiliserez le plus souvent la directive <tt class="docutils literal"><span class="pre">imports</span></tt>
+pour importer la configuration du conteneur des bundles que vous avez créé spécifiquement
+pour votre application. Les configurations des conteneurs des bundles tiers, y compris
+les services du noyau de Symfony2, sont habituellement chargés en utilisant une autre méthode qui est plus
+souple et facile à configurer dans votre application.</p>
+<p>Voici comment cela fonctionne. En interne, chaque bundle définit ses services
+comme nous avons vu jusqu&#8217;à présent. A savoir, un bundle utilise un ou plusieurs fichiers de
+ressources de configuration (généralement XML) pour spécifier les paramètres et les services pour ce
+bundle. Cependant, au lieu d&#8217;importer chacune de ces ressources directement à partir de
+la configuration de votre application en utilisant la directive <tt class="docutils literal"><span class="pre">imports</span></tt>, vous pouvez simplement
+invoquer une <em>extension du conteneur de services</em> à l&#8217;intérieur du bundle qui fait le travail pour
+vous. Une extension de conteneur de services est une classe PHP créée par l&#8217;auteur du bundle
+afin d&#8217;accomplir deux choses :</p>
+<ul class="simple">
+<li>importer toutes les ressources du conteneur de services nécessaires pour configurer les services
+pour le bundle ;</li>
+<li>fournir une configuration sémantique, simple de sorte que le bundle peut
+être configuré sans interagir avec les paramètres de la
+configuration du conteneur de services du bundle.</li>
+</ul>
+<p>En d&#8217;autres termes, une extension de conteneur de services configure les services pour
+un bundle en votre nom. Et comme nous le verrons dans un instant, l&#8217;extension fournit
+une interface pratique, de haut niveau pour configurer le bundle.</p>
+<p>Prenez le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> - le bundle noyau du framework Symfony2 - comme un
+exemple. La présence du code suivant dans votre configuration de l&#8217;application
+invoque l&#8217;extension du conteneur de services à l&#8217;intérieur du <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config.yml</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">secret</span><span class="p-Indicator">:</span>          <span class="l-Scalar-Plain">xxxxxxxxxx</span>
+    <span class="l-Scalar-Plain">charset</span><span class="p-Indicator">:</span>         <span class="l-Scalar-Plain">UTF-8</span>
+    <span class="l-Scalar-Plain">form</span><span class="p-Indicator">:</span>            <span class="l-Scalar-Plain">true</span>
+    <span class="l-Scalar-Plain">csrf_protection</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+    <span class="l-Scalar-Plain">router</span><span class="p-Indicator">:</span>        <span class="p-Indicator">{</span> <span class="nv">resource</span><span class="p-Indicator">:</span> <span class="s">&quot;%kernel.root_dir%/config/routing.yml&quot;</span> <span class="p-Indicator">}</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config.xml --&gt;</span>
+<span class="nt">&lt;framework:config</span> <span class="na">charset=</span><span class="s">&quot;UTF-8&quot;</span> <span class="na">secret=</span><span class="s">&quot;xxxxxxxxxx&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;framework:form</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;framework:csrf-protection</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;framework:router</span> <span class="na">resource=</span><span class="s">&quot;%kernel.root_dir%/config/routing.xml&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+<span class="nt">&lt;/framework&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;secret&#39;          =&gt; &#39;xxxxxxxxxx&#39;,</span>
+<span class="x">    &#39;charset&#39;         =&gt; &#39;UTF-8&#39;,</span>
+<span class="x">    &#39;form&#39;            =&gt; array(),</span>
+<span class="x">    &#39;csrf-protection&#39; =&gt; array(),</span>
+<span class="x">    &#39;router&#39;          =&gt; array(&#39;resource&#39; =&gt; &#39;%kernel.root_dir%/config/routing.php&#39;),</span>
+<span class="x">    // ...</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Lorsque la configuration est analysée, le conteneur cherche une extension qui
+peut gérer la directive de configuration du <tt class="docutils literal"><span class="pre">framework</span></tt>. L&#8217;extension en question,
+qui vit dans le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>, est invoquée et la configuration du service
+pour le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> est chargée. Si vous retirez la clé <tt class="docutils literal"><span class="pre">framework</span></tt>
+de votre fichier de configuration de l&#8217;application entièrement, les services noyau de Symfony2
+ne seront pas chargés. Le fait est que vous avez la maîtrise : le framework Symfony2
+ne contient pas de magie et n&#8217;effectue aucune action dont vous n&#8217;avez pas le contrôle
+dessus.</p>
+<p>Bien sûr, vous pouvez faire beaucoup plus que simplement « activer » l&#8217;extension du conteneur
+de services du <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>. Chaque extension vous permet de facilement
+personnaliser le bundle, sans se soucier de la manière dont les services internes sont
+définis.</p>
+<p>Dans ce cas, l&#8217;extension vous permet de personnaliser la <tt class="docutils literal"><span class="pre">charset</span></tt>, <tt class="docutils literal"><span class="pre">error_handler</span></tt>,
+<tt class="docutils literal"><span class="pre">csrf_protection</span></tt>, <tt class="docutils literal"><span class="pre">router</span></tt> et bien plus encore. En interne,
+le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> utilise les options spécifiées ici pour définir et configurer
+les services qui lui sont spécifiques. Le bundle se charge de créer tous les
+<tt class="docutils literal"><span class="pre">paramètres</span></tt> et <tt class="docutils literal"><span class="pre">services</span></tt> nécessaires pour le conteneur du service, tout en permettant
+une grande partie de la configuration d&#8217;être facilement personnalisée. Comme bonus supplémentaire, la plupart des
+extensions du conteneur de services sont assez malines pour effectuer la validation -
+vous informant des options qui sont manquantes ou du mauvais type de données.</p>
+<p>Lors de l&#8217;installation ou la configuration d&#8217;un bundle, consultez la documentation du bundle pour
+savoir comment installer et configurer les services pour le bundle. Les options
+disponibles pour les bundles du noyau peuvent être trouvées à <a class="reference internal" href="../reference/index.html"><em>Reference Guide</em></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Nativement, le conteneur de services reconnait seulement les
+directives <tt class="docutils literal"><span class="pre">parameters</span></tt>, <tt class="docutils literal"><span class="pre">services</span></tt>, et <tt class="docutils literal"><span class="pre">imports</span></tt>. Toutes les autres directives
+sont gérées par une extension du conteneur de service.</p>
+</div>
+</div>
+</div>
+<div class="section" id="referencer-injecter-les-services">
+<span id="index-6"></span><h2>Reférencer (Injecter) les Services<a class="headerlink" href="#referencer-injecter-les-services" title="Permalink to this headline">¶</a></h2>
+<p>Jusqu&#8217;à présent, notre service originel <tt class="docutils literal"><span class="pre">my_mailer</span></tt> est simple : il suffit d&#8217;un seul paramètre
+dans son constructeur, qui est facilement configurable. Comme vous le verrez, la vraie
+puissance du conteneur est démontrée lorsque vous avez besoin de créer un service qui
+dépend d&#8217;un ou plusieurs autres services dans le conteneur.</p>
+<p>Commençons par un exemple. Supposons que nous ayons un nouveau service, <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt> ,
+qui aide à gérer la préparation et l&#8217;envoi d&#8217;un message email à
+une liste d&#8217;adresses. Bien sûr, le service <tt class="docutils literal"><span class="pre">my_mailer</span></tt> excelle
+vraiment pour envoyer des messages email, donc nous allons l&#8217;utiliser dans <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt>
+pour gérer l&#8217;envoi effectif des messages. Cette fausse classe pourrait ressembler à
+quelque chose comme ceci :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\HelloBundle\Newsletter;</span>
+
+<span class="x">use Acme\HelloBundle\Mailer;</span>
+
+<span class="x">class NewsletterManager</span>
+<span class="x">{</span>
+<span class="x">    protected $mailer;</span>
+
+<span class="x">    public function __construct(Mailer $mailer)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;mailer = $mailer;</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Sans utiliser le conteneur de services, nous pouvons créer une nouvelle <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt>
+assez facilement à l&#8217;intérieur d&#8217;un contrôleur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function sendNewsletterAction()</span>
+<span class="x">{</span>
+<span class="x">    $mailer = $this-&gt;get(&#39;my_mailer&#39;);</span>
+<span class="x">    $newsletter = new Acme\HelloBundle\Newsletter\NewsletterManager($mailer);</span>
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Cette approche est pas mal, mais si nous décidons plus tard que la classe <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt>
+a besoin d&#8217;un deuxième ou troisième paramètre de constructeur ? Que se passe-t-il si nous décidons de
+refactoriser notre code et de renommer la classe ? Dans les deux cas, vous auriez besoin de trouver tous les
+endroits où le <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt> a été instancié et de le modifier. Bien sûr,
+le conteneur de services nous donne une option beaucoup plus attrayante :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre># src/Acme/HelloBundle/Resources/config/services.yml
+parameters:
+    # ...
+    newsletter_manager.class: Acme\HelloBundle\Newsletter\NewsletterManager
+
+services:
+    my_mailer:
+        # ...
+    newsletter_manager:
+        class:     %newsletter_manager.class%
+        arguments: [@my_mailer]</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><pre>&lt;!-- src/Acme/HelloBundle/Resources/config/services.xml --&gt;
+&lt;parameters&gt;
+    &lt;!-- ... --&gt;
+    &lt;parameter key="newsletter_manager.class"&gt;Acme\HelloBundle\Newsletter\NewsletterManager&lt;/parameter&gt;
+&lt;/parameters&gt;
+
+&lt;services&gt;
+    &lt;service id="my_mailer" ... &gt;
+      &lt;!-- ... --&gt;
+    &lt;/service&gt;
+    &lt;service id="newsletter_manager" class="%newsletter_manager.class%"&gt;
+        &lt;argument type="service" id="my_mailer"/&gt;
+    &lt;/service&gt;
+&lt;/services&gt;</pre>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/HelloBundle/Resources/config/services.php</span>
+<span class="x">use Symfony\Component\DependencyInjection\Definition;</span>
+<span class="x">use Symfony\Component\DependencyInjection\Reference;</span>
+
+<span class="x">// ...</span>
+<span class="x">$container-&gt;setParameter(&#39;newsletter_manager.class&#39;, &#39;Acme\HelloBundle\Newsletter\NewsletterManager&#39;);</span>
+
+<span class="x">$container-&gt;setDefinition(&#39;my_mailer&#39;, ... );</span>
+<span class="x">$container-&gt;setDefinition(&#39;newsletter_manager&#39;, new Definition(</span>
+<span class="x">    &#39;%newsletter_manager.class%&#39;,</span>
+<span class="x">    array(new Reference(&#39;my_mailer&#39;))</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>En YAML, la syntaxe spéciale <tt class="docutils literal"><span class="pre">&#64;my_mailer</span></tt> indique au conteneur de chercher
+un service nommé <tt class="docutils literal"><span class="pre">my_mailer</span></tt> et de transmettre cet objet dans le constructeur
+de <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt>. Dans ce cas, cependant, le service spécifié <tt class="docutils literal"><span class="pre">my_mailer</span></tt>
+doit exister. Si ce n&#8217;est pas le cas, une exception sera levée. Vous pouvez marquer vos
+dépendances comme facultatives - nous en parlerons dans la section suivante.</p>
+<p>Utiliser des références est un outil très puissant qui vous permet de créer des classes
+de services indépendantes avec des dépendances bien définies. Dans cet exemple, le service
+<tt class="docutils literal"><span class="pre">newsletter_manager</span></tt> a besoin du service <tt class="docutils literal"><span class="pre">my_mailer</span></tt> afin de fonctionner. Lorsque vous définissez
+cette dépendance dans le conteneur de service, le conteneur prend soin de tout
+le travail de l&#8217;instanciation des objets.</p>
+<div class="section" id="dependances-optionnelles-setter-injection">
+<h3>Dépendances optionnelles : Setter Injection<a class="headerlink" href="#dependances-optionnelles-setter-injection" title="Permalink to this headline">¶</a></h3>
+<p>L&#8217;injection de dépendances dans le constructeur de cette manière est un excellent
+moyen de s&#8217;assurer que la dépendance est disponible pour utilisation. Si vous avez des
+dépendances optionnelles pour une classe, alors la méthode « setter injection » peut
+être une meilleure option. Cela signifie d&#8217;injecter la dépendance en utilisant un
+appel de méthode plutôt que par le constructeur. La classe devrait ressembler à ceci :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\HelloBundle\Newsletter;</span>
+
+<span class="x">use Acme\HelloBundle\Mailer;</span>
+
+<span class="x">class NewsletterManager</span>
+<span class="x">{</span>
+<span class="x">    protected $mailer;</span>
+
+<span class="x">    public function setMailer(Mailer $mailer)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;mailer = $mailer;</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>L&#8217;injection de la dépendance par la méthode setter a juste besoin d&#8217;un changement de la syntaxe :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre># src/Acme/HelloBundle/Resources/config/services.yml
+parameters:
+    # ...
+    newsletter_manager.class: Acme\HelloBundle\Newsletter\NewsletterManager
+
+services:
+    my_mailer:
+        # ...
+    newsletter_manager:
+        class:     %newsletter_manager.class%
+        calls:
+            - [ setMailer, [ @my_mailer ] ]</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><pre>&lt;!-- src/Acme/HelloBundle/Resources/config/services.xml --&gt;
+&lt;parameters&gt;
+    &lt;!-- ... --&gt;
+    &lt;parameter key="newsletter_manager.class"&gt;Acme\HelloBundle\Newsletter\NewsletterManager&lt;/parameter&gt;
+&lt;/parameters&gt;
+
+&lt;services&gt;
+    &lt;service id="my_mailer" ... &gt;
+      &lt;!-- ... --&gt;
+    &lt;/service&gt;
+    &lt;service id="newsletter_manager" class="%newsletter_manager.class%"&gt;
+        &lt;call method="setMailer"&gt;
+             &lt;argument type="service" id="my_mailer" /&gt;
+        &lt;/call&gt;
+    &lt;/service&gt;
+&lt;/services&gt;</pre>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/HelloBundle/Resources/config/services.php</span>
+<span class="x">use Symfony\Component\DependencyInjection\Definition;</span>
+<span class="x">use Symfony\Component\DependencyInjection\Reference;</span>
+
+<span class="x">// ...</span>
+<span class="x">$container-&gt;setParameter(&#39;newsletter_manager.class&#39;, &#39;Acme\HelloBundle\Newsletter\NewsletterManager&#39;);</span>
+
+<span class="x">$container-&gt;setDefinition(&#39;my_mailer&#39;, ... );</span>
+<span class="x">$container-&gt;setDefinition(&#39;newsletter_manager&#39;, new Definition(</span>
+<span class="x">    &#39;%newsletter_manager.class%&#39;</span>
+<span class="x">))-&gt;addMethodCall(&#39;setMailer&#39;, array(</span>
+<span class="x">    new Reference(&#39;my_mailer&#39;)</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Les approches présentées dans cette section sont appelées « constructor injection »
+et « setter injection« ». Le conteneur de service Symfony2 supporte aussi
+« property injection« ».</p>
+</div>
+</div>
+</div>
+<div class="section" id="rendre-les-references-optionnelles">
+<h2>Rendre les Références Optionnelles<a class="headerlink" href="#rendre-les-references-optionnelles" title="Permalink to this headline">¶</a></h2>
+<p>Parfois, un de vos services peut avoir une dépendance optionnelle, ce qui signifie
+que la dépendance n&#8217;est pas requise par le service pour fonctionner correctement. Dans
+l&#8217;exemple ci-dessus, le service <tt class="docutils literal"><span class="pre">my_mailer</span></tt> <em>doit</em> exister, sinon une exception
+sera levée. En modifiant les définitions du service <tt class="docutils literal"><span class="pre">newsletter_manager</span></tt>,
+vous pouvez rendre cette référence optionnelle. Le conteneur va ensuite l&#8217;injecter si
+elle existe et ne rien faire si ce n&#8217;est pas le cas :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre># src/Acme/HelloBundle/Resources/config/services.yml
+parameters:
+    # ...
+
+services:
+    newsletter_manager:
+        class:     %newsletter_manager.class%
+        arguments: [@?my_mailer]</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><pre>&lt;!-- src/Acme/HelloBundle/Resources/config/services.xml --&gt;
+
+&lt;services&gt;
+    &lt;service id="my_mailer" ... &gt;
+      &lt;!-- ... --&gt;
+    &lt;/service&gt;
+    &lt;service id="newsletter_manager" class="%newsletter_manager.class%"&gt;
+        &lt;argument type="service" id="my_mailer" on-invalid="ignore" /&gt;
+    &lt;/service&gt;
+&lt;/services&gt;</pre>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/HelloBundle/Resources/config/services.php</span>
+<span class="x">use Symfony\Component\DependencyInjection\Definition;</span>
+<span class="x">use Symfony\Component\DependencyInjection\Reference;</span>
+<span class="x">use Symfony\Component\DependencyInjection\ContainerInterface;</span>
+
+<span class="x">// ...</span>
+<span class="x">$container-&gt;setParameter(&#39;newsletter_manager.class&#39;, &#39;Acme\HelloBundle\Newsletter\NewsletterManager&#39;);</span>
+
+<span class="x">$container-&gt;setDefinition(&#39;my_mailer&#39;, ... );</span>
+<span class="x">$container-&gt;setDefinition(&#39;newsletter_manager&#39;, new Definition(</span>
+<span class="x">    &#39;%newsletter_manager.class%&#39;,</span>
+<span class="x">    array(new Reference(&#39;my_mailer&#39;, ContainerInterface::IGNORE_ON_INVALID_REFERENCE))</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>En YAML, la syntaxe spéciale <tt class="docutils literal"><span class="pre">&#64;?</span></tt> indique au conteneur de service que la dependance
+est optionnelle. Bien sûr, le <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt> doit être aussi écrit pour
+permettre une dépendance optionnelle :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function __construct(Mailer $mailer = null)</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="services-de-bundle-tiers-et-noyau-de-symfony">
+<h2>Services de Bundle Tiers et Noyau de Symfony<a class="headerlink" href="#services-de-bundle-tiers-et-noyau-de-symfony" title="Permalink to this headline">¶</a></h2>
+<p>Etant donné que Symfony2 et tous les bundles tiers configurent et récupèrent leurs services
+via le conteneur, vous pouvez facilement y accéder, ou même les utiliser dans vos propres
+services. Pour garder les choses simples, par défaut Symfony2 n&#8217;exige pas que
+les contrôleurs soient définis comme des services. Par ailleurs Symfony2 injecte l&#8217;ensemble du
+conteneur de services dans votre contrôleur. Par exemple, pour gérer le stockage
+des informations sur une session utilisateur, Symfony2 fournit un service <tt class="docutils literal"><span class="pre">session</span></tt>,
+auquel vous pouvez accéder de l&#8217;intérieur d&#8217;un contrôleur standard comme suit :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function indexAction($bar)</span>
+<span class="x">{</span>
+<span class="x">    $session = $this-&gt;get(&#39;session&#39;);</span>
+<span class="x">    $session-&gt;set(&#39;foo&#39;, $bar);</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Dans Symfony2, vous allez constamment utiliser les services fournis par le noyau de Symfony ou
+autres bundles tiers pour effectuer des tâches telles que rendre des templates (<tt class="docutils literal"><span class="pre">templating</span></tt>),
+envoyer des emails (<tt class="docutils literal"><span class="pre">mailer</span></tt>), ou d&#8217;accéder à des informations sur la requête (<tt class="docutils literal"><span class="pre">request</span></tt>).</p>
+<p>Nous pouvons aller plus loin en utilisant ces services à l&#8217;intérieur des services
+que vous avez créés pour votre application. Modifions le <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt>
+afin d&#8217;utiliser le vrai service <tt class="docutils literal"><span class="pre">mailer</span></tt> de Symfony2 (au lieu du faux <tt class="docutils literal"><span class="pre">my_mailer</span></tt>).
+Passons aussi le service du moteur de template à <tt class="docutils literal"><span class="pre">NewsletterManager</span></tt>
+afin qu&#8217;il puisse générer le contenu de l&#8217;email via un template :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\HelloBundle\Newsletter;</span>
+
+<span class="x">use Symfony\Component\Templating\EngineInterface;</span>
+
+<span class="x">class NewsletterManager</span>
+<span class="x">{</span>
+<span class="x">    protected $mailer;</span>
+
+<span class="x">    protected $templating;</span>
+
+<span class="x">    public function __construct(\Swift_Mailer $mailer, EngineInterface $templating)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;mailer = $mailer;</span>
+<span class="x">        $this-&gt;templating = $templating;</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Configurer le conteneur de services est facile :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre>services:
+    newsletter_manager:
+        class:     %newsletter_manager.class%
+        arguments: [@mailer, @templating]</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;newsletter_manager&quot;</span> <span class="na">class=</span><span class="s">&quot;%newsletter_manager.class%&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;argument</span> <span class="na">type=</span><span class="s">&quot;service&quot;</span> <span class="na">id=</span><span class="s">&quot;mailer&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;argument</span> <span class="na">type=</span><span class="s">&quot;service&quot;</span> <span class="na">id=</span><span class="s">&quot;templating&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/service&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">$container-&gt;setDefinition(&#39;newsletter_manager&#39;, new Definition(</span>
+<span class="x">    &#39;%newsletter_manager.class%&#39;,</span>
+<span class="x">    array(</span>
+<span class="x">        new Reference(&#39;mailer&#39;),</span>
+<span class="x">        new Reference(&#39;templating&#39;)</span>
+<span class="x">    )</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Le service <tt class="docutils literal"><span class="pre">newsletter_manager</span></tt> a désormais accès aux services noyau <tt class="docutils literal"><span class="pre">mailer</span></tt>
+et <tt class="docutils literal"><span class="pre">templating</span></tt>. C&#8217;est une façon commune de créer des services spécifiques
+à votre application qui exploitent la puissance des différents services au sein
+du framework.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Soyez sûr que l&#8217;entrée <tt class="docutils literal"><span class="pre">swiftmailer</span></tt> apparaît dans votre configuration de
+l&#8217;application. Comme nous l&#8217;avons mentionné dans <a class="reference internal" href="#service-container-extension-configuration"><em>Importer la Configuration via les Extensions de Conteneur</em></a>,
+la clé <tt class="docutils literal"><span class="pre">swiftmailer</span></tt> invoque l&#8217;extension du service de
+<tt class="docutils literal"><span class="pre">SwiftmailerBundle</span></tt>, qui déclare le service <tt class="docutils literal"><span class="pre">mailer</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="configuration-de-conteneur-avancee">
+<span id="index-7"></span><h2>Configuration de Conteneur Avancée<a class="headerlink" href="#configuration-de-conteneur-avancee" title="Permalink to this headline">¶</a></h2>
+<p>Comme nous l&#8217;avons vu, la définition des services à l&#8217;intérieur du conteneur est facile, en général
+impliquant une clé de configuration de <tt class="docutils literal"><span class="pre">service</span></tt> et quelques paramètres. Cependant,
+le conteneur a plusieurs autres outils disponibles qui aident à <em>tagger</em> les services
+pour des fonctionnalités spéciales, créent des services plus complexes, et effectuent des opérations
+après que le conteneur soit construit.</p>
+<div class="section" id="marquer-les-services-comme-public-prive">
+<h3>Marquer les Services comme public / privé<a class="headerlink" href="#marquer-les-services-comme-public-prive" title="Permalink to this headline">¶</a></h3>
+<p>Lors de la définition des services, vous souhaitez généralement être en mesure d&#8217;accéder à ces définitions
+au sein de votre code d&#8217;application. Ces services sont appelés <tt class="docutils literal"><span class="pre">publics</span></tt>. Par exemple,
+le service <tt class="docutils literal"><span class="pre">doctrine</span></tt> enregistré avec le conteneur en utilisant le DoctrineBundle
+est un service public que vous pouvez y accéder via :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$doctrine = $container-&gt;get(&#39;doctrine&#39;);</span>
+</pre></div>
+</div>
+<p>Cependant, il y a des cas utiles où vous ne voulez pas qu&#8217;un service soit public. Cela
+est courant quand un service est seulement défini car il pourrait être utilisé comme un
+paramètre pour un autre service.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Si vous utilisez un service privé comme un paramètre pour plus d&#8217;un autre service,
+cela se traduira par deux instances différentes étant utilisées puisque l&#8217;instanciation
+du service privé se fait « inline » (par exemple <tt class="docutils literal"><span class="pre">new</span> <span class="pre">PrivateFooBar()</span></tt>).</p>
+</div>
+<p>Autrement dit : un service sera privé lorsque vous ne voulez pas y accéder
+directement à partir de votre code.</p>
+<p>Voici un exemple :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">services</span><span class="p-Indicator">:</span>
+   <span class="l-Scalar-Plain">foo</span><span class="p-Indicator">:</span>
+     <span class="l-Scalar-Plain">class</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Acme\HelloBundle\Foo</span>
+     <span class="l-Scalar-Plain">public</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;foo&quot;</span> <span class="na">class=</span><span class="s">&quot;Acme\HelloBundle\Foo&quot;</span> <span class="na">public=</span><span class="s">&quot;false&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">$definition = new Definition(&#39;Acme\HelloBundle\Foo&#39;);</span>
+<span class="x">$definition-&gt;setPublic(false);</span>
+<span class="x">$container-&gt;setDefinition(&#39;foo&#39;, $definition);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Maintenant que le service est privé, vous <em>ne pouvez pas</em> appeler :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$container-&gt;get(&#39;foo&#39;);</span>
+</pre></div>
+</div>
+<p>Cependant, si un service a été marqué comme privé, vous pouvez toujours le mettre en alias (voir
+ci-dessous) pour accéder à ce service (via l&#8217;alias).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Les services sont publics par défaut.</p>
+</div>
+</div>
+<div class="section" id="aliasing">
+<h3>Aliasing<a class="headerlink" href="#aliasing" title="Permalink to this headline">¶</a></h3>
+<p>Lors de l&#8217;utilisation des bundles de base ou tiers au sein de votre application, vous voudriez peut-être
+utiliser des raccourcis pour accéder à certains services. Vous pouvez le faire en les mettant en alias et,
+en outre, vous pouvez même mettre en alias les services non publics.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">services</span><span class="p-Indicator">:</span>
+   <span class="l-Scalar-Plain">foo</span><span class="p-Indicator">:</span>
+     <span class="l-Scalar-Plain">class</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Acme\HelloBundle\Foo</span>
+   <span class="l-Scalar-Plain">bar</span><span class="p-Indicator">:</span>
+     <span class="l-Scalar-Plain">alias</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">foo</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;foo&quot;</span> <span class="na">class=</span><span class="s">&quot;Acme\HelloBundle\Foo&quot;</span><span class="nt">/&gt;</span>
+
+<span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;bar&quot;</span> <span class="na">alias=</span><span class="s">&quot;foo&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">$definition = new Definition(&#39;Acme\HelloBundle\Foo&#39;);</span>
+<span class="x">$container-&gt;setDefinition(&#39;foo&#39;, $definition);</span>
+
+<span class="x">$containerBuilder-&gt;setAlias(&#39;bar&#39;, &#39;foo&#39;);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Cela signifie que quand vous utilisez le conteneur directement, vous pouvez accéder au
+service  <tt class="docutils literal"><span class="pre">foo</span></tt> en demandant le service <tt class="docutils literal"><span class="pre">bar</span></tt> comme ceci :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$container-&gt;get(&#39;bar&#39;); // Would return the foo service</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fichiers-requis">
+<h3>Fichiers Requis<a class="headerlink" href="#fichiers-requis" title="Permalink to this headline">¶</a></h3>
+<p>Il pourrait y avoir des cas utiles où vous avez besoin d&#8217;inclure un autre fichier juste avant
+que le service proprement dit ne soit chargé. Pour ce faire, vous pouvez utiliser la directive <tt class="docutils literal"><span class="pre">file</span></tt>.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre>services:
+   foo:
+     class: Acme\HelloBundle\Foo\Bar
+     file: %kernel.root_dir%/src/path/to/file/foo.php</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;foo&quot;</span> <span class="na">class=</span><span class="s">&quot;Acme\HelloBundle\Foo\Bar&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;file&gt;</span>%kernel.root_dir%/src/path/to/file/foo.php<span class="nt">&lt;/file&gt;</span>
+<span class="nt">&lt;/service&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">$definition = new Definition(&#39;Acme\HelloBundle\Foo\Bar&#39;);</span>
+<span class="x">$definition-&gt;setFile(&#39;%kernel.root_dir%/src/path/to/file/foo.php&#39;);</span>
+<span class="x">$container-&gt;setDefinition(&#39;foo&#39;, $definition);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Veuillez noter que symfony appelera en interne la fonction PHP require_once
+ce qui signifie que votre fichier ne sera inclu qu&#8217;une seule fois par requête.</p>
+</div>
+<div class="section" id="tags-tags">
+<span id="book-service-container-tags"></span><h3>Tags (<tt class="docutils literal"><span class="pre">tags</span></tt>)<a class="headerlink" href="#tags-tags" title="Permalink to this headline">¶</a></h3>
+<p>De la même manière qu&#8217;un billet de blog sur le Web pourrait être taggé avec des noms
+telles que « Symfony » ou « PHP », les services configurés dans votre conteneur peuvent également être
+taggés. Dans le conteneur de services, un tag laisse supposer que le service est censé
+être utilisé dans un but précis. Prenons l&#8217;exemple suivant :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">services</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">foo.twig.extension</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">class</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">Acme\HelloBundle\Extension\FooExtension</span>
+        <span class="l-Scalar-Plain">tags</span><span class="p-Indicator">:</span>
+            <span class="p-Indicator">-</span>  <span class="p-Indicator">{</span> <span class="nv">name</span><span class="p-Indicator">:</span> <span class="nv">twig.extension</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;service</span> <span class="na">id=</span><span class="s">&quot;foo.twig.extension&quot;</span> <span class="na">class=</span><span class="s">&quot;Acme\HelloBundle\Extension\FooExtension&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;tag</span> <span class="na">name=</span><span class="s">&quot;twig.extension&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/service&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">$definition = new Definition(&#39;Acme\HelloBundle\Extension\FooExtension&#39;);</span>
+<span class="x">$definition-&gt;addTag(&#39;twig.extension&#39;);</span>
+<span class="x">$container-&gt;setDefinition(&#39;foo.twig.extension&#39;, $definition);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Le tag <tt class="docutils literal"><span class="pre">twig.extension</span></tt> est un tag spécial que le <tt class="docutils literal"><span class="pre">TwigBundle</span></tt> utilise
+pendant la configuration. En donnant au service ce tag <tt class="docutils literal"><span class="pre">twig.extension</span></tt>,
+le bundle sait que le service <tt class="docutils literal"><span class="pre">foo.twig.extension</span></tt> devrait être enregistré
+comme une extension Twig avec Twig. En d&#8217;autres termes, Twig trouve tous les services taggés
+avec <tt class="docutils literal"><span class="pre">twig.extension</span></tt> et les enregistre automatiquement comme des extensions.</p>
+<p>Les tags, alors, sont un moyen de dire aux bundles de Symfony2 ou tiers que
+votre service doit être enregistré ou utilisé d&#8217;une manière spéciale par le bundle.</p>
+<p>Ce qui suit est une liste de tags disponibles avec les bundles noyau de Symfony2.
+Chacun d&#8217;eux a un effet différent sur votre service et de nombreuses tags nécessitent
+des paramètres supplémentaires (au-delà du paramètre <tt class="docutils literal"><span class="pre">name</span></tt>).</p>
+<ul class="simple">
+<li>assetic.filter</li>
+<li>assetic.templating.php</li>
+<li>data_collector</li>
+<li>form.field_factory.guesser</li>
+<li>kernel.cache_warmer</li>
+<li>kernel.event_listener</li>
+<li>monolog.logger</li>
+<li>routing.loader</li>
+<li>security.listener.factory</li>
+<li>security.voter</li>
+<li>templating.helper</li>
+<li>twig.extension</li>
+<li>translation.loader</li>
+<li>validator.constraint_validator</li>
+</ul>
+</div>
+</div>
+<div class="section" id="apprenez-en-plus-en-lisant-le-cookbook">
+<h2>Apprenez en plus en lisant le Cookbook<a class="headerlink" href="#apprenez-en-plus-en-lisant-le-cookbook" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="../cookbook/service_container/factories.html"><em>How to Use a Factory to Create Services</em></a></li>
+<li><a class="reference internal" href="../cookbook/service_container/parentservices.html"><em>How to Manage Common Dependencies with Parent Services</em></a></li>
+<li><a class="reference internal" href="../cookbook/controller/service.html"><em>How to define Controllers as Services</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Service Container</a><ul>
+<li><a class="reference internal" href="#qu-est-ce-qu-un-service">Qu&#8217;est-ce qu&#8217;un Service ?</a></li>
+<li><a class="reference internal" href="#definition-d-un-conteneur-de-services">Définition d&#8217;un Conteneur de Services</a></li>
+<li><a class="reference internal" href="#creer-configurer-les-services-dans-le-conteneur">Créer/Configurer les services dans le Conteneur</a></li>
+<li><a class="reference internal" href="#parametres-de-service">Paramètres de Service</a><ul>
+<li><a class="reference internal" href="#tableaux-de-parametres">Tableaux de paramètres</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#importer-d-autres-ressources-de-configuration-de-conteneur">Importer d&#8217;autres Ressources de Configuration de Conteneur</a><ul>
+<li><a class="reference internal" href="#importer-la-configuration-avec-imports">Importer la Configuration avec <tt class="docutils literal"><span class="pre">imports</span></tt></a></li>
+<li><a class="reference internal" href="#importer-la-configuration-via-les-extensions-de-conteneur">Importer la Configuration via les Extensions de Conteneur</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#referencer-injecter-les-services">Reférencer (Injecter) les Services</a><ul>
+<li><a class="reference internal" href="#dependances-optionnelles-setter-injection">Dépendances optionnelles : Setter Injection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rendre-les-references-optionnelles">Rendre les Références Optionnelles</a></li>
+<li><a class="reference internal" href="#services-de-bundle-tiers-et-noyau-de-symfony">Services de Bundle Tiers et Noyau de Symfony</a></li>
+<li><a class="reference internal" href="#configuration-de-conteneur-avancee">Configuration de Conteneur Avancée</a><ul>
+<li><a class="reference internal" href="#marquer-les-services-comme-public-prive">Marquer les Services comme public / privé</a></li>
+<li><a class="reference internal" href="#aliasing">Aliasing</a></li>
+<li><a class="reference internal" href="#fichiers-requis">Fichiers Requis</a></li>
+<li><a class="reference internal" href="#tags-tags">Tags (<tt class="docutils literal"><span class="pre">tags</span></tt>)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#apprenez-en-plus-en-lisant-le-cookbook">Apprenez en plus en lisant le Cookbook</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="translation.html"
+                        title="previous chapter">Traductions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="performance.html"
+                        title="next chapter">Performance</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/service_container.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="performance.html" title="Performance"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="translation.html" title="Traductions"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

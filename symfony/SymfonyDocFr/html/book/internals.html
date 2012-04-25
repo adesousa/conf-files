@@ -1,0 +1,1154 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Composants Internes &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="L’API stable de Symfony2" href="stable_api.html" />
+    <link rel="prev" title="Performance" href="performance.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="stable_api.html" title="L’API stable de Symfony2"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="performance.html" title="Performance"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="composants-internes">
+<span id="index-0"></span><h1>Composants Internes<a class="headerlink" href="#composants-internes" title="Permalink to this headline">¶</a></h1>
+<p>Il paraît que vous voulez comprendre comment Symfony2 fonctionne et comment
+l&#8217;étendre. Cela me rend très heureux ! Cette section est une explication en
+profondeur des composants internes de Symfony2.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Vous avez besoin de lire cette section uniquement si vous souhaitez comprendre
+comment Symfony2 fonctionne en arrière-plan, ou si vous voulez étendre Symfony2.</p>
+</div>
+<div class="section" id="vue-globale">
+<h2>Vue Globale<a class="headerlink" href="#vue-globale" title="Permalink to this headline">¶</a></h2>
+<p>Le code de Symfony2 se compose de plusieurs couches indépendantes. Chacune
+d&#8217;entre elles est construite par dessus celles qui la précèdent.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">L&#8217;autoloading (« chargement automatique ») n&#8217;est pas géré par le
+framework directement ; ceci est effectué indépendemment à l&#8217;aide de
+la classe <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\ClassLoader\UniversalClassLoader</span></tt>
+et du fichier <tt class="docutils literal"><span class="pre">src/autoload.php</span></tt>. Lisez le <a class="reference internal" href="../components/class_loader.html"><em>chapitre dédié</em></a> pour plus d&#8217;informations.</p>
+</div>
+<div class="section" id="le-composant-httpfoundation">
+<h3>Le Composant <tt class="docutils literal"><span class="pre">HttpFoundation</span></tt><a class="headerlink" href="#le-composant-httpfoundation" title="Permalink to this headline">¶</a></h3>
+<p>Le composant de plus bas niveau est <a href="#id1"><span class="problematic" id="id2">:namespace:`Symfony\\Component\\HttpFoundation`</span></a>.
+HttpFoundation fournit les objets principaux nécessaires pour traiter avec HTTP.
+C&#8217;est une abstraction orientée objet de quelques fonctions et variables PHP
+natives :</p>
+<ul class="simple">
+<li>La classe <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Request</span></tt> abstrait
+les principales variables globales PHP que sont <tt class="docutils literal"><span class="pre">$_GET</span></tt>, <tt class="docutils literal"><span class="pre">$_POST</span></tt>, <tt class="docutils literal"><span class="pre">$_COOKIE</span></tt>,
+<tt class="docutils literal"><span class="pre">$_FILES</span></tt>, et <tt class="docutils literal"><span class="pre">$_SERVER</span></tt> ;</li>
+<li>Le classe <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Response</span></tt> abstrait quelques
+fonctions PHP comme <tt class="docutils literal"><span class="pre">header()</span></tt>, <tt class="docutils literal"><span class="pre">setcookie()</span></tt>, et <tt class="docutils literal"><span class="pre">echo</span></tt> ;</li>
+<li>La classe <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Session</span></tt> et l&#8217;interface
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\SessionStorage\SessionStorageInterface</span></tt>
+font abstraction des fonctions de gestion des sessions <tt class="docutils literal"><span class="pre">session_*()</span></tt>.</li>
+</ul>
+</div>
+<div class="section" id="le-composant-httpkernel">
+<h3>Le Composant <tt class="docutils literal"><span class="pre">HttpKernel</span></tt><a class="headerlink" href="#le-composant-httpkernel" title="Permalink to this headline">¶</a></h3>
+<p>Par-dessus HttpFoundation se trouve le composant <a href="#id3"><span class="problematic" id="id4">:namespace:`Symfony\\Component\\HttpKernel`</span></a>.
+HttpKernel gère la partie dynamique de HTTP ; c&#8217;est une fine surcouche au-dessus
+des classes Request et Response pour standardiser la façon dont les requêtes
+sont gérées. Il fournit aussi des points d&#8217;extension et des outils qui en font
+un point de démarrage idéal pour créer un framework Web sans trop d&#8217;efforts.</p>
+<p>Optionnellement, il ajoute de la configurabilité et de l&#8217;extensibilité, grâce
+au composant Dependency Injection et à un puissant système de plugin (bundles).</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last">Lisez-en plus à propos des composants <tt class="xref doc docutils literal"><span class="pre">HttpKernel</span></tt> et
+<a class="reference internal" href="service_container.html"><em>Dependency Injection</em></a> ainsi que sur les
+<a class="reference internal" href="../cookbook/bundles/best_practices.html"><em>Bundles</em></a>.</p>
+</div>
+</div>
+<div class="section" id="le-bundle-frameworkbundle">
+<h3>Le Bundle <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt><a class="headerlink" href="#le-bundle-frameworkbundle" title="Permalink to this headline">¶</a></h3>
+<p>Le bundle <a href="#id5"><span class="problematic" id="id6">:namespace:`Symfony\\Bundle\\FrameworkBundle`</span></a> est le bundle qui lie
+les principaux composants et bibliothèques ensembles afin de fournir un framework
+MVC léger et rapide. Il est fourni avec une configuration par défaut ainsi
+qu&#8217;avec des conventions afin d&#8217;en faciliter l&#8217;apprentissage.</p>
+</div>
+</div>
+<div class="section" id="le-kernel">
+<span id="index-1"></span><h2>Le Kernel<a class="headerlink" href="#le-kernel" title="Permalink to this headline">¶</a></h2>
+<p>La classe <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\HttpKernel</span></tt> est la classe
+centrale de Symfony2 et est responsable de la gestion des requêtes clientes.
+Son but principal est de « convertir » un objet
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Request</span></tt> en un objet
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Response</span></tt>.</p>
+<p>Chaque Kernel Symfony2 implémente
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\HttpKernelInterface</span></tt></p>
+<div class="highlight-python"><pre>function handle(Request $request, $type = self::MASTER_REQUEST, $catch = true)</pre>
+</div>
+<div class="section" id="les-controleurs">
+<span id="index-2"></span><h3>Les Contrôleurs<a class="headerlink" href="#les-controleurs" title="Permalink to this headline">¶</a></h3>
+<p>Pour convertir une Requête en une Réponse, le Kernel repose sur un « Contrôleur ».
+Un Contrôleur peut être n&#8217;importe quel « callable » (code qui peut être appelé) PHP.</p>
+<p>Le Kernel délègue la sélection de quel Contrôleur devrait être exécuté à une
+implémentation de
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Controller\ControllerResolverInterface</span></tt></p>
+<div class="highlight-python"><pre>public function getController(Request $request);
+
+public function getArguments(Request $request, $controller);</pre>
+</div>
+<p>La méthode
+<a href="#id7"><span class="problematic" id="id8">:method:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface::getController`</span></a>
+retourne le Contrôleur (un « callable » PHP) associé à la Requête donnée. L&#8217;implémentation par
+défaut (<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Controller\ControllerResolver</span></tt>) recherche un
+attribut de la requête <tt class="docutils literal"><span class="pre">_controller</span></tt> qui représente le nom du contrôleur (une chaîne de
+caractères « classe::méthode », comme <tt class="docutils literal"><span class="pre">Bundle\BlogBundle\PostController:indexAction</span></tt>).</p>
+<p>La méthode
+<a href="#id9"><span class="problematic" id="id10">:method:`Symfony\\Component\\HttpKernel\\Controller\\ControllerResolverInterface::getArguments`</span></a>
+retourne un tableau d&#8217;arguments à passer au Contrôleur. L&#8217;implémentation par défaut résoud
+automatiquement les arguments de la méthode, basé sur les attributs de la Requête.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Faire correspondre les arguments de la méthode du Contrôleur aux attributs de la Requête</p>
+<p>Pour chaque argument d&#8217;une méthode, Symfony2 essaye d&#8217;obtenir la valeur d&#8217;un attribut
+d&#8217;une Requête avec le même nom. S&#8217;il n&#8217;est pas défini, la valeur par défaut de l&#8217;argument
+est utilisée si elle est définie</p>
+<div class="last highlight-python"><pre>// Symfony2 va rechercher un attribut « id » (obligatoire)
+// et un nommé « admin » (optionnel)
+public function showAction($id, $admin = true)
+{
+    // ...
+}</pre>
+</div>
+</div>
+</div>
+<div class="section" id="gestion-des-requetes">
+<span id="index-3"></span><h3>Gestion des Requêtes<a class="headerlink" href="#gestion-des-requetes" title="Permalink to this headline">¶</a></h3>
+<p>La méthode <tt class="docutils literal"><span class="pre">handle()</span></tt> prend une <tt class="docutils literal"><span class="pre">Requête</span></tt> et retourne <em>toujours</em> une <tt class="docutils literal"><span class="pre">Réponse</span></tt>.
+Pour convertir la <tt class="docutils literal"><span class="pre">Requête</span></tt>, <tt class="docutils literal"><span class="pre">handle()</span></tt> repose sur le « Resolver » et sur une
+chaîne ordonnée de notifications d&#8217;évènements (voir la prochaine section pour plus
+d&#8217;informations à propos de chaque évènement) :</p>
+<ol class="arabic simple">
+<li>Avant de faire quoi que ce soit d&#8217;autre, l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.request</span></tt> est
+notifié &#8211; si l&#8217;un des listeners (« écouteurs » en français) retourne une
+<tt class="docutils literal"><span class="pre">Réponse</span></tt>, il saute directement à l&#8217;étape 8 ;</li>
+<li>Le « Resolver » est appelé pour déterminer le Contrôleur à exécuter ;</li>
+<li>Les listeners de l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.controller</span></tt> peuvent maintenant
+manipuler le « callable » Contrôleur de la manière dont ils souhaitent
+(le changer, créer un « wrapper » au-dessus de lui, ...) ;</li>
+<li>Le Kernel vérifie que le Contrôleur est un « callable » PHP valide ;</li>
+<li>Le « Resolver » est appelé pour déterminer les arguments à passer au Contrôleur ;</li>
+<li>Le Kernel appelle le Contrôleur ;</li>
+<li>Si le Contrôleur ne retourne pas une <tt class="docutils literal"><span class="pre">Réponse</span></tt>, les listeners de l&#8217;évènement
+<tt class="docutils literal"><span class="pre">kernel.view</span></tt> peuvent convertir la valeur retournée par le Contrôleur en une <tt class="docutils literal"><span class="pre">Réponse</span></tt> ;</li>
+<li>Les listeners de l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.response</span></tt> peuvent manipuler la <tt class="docutils literal"><span class="pre">Réponse</span></tt>
+(contenu et en-têtes) ;</li>
+<li>La Réponse est retournée.</li>
+</ol>
+<p>Si une Exception est capturée pendant le traitement de la Requête, l&#8217;évènement
+<tt class="docutils literal"><span class="pre">kernel.exception</span></tt> est notifié et les listeners ont alors une chance de
+convertir l&#8217;Exception en une Réponse. Si cela fonctionne, l&#8217;évènement
+<tt class="docutils literal"><span class="pre">kernel.response</span></tt> sera notifié ; si non, l&#8217;Exception sera re-jetée.</p>
+<p>Si vous ne voulez pas que les Exceptions soient capturées (pour des requêtes imbriquées
+par exemple), désactivez l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.exception</span></tt> en passant <tt class="docutils literal"><span class="pre">false</span></tt> en tant
+que troisième argument de la méthode <tt class="docutils literal"><span class="pre">handle()</span></tt>.</p>
+</div>
+<div class="section" id="requetes-internes">
+<span id="index-4"></span><h3>Requêtes Internes<a class="headerlink" href="#requetes-internes" title="Permalink to this headline">¶</a></h3>
+<p>A tout moment durant la gestion de la requête (la « master »), une sous-requête
+peut être gérée. Vous pouvez passer le type de requête à la méthode <tt class="docutils literal"><span class="pre">handle()</span></tt>
+(son second argument) :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">HttpKernelInterface::MASTER_REQUEST</span></tt>;</li>
+<li><tt class="docutils literal"><span class="pre">HttpKernelInterface::SUB_REQUEST</span></tt>.</li>
+</ul>
+<p>Le type est passé à tous les évènements et les listeners peuvent ainsi agir
+en conséquence (le traitement doit seulement intervenir sur la requête
+« master »).</p>
+</div>
+<div class="section" id="les-evenements">
+<span id="index-5"></span><h3>Les Evènements<a class="headerlink" href="#les-evenements" title="Permalink to this headline">¶</a></h3>
+<p>Chaque évènement capturé par le Kernel est une sous-classe de
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\KernelEvent</span></tt>. Cela signifie que
+chaque évènement a accès aux mêmes informations de base :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">getRequestType()</span></tt> - retourne le <em>type</em> de la requête
+(<tt class="docutils literal"><span class="pre">HttpKernelInterface::MASTER_REQUEST</span></tt> ou <tt class="docutils literal"><span class="pre">HttpKernelInterface::SUB_REQUEST</span></tt>) ;</li>
+<li><tt class="docutils literal"><span class="pre">getKernel()</span></tt> - retourne le Kernel gérant la requête ;</li>
+<li><tt class="docutils literal"><span class="pre">getRequest()</span></tt> - retourne la <tt class="docutils literal"><span class="pre">Requête</span></tt> courante qui est en train d&#8217;être gérée.</li>
+</ul>
+<div class="section" id="getrequesttype">
+<h4><tt class="docutils literal"><span class="pre">getRequestType()</span></tt><a class="headerlink" href="#getrequesttype" title="Permalink to this headline">¶</a></h4>
+<p>La méthode <tt class="docutils literal"><span class="pre">getRequestType()</span></tt> permet aux listeners de connaître le type
+de la requête. Par exemple, si un listener doit seulement être activé pour les
+requêtes « master », ajoutez le code suivant au début de votre méthode listener</p>
+<div class="highlight-python"><pre>use Symfony\Component\HttpKernel\HttpKernelInterface;
+
+if (HttpKernelInterface::MASTER_REQUEST !== $event-&gt;getRequestType()) {
+    // retourne immédiatement
+    return;
+}</pre>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Si vous n&#8217;êtes pas encore familier avec le « Dispatcher d&#8217;Evènements » de
+Symfony2, lisez la section <a class="reference internal" href="#event-dispatcher"><em>Les Evènements</em></a> en premier.</p>
+</div>
+</div>
+<div class="section" id="l-evenement-kernel-request">
+<span id="kernel-core-request"></span><span id="index-6"></span><h4>L&#8217;Evènement <tt class="docutils literal"><span class="pre">kernel.request</span></tt><a class="headerlink" href="#l-evenement-kernel-request" title="Permalink to this headline">¶</a></h4>
+<p><em>La Classe Evènement</em> : <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\GetResponseEvent</span></tt></p>
+<p>Le but de cet évènement est soit de retourner un objet <tt class="docutils literal"><span class="pre">Response</span></tt> immédiatement, soit
+de définir des variables afin qu&#8217;un Contrôleur puisse être appelé après l&#8217;évènement.
+Tout listener peut retourner un objet <tt class="docutils literal"><span class="pre">Response</span></tt> via la méthode <tt class="docutils literal"><span class="pre">setResponse()</span></tt>
+sur l&#8217;évènement. Dans ce cas, tous les autres listeners ne seront pas appelés.</p>
+<p>Cet évènement est utilisé par le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> afin de remplir l&#8217;attribut de la
+<tt class="docutils literal"><span class="pre">Requête</span></tt> <tt class="docutils literal"><span class="pre">_controller</span></tt>, via
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Bundle\FrameworkBundle\EventListener\RouterListener</span></tt>. RequestListener
+utilise un objet <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Routing\RouterInterface</span></tt> pour faire correspondre
+la <tt class="docutils literal"><span class="pre">Requête</span></tt> et déterminer le nom du Contrôleur (stocké dans l&#8217;attribut de la
+<tt class="docutils literal"><span class="pre">Requête</span></tt> <tt class="docutils literal"><span class="pre">_controller</span></tt>).</p>
+</div>
+<div class="section" id="l-evenement-kernel-controller">
+<span id="index-7"></span><h4>L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.controller</span></tt><a class="headerlink" href="#l-evenement-kernel-controller" title="Permalink to this headline">¶</a></h4>
+<p><em>La Classe Evènement</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterControllerEvent</span></tt></p>
+<p>Cet évènement n&#8217;est pas utilisé par le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>, mais peut être un point
+d&#8217;entrée utilisé pour modifier le contrôleur qui devrait être exécuté :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpKernel\Event\FilterControllerEvent;</span>
+
+<span class="x">public function onKernelController(FilterControllerEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $controller = $event-&gt;getController();</span>
+<span class="x">    // ...</span>
+
+<span class="x">    // le contrôleur peut être remplacé par n&#39;importe quel « callable » PHP</span>
+<span class="x">    $event-&gt;setController($controller);</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="l-evenement-kernel-view">
+<span id="index-8"></span><h4>L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.view</span></tt><a class="headerlink" href="#l-evenement-kernel-view" title="Permalink to this headline">¶</a></h4>
+<p><em>La Classe Evènement</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent</span></tt></p>
+<p>Cet évènement n&#8217;est pas utilisé par le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>, mais il peut être utilisé
+pour implémenter un sous-système de vues. Cet évènement est appelé <em>seulement</em> si le
+Contrôleur <em>ne</em> retourne <em>pas</em> un objet <tt class="docutils literal"><span class="pre">Response</span></tt>. Le but de cet évènement est
+de permettre à d&#8217;autres valeurs retournées d&#8217;être converties en une <tt class="docutils literal"><span class="pre">Réponse</span></tt>.</p>
+<p>La valeur retournée par le Contrôleur est accessible via la méthode <tt class="docutils literal"><span class="pre">getControllerResult</span></tt></p>
+<div class="highlight-python"><pre>use Symfony\Component\HttpKernel\Event\GetResponseForControllerResultEvent;
+use Symfony\Component\HttpFoundation\Response;
+
+public function onKernelView(GetResponseForControllerResultEvent $event)
+{
+    $val = $event-&gt;getReturnValue();
+    $response = new Response();
+    // personnalisez d'une manière ou d'une autre la Réponse
+    // en vous basant sur la valeur retournée
+
+    $event-&gt;setResponse($response);
+}</pre>
+</div>
+</div>
+<div class="section" id="l-evenement-kernel-response">
+<span id="index-9"></span><h4>L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.response</span></tt><a class="headerlink" href="#l-evenement-kernel-response" title="Permalink to this headline">¶</a></h4>
+<p><em>La Classe Evènement</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterResponseEvent</span></tt></p>
+<p>L&#8217;objectif de cet évènement est de permettre à d&#8217;autres systèmes de modifier ou
+de remplacer l&#8217;objet <tt class="docutils literal"><span class="pre">Response</span></tt> après sa création :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function onKernelResponse(FilterResponseEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $response = $event-&gt;getResponse();</span>
+<span class="x">    // .. modifiez l&#39;objet Response</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> enregistre plusieurs listeners :</p>
+<ul class="simple">
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\ProfilerListener</span></tt>:
+collecte les données pour la requête courante ;</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener</span></tt>:
+injecte la Barre d&#8217;Outils de Débuggage Web (« Web Debug Toolbar ») ;</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\ResponseListener</span></tt>: définit la
+valeur du <tt class="docutils literal"><span class="pre">Content-Type</span></tt> de la Réponse basée sur le format de la requête ;</li>
+<li><tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\EsiListener</span></tt>: ajoute un
+en-tête HTTP <tt class="docutils literal"><span class="pre">Surrogate-Control</span></tt> lorsque la Réponse a besoin d&#8217;être analysée
+pour trouver des balises ESI.</li>
+</ul>
+</div>
+<div class="section" id="l-evenement-kernel-exception">
+<span id="kernel-kernel-exception"></span><span id="index-10"></span><h4>L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.exception</span></tt><a class="headerlink" href="#l-evenement-kernel-exception" title="Permalink to this headline">¶</a></h4>
+<p><em>La Classe Evènement</em>: <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent</span></tt></p>
+<p>Le <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt> enregistre un
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\EventListener\ExceptionListener</span></tt> qui
+transmet la <tt class="docutils literal"><span class="pre">Requête</span></tt> à un Contrôleur donné (la valeur du paramètre
+<tt class="docutils literal"><span class="pre">exception_listener.controller</span></tt> &#8211; doit être exprimé suivant la notation
+<tt class="docutils literal"><span class="pre">class::method</span></tt>).</p>
+<p>Un listener sur cet évènement peut créer et définir un objet <tt class="docutils literal"><span class="pre">Response</span></tt>,
+créer et définir un nouvel objet <tt class="docutils literal"><span class="pre">Exception</span></tt>, ou ne rien faire :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;</span>
+<span class="x">use Symfony\Component\HttpFoundation\Response;</span>
+
+<span class="x">public function onKernelException(GetResponseForExceptionEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $exception = $event-&gt;getException();</span>
+<span class="x">    $response = new Response();</span>
+<span class="x">    // définissez l&#39;objet Response basé sur l&#39;exception capturée</span>
+<span class="x">    $event-&gt;setResponse($response);</span>
+
+<span class="x">    // vous pouvez alternativement définir une nouvelle Exception</span>
+<span class="x">    // $exception = new \Exception(&#39;Some special exception&#39;);</span>
+<span class="x">    // $event-&gt;setException($exception);</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="le-dispatcher-d-evenements">
+<span id="book-internals-event-dispatcher"></span><span id="index-11"></span><h2>Le Dispatcher d&#8217;Evènements<a class="headerlink" href="#le-dispatcher-d-evenements" title="Permalink to this headline">¶</a></h2>
+<p>Le code Orienté Objet a effectué un long chemin afin d&#8217;assurer une extensibilité
+du code. En créant des classes qui ont des responsabilités bien définies, votre
+code devient plus flexible et un développeur peut les étendre avec des sous-classes
+pour modifier leurs comportements. Mais s&#8217;il souhaite partager ses changements
+avec d&#8217;autres développeurs qui ont aussi créé leurs propres sous-classes,
+l&#8217;héritage du code devient alors discutable.</p>
+<p>Considérez l&#8217;exemple du monde réel lorsque vous voulez fournir un système de
+plugin pour votre projet. Un plugin devrait être capable d&#8217;ajouter des méthodes,
+ou de faire quelque chose avant ou après qu&#8217;une méthode soit exécutée, sans
+interférer avec d&#8217;autres plugins. Ceci n&#8217;est pas un problème facile à résoudre
+avec l&#8217;héritage unique ; et l&#8217;héritage multiple (s&#8217;il était possible avec PHP)
+possède ses propres inconvénients.</p>
+<p>Le Dispatcher d&#8217;Evènements de Symfony2 implémente le patron de conception <a class="reference external" href="http://en.wikipedia.org/wiki/Observer_pattern">Observer</a> d&#8217;une
+manière simple et efficace afin de rendre ces choses possibles et de pouvoir
+avoir des projets réellement extensibles.</p>
+<p>Prenez un exemple simple du <a class="reference external" href="https://github.com/symfony/HttpKernel">Composant HttpKernel de Symfony2</a>. Une fois qu&#8217;un
+objet <tt class="docutils literal"><span class="pre">Response</span></tt> a été créé, il pourrait être utile de permettre à d&#8217;autres
+éléments du système de le modifier (par exemple : ajouter quelques en-têtes de
+cache) avant qu&#8217;il soit utilisé. Afin de rendre ceci possible, le kernel de
+Symfony2 capte un évènement - <tt class="docutils literal"><span class="pre">kernel.response</span></tt>. Voilà comment cela fonctionne :</p>
+<ul class="simple">
+<li>Un <em>listener</em> (objet PHP) informe un objet <em>dispatcher</em> (« répartiteur » en français)
+central qu&#8217;il souhaite écouter l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.response</span></tt> ;</li>
+<li>A un moment donné, le kernel de Symfony2 informe l&#8217;objet <em>dispatcher</em> qu&#8217;il doit
+répartir (c-a-d informer les listeners) l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.response</span></tt>, en
+passant avec lui un objet <tt class="docutils literal"><span class="pre">Event</span></tt> qui a accès à l&#8217;objet <tt class="docutils literal"><span class="pre">Response</span></tt> ;</li>
+<li>Le dispatcher notifie (appelle une méthode de) tous les listeners
+de l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.response</span></tt>, permettant à chacun d&#8217;entre eux d&#8217;effectuer
+une quelconque modification sur l&#8217;objet <tt class="docutils literal"><span class="pre">Response</span></tt>.</li>
+</ul>
+<div class="section" id="event-dispatcher">
+<span id="index-12"></span><span id="id11"></span><h3>Les Evènements<a class="headerlink" href="#event-dispatcher" title="Permalink to this headline">¶</a></h3>
+<p>Lorsqu&#8217;un évènement est réparti/dispaché, il est identifié par un nom unique (par
+exemple : <tt class="docutils literal"><span class="pre">kernel.response</span></tt>), qu&#8217;un quelconque nombre de listeners pourraient
+écouter. Une instance de <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt>
+est aussi créée et passée à tous les listeners. Comme vous le verrez plus
+tard, l&#8217;objet <tt class="docutils literal"><span class="pre">Event</span></tt> lui-même contient souvent des données à propos de
+l&#8217;évènement qui est réparti.</p>
+<div class="section" id="conventions-de-nommage">
+<span id="index-13"></span><h4>Conventions de Nommage<a class="headerlink" href="#conventions-de-nommage" title="Permalink to this headline">¶</a></h4>
+<p>Le nom unique d&#8217;un évènement peut être n&#8217;importe quelle chaîne de caractères,
+mais suit optionnellement quelques conventions de nommage simples :</p>
+<ul class="simple">
+<li>utilisez seulement des lettres en minuscules, des chiffres, des points (<tt class="docutils literal"><span class="pre">.</span></tt>),
+et des underscores (<tt class="docutils literal"><span class="pre">_</span></tt>) ;</li>
+<li>préfixez les noms avec un espace de noms suivi d&#8217;un point (par exemple :
+<tt class="docutils literal"><span class="pre">kernel.</span></tt>) ;</li>
+<li>terminez les noms avec un verbe qui indique quelle action est en train
+d&#8217;être effectuée (par exemple : <tt class="docutils literal"><span class="pre">request</span></tt>).</li>
+</ul>
+<p>Vous trouvez ci-dessous quelques exemples de noms d&#8217;évènements corrects :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">kernel.response</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">form.pre_set_data</span></tt></li>
+</ul>
+</div>
+<div class="section" id="noms-d-evenements-et-objets-evenements">
+<span id="index-14"></span><h4>Noms d&#8217;Evènements et Objets Evènements<a class="headerlink" href="#noms-d-evenements-et-objets-evenements" title="Permalink to this headline">¶</a></h4>
+<p>Lorsque le dispatcher notifie les listeners, il passe un objet <tt class="docutils literal"><span class="pre">Event</span></tt> à
+ces derniers. La classe <tt class="docutils literal"><span class="pre">Event</span></tt> de base est très simple : elle contient
+une méthode pour stopper la
+<a class="reference internal" href="#event-dispatcher-event-propagation"><em>propagation de l&#8217;évènement</em></a>, mais
+pas grand chose de plus.</p>
+<p>Souvent, des données à propos d&#8217;un évènement spécifique ont besoin d&#8217;être
+passées avec l&#8217;objet <tt class="docutils literal"><span class="pre">Event</span></tt> afin que les listeners aient les informations
+nécessaires. Dans le cas de l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.response</span></tt>, l&#8217;objet <tt class="docutils literal"><span class="pre">Event</span></tt>
+qui est créé et passé à chaque listener est en fait de type
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterResponseEvent</span></tt>, une
+sous-classe de l&#8217;objet <tt class="docutils literal"><span class="pre">Event</span></tt> de base. Cette classe contient des méthodes
+telles <tt class="docutils literal"><span class="pre">getResponse</span></tt> et <tt class="docutils literal"><span class="pre">setResponse</span></tt>, permettant aux listeners d&#8217;obtenir
+ou même de remplacer l&#8217;objet <tt class="docutils literal"><span class="pre">Response</span></tt>.</p>
+<p>Finalement, la morale de l&#8217;histoire est : lorsque vous créez un listener
+d&#8217;évènement, il se peut que l&#8217;objet <tt class="docutils literal"><span class="pre">Event</span></tt> passé au listener soit une
+sous-classe spéciale qui possède des méthodes additionnelles pour récupérer
+des informations et répondre à l&#8217;évènement.</p>
+</div>
+</div>
+<div class="section" id="le-dispatcher">
+<h3>Le Dispatcher<a class="headerlink" href="#le-dispatcher" title="Permalink to this headline">¶</a></h3>
+<p>Le dispatcher est un objet central du système de répartition des évènements.
+En général, un unique dispatcher est créé, qui maintient un registre de
+listeners. Lorsqu&#8217;un évènement est réparti via le dispatcher, il notifie
+tous les listeners ayant souscrit à ce dernier.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\EventDispatcher\EventDispatcher;</span>
+
+<span class="x">$dispatcher = new EventDispatcher();</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="connecter-les-listeners">
+<span id="index-15"></span><h3>Connecter les Listeners<a class="headerlink" href="#connecter-les-listeners" title="Permalink to this headline">¶</a></h3>
+<p>Pour profiter d&#8217;un évènement existant, vous avez besoin de connecter un listener
+au dispatcher afin qu&#8217;il puisse vous notifier lorsque l&#8217;évènement est réparti.
+Un appel à la méthode <tt class="docutils literal"><span class="pre">addListener()</span></tt> du dispatcher associe quelconque
+« callable » PHP à un évènement :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$listener = new AcmeListener();</span>
+<span class="x">$dispatcher-&gt;addListener(&#39;foo.action&#39;, array($listener, &#39;onFooAction&#39;));</span>
+</pre></div>
+</div>
+<p>La méthode <tt class="docutils literal"><span class="pre">addListener()</span></tt> prend jusqu&#8217;à trois arguments :</p>
+<ul class="simple">
+<li>Le nom de l&#8217;évènement (chaîne de caractères) auquel ce listener souhaite souscrire ;</li>
+<li>Un « callable » PHP qui sera notifié lorsqu&#8217;un évènement qu&#8217;il écoute est jeté</li>
+<li>Un paramètre optionnel représentant la priorité (plus grand voulant dire plus
+important) qui détermine quand un listener est déclenché par rapport à d&#8217;autres
+listeners (la valeur par défaut est <tt class="docutils literal"><span class="pre">0</span></tt>). Si deux listeners possèdent la même
+priorité, ils sont exécutés dans l&#8217;ordre auquel ils ont été ajoutés au dispatcher.</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Un <a class="reference external" href="http://www.php.net/manual/fr/language.pseudo-types.php#language.types.callback">callable PHP</a> est une variable PHP qui peut être utilisée par la
+fonction <tt class="docutils literal"><span class="pre">call_user_func()</span></tt> et qui retourne <tt class="docutils literal"><span class="pre">true</span></tt> lorsqu&#8217;elle est
+passée à la fonction <tt class="docutils literal"><span class="pre">is_callable()</span></tt>. Ce peut être une instance de
+<tt class="docutils literal"><span class="pre">\Closure</span></tt>, une chaîne de caractères représentant une fonction, ou
+encore un tableau représentant une méthode d&#8217;objet ou une méthode de
+classe.</p>
+<p>Jusqu&#8217;içi, vous avez vu comment des objets PHP peuvent être enregistrés
+en tant que listeners. Vous pouvez aussi enregistrer des <a class="reference external" href="http://php.net/manual/fr/functions.anonymous.php">Closures</a>
+PHP en tant que listeners d&#8217;évènements :</p>
+<div class="last highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\EventDispatcher\Event;</span>
+
+<span class="x">$dispatcher-&gt;addListener(&#39;foo.action&#39;, function (Event $event) {</span>
+<span class="x">    // sera exécuté quand l&#39;évènement foo.action est réparti</span>
+<span class="x">});</span>
+</pre></div>
+</div>
+</div>
+<p>Une fois qu&#8217;un listener est enregistré auprès du dispatcher, il attend jusqu&#8217;à
+ce que l&#8217;évènement soit notifié. Dans l&#8217;exemple ci-dessus, quand l&#8217;évènement
+<tt class="docutils literal"><span class="pre">foo.action</span></tt> est réparti, le dispatcher appelle la méthode
+<tt class="docutils literal"><span class="pre">AcmeListener::onFooAction</span></tt> et lui passe l&#8217;objet <tt class="docutils literal"><span class="pre">Event</span></tt> en tant qu&#8217;unique
+argument :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\EventDispatcher\Event;</span>
+
+<span class="x">class AcmeListener</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    public function onFooAction(Event $event)</span>
+<span class="x">    {</span>
+<span class="x">        // faites quelque chose</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Si vous utilisez le framework MVC de Symfony2, les listeners peuvent
+être enregistrés via votre
+<a class="reference internal" href="../reference/dic_tags.html#dic-tags-kernel-event-listener"><em>configuration</em></a>. Et en tant que
+bonus, les objets listeners sont instanciés uniquement quand cela est
+nécessaire.</p>
+</div>
+<p>Dans beaucoup de cas, une sous-classe spéciale <tt class="docutils literal"><span class="pre">Event</span></tt> qui est spécifique
+à l&#8217;évènement donné est passée au listener. Cela donne la possibilité au
+listener d&#8217;accéder à des informations spéciales à propos de l&#8217;évènement.
+Vérifiez la documentation ou l&#8217;implémentation de chaque évènement pour
+déterminer l&#8217;instance exacte de <tt class="docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt>
+qui est passée. Par exemple, l&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.event</span></tt> passe une instance
+de <tt class="docutils literal"><span class="pre">Symfony\Component\HttpKernel\Event\FilterResponseEvent</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpKernel\Event\FilterResponseEvent</span>
+
+<span class="x">public function onKernelResponse(FilterResponseEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $response = $event-&gt;getResponse();</span>
+<span class="x">    $request = $event-&gt;getRequest();</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<span class="target" id="event-dispatcher-closures-as-listeners"></span></div>
+<div class="section" id="creer-et-repartir-un-evenement">
+<span id="index-16"></span><h3>Créer et Répartir un Evènement<a class="headerlink" href="#creer-et-repartir-un-evenement" title="Permalink to this headline">¶</a></h3>
+<p>En plus d&#8217;enregistrer des listeners avec des évènements existants, vous pouvez
+créer et capturer vos propres évènements. Cela est utile lorsque vous créez des
+bibliothèques tierces et aussi quand vous voulez garder différents composants
+de votre propre système flexibles et découplés.</p>
+<div class="section" id="la-classe-statique-events">
+<h4>La Classe Statique <tt class="docutils literal"><span class="pre">Events</span></tt><a class="headerlink" href="#la-classe-statique-events" title="Permalink to this headline">¶</a></h4>
+<p>Supposez que vous vouliez créer un nouvel Evènement - <tt class="docutils literal"><span class="pre">store.order</span></tt> - qui est
+réparti chaque fois qu&#8217;une commande (« order ») est créée dans votre application.
+Pour garder les choses organisées, commencez par créer une classe <tt class="docutils literal"><span class="pre">StoreEvents</span></tt>
+dans votre application qui sert à définir et documenter votre évènement :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\StoreBundle;</span>
+
+<span class="x">final class StoreEvents</span>
+<span class="x">{</span>
+<span class="x">    /**</span>
+<span class="x">     * L&#39;évènement store.order est capturé chaque fois qu&#39;une commande</span>
+<span class="x">     * est créée dans le système.</span>
+<span class="x">     *</span>
+<span class="x">     * Le listener d&#39;évènement reçoit une instance de</span>
+<span class="x">     * Acme\StoreBundle\Event\FilterOrderEvent</span>
+<span class="x">     *</span>
+<span class="x">     * @var string</span>
+<span class="x">     */</span>
+<span class="x">    const onStoreOrder = &#39;store.order&#39;;</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Notez que cette classe ne <em>fait</em> rien finalement. Le but de la classe
+<tt class="docutils literal"><span class="pre">StoreEvents</span></tt> est juste d&#8217;être un endroit où les informations des
+évènements communs peuvent être centralisées. Notez aussi que la classe
+spéciale <tt class="docutils literal"><span class="pre">FilterOrderEvent</span></tt> sera passée à chaque listener de cet
+évènement.</p>
+</div>
+<div class="section" id="creer-un-objet-evenement">
+<h4>Créer un Objet Evènement<a class="headerlink" href="#creer-un-objet-evenement" title="Permalink to this headline">¶</a></h4>
+<p>Plus tard, quand vous répartirez ce nouvel évènement, vous allez créer une
+instance <tt class="docutils literal"><span class="pre">Event</span></tt> et la passer au dispatcher. Le dispatcher va à son tour
+passer cette même instance à chacun des listeners de l&#8217;évènement. Si vous
+n&#8217;avez pas besoin de passer des informations à vos listeners, vous pouvez
+utiliser la classe par défaut <tt class="docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt>.
+La plupart du temps, cependant, vous <em>aurez</em> besoin de passer de l&#8217;information
+à propos de l&#8217;évènement à chaque listener. Pour accomplir cela, vous créerez
+une nouvelle classe qui étend <tt class="docutils literal"><span class="pre">Symfony\Component\EventDispatcher\Event</span></tt>.</p>
+<p>Dans cet exemple, chaque listener aura besoin d&#8217;avoir accès à un prétendu
+objet <tt class="docutils literal"><span class="pre">Order</span></tt>. Créez une classe <tt class="docutils literal"><span class="pre">Event</span></tt> qui rend cela possible :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\StoreBundle\Event;</span>
+
+<span class="x">use Symfony\Component\EventDispatcher\Event;</span>
+<span class="x">use Acme\StoreBundle\Order;</span>
+
+<span class="x">class FilterOrderEvent extends Event</span>
+<span class="x">{</span>
+<span class="x">    protected $order;</span>
+
+<span class="x">    public function __construct(Order $order)</span>
+<span class="x">    {</span>
+<span class="x">        $this-&gt;order = $order;</span>
+<span class="x">    }</span>
+
+<span class="x">    public function getOrder()</span>
+<span class="x">    {</span>
+<span class="x">        return $this-&gt;order;</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Chaque listener a maintenant accès à l&#8217;objet <tt class="docutils literal"><span class="pre">Order</span></tt> via la méthode
+<tt class="docutils literal"><span class="pre">getOrder</span></tt>.</p>
+</div>
+<div class="section" id="repartir-l-evenement">
+<h4>Répartir l&#8217;Evènement<a class="headerlink" href="#repartir-l-evenement" title="Permalink to this headline">¶</a></h4>
+<p>La méthode <a href="#id12"><span class="problematic" id="id13">:method:`Symfony\\Component\\EventDispatcher\\EventDispatcher::dispatch`</span></a>
+notifie tous les listeners de l&#8217;évènement donné. Elle prend deux arguments : le nom
+de l&#8217;évènement à répartir et l&#8217;instance <tt class="docutils literal"><span class="pre">Event</span></tt> à passer à chaque listener de cet
+évènement :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\StoreBundle\StoreEvents;</span>
+<span class="x">use Acme\StoreBundle\Order;</span>
+<span class="x">use Acme\StoreBundle\Event\FilterOrderEvent;</span>
+
+<span class="x">// la commande est créée ou obtenue d&#39;une manière ou d&#39;une autre</span>
+<span class="x">$order = new Order();</span>
+<span class="x">// ...</span>
+
+<span class="x">// créez l&#39;évènement FilterOrderEvent et répartissez-le</span>
+<span class="x">$event = new FilterOrderEvent($order);</span>
+<span class="x">$dispatcher-&gt;dispatch(StoreEvents::onStoreOrder, $event);</span>
+</pre></div>
+</div>
+<p>Notez que l&#8217;objet spécial <tt class="docutils literal"><span class="pre">FilterOrderEvent</span></tt> est créé et passé à la méthode
+<tt class="docutils literal"><span class="pre">dispatch</span></tt>. Maintenant, tous les listeners de l&#8217;évènement <tt class="docutils literal"><span class="pre">store.order</span></tt>
+vont recevoir l&#8217;évènement <tt class="docutils literal"><span class="pre">FilterOrderEvent</span></tt> et avoir accès à l&#8217;objet <tt class="docutils literal"><span class="pre">Order</span></tt>
+via la méthode <tt class="docutils literal"><span class="pre">getOrder</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// une quelconque classe listener qui a été enregistrée pour onStoreOrder</span>
+<span class="x">use Acme\StoreBundle\Event\FilterOrderEvent;</span>
+
+<span class="x">public function onStoreOrder(FilterOrderEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    $order = $event-&gt;getOrder();</span>
+<span class="x">    // faites quelque chose sur ou avec la commande</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="passer-l-objet-dispatcher-d-evenements">
+<h3>Passer l&#8217;Objet Dispatcher d&#8217;Evènements<a class="headerlink" href="#passer-l-objet-dispatcher-d-evenements" title="Permalink to this headline">¶</a></h3>
+<p>Si vous regardez de plus près la classe <tt class="docutils literal"><span class="pre">EventDispatcher</span></tt>, vous noterez que
+la classe n&#8217;agit pas comme un Singleton (il n&#8217;y a pas de méthode statique
+<tt class="docutils literal"><span class="pre">getInstance()</span></tt>). Ceci est intentionnel, car vous pourriez vouloir avoir
+plusieurs dispatchers d&#8217;évènements concurrents dans une seule et même requête
+PHP. Mais cela signifie aussi que vous avez besoin d&#8217;une manière de passer
+le dispatcher aux objets qui ont besoin de se connecter à lui ou de lui
+notifier des évènements.</p>
+<p>La bonne pratique est d&#8217;injecter l&#8217;objet dispatcher d&#8217;évènements dans vos
+objets, connu aussi sous le nom d&#8217;injection de dépendances (« Dependency
+Injection »).</p>
+<p>Vous pouvez utiliser l&#8217;injection via le constructeur</p>
+<div class="highlight-python"><pre>class Foo
+{
+    protected $dispatcher = null;
+
+    public function __construct(EventDispatcher $dispatcher)
+    {
+        $this-&gt;dispatcher = $dispatcher;
+    }
+}</pre>
+</div>
+<p>Ou l&#8217;injection via un setter</p>
+<div class="highlight-python"><pre>class Foo
+{
+    protected $dispatcher = null;
+
+    public function setEventDispatcher(EventDispatcher $dispatcher)
+    {
+        $this-&gt;dispatcher = $dispatcher;
+    }
+}</pre>
+</div>
+<p>Choisir entre les deux possibilités est réellement une question de goût. Beaucoup
+préfèrent l&#8217;injection via le constructeur car ainsi, les objets sont initialisés
+entièrement au moment de la construction. Mais quand vous avez une longue liste
+de dépendances, utiliser l&#8217;injection via un setter peut être le bon choix à
+suivre, spécialement pour des dépendances optionnelles.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Si vous utilisez l&#8217;injection de dépendances comme nous l&#8217;avons fait dans
+les deux exemples ci-dessus, vous pouvez dès lors utiliser le
+<a class="reference external" href="https://github.com/symfony/DependencyInjection">Composant d&#8217;Injection de Dépendances de Symfony2</a> afin de gérer l&#8217;injection
+du service <tt class="docutils literal"><span class="pre">event_dispatcher</span></tt> dans ces objets de manière élégante.</p>
+<blockquote class="last">
+<div><div class="highlight-yaml"><pre># src/Acme/HelloBundle/Resources/config/services.yml
+services:
+    foo_service:
+        class: Acme/HelloBundle/Foo/FooService
+        arguments: [@event_dispatcher]</pre>
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="utiliser-les-souscripteurs-d-evenements">
+<span id="index-17"></span><h3>Utiliser les Souscripteurs d&#8217;Evènements<a class="headerlink" href="#utiliser-les-souscripteurs-d-evenements" title="Permalink to this headline">¶</a></h3>
+<p>La solution la plus courante pour écouter un évènement est de souscrire un
+<em>listener d&#8217;évènement</em> avec le dispatcher. Ce listener peut écouter un ou
+plusieurs évènements et est notifié chaque fois que ces évènements sont
+répartis.</p>
+<p>Une autre manière d&#8217;écouter les évènements est via un <em>souscripteur
+d&#8217;évènement</em>. Un souscripteur d&#8217;évènement est une classe PHP qui est
+capable de dire au dispatcher exactement à quels évènements il devrait
+souscrire. Il implémente l&#8217;interface
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\EventDispatcher\EventSubscriberInterface</span></tt>,
+qui requiert une unique méthode statique appelée <tt class="docutils literal"><span class="pre">getSubscribedEvents</span></tt>.
+Prenez l&#8217;exemple suivant d&#8217;un souscripteur qui souscrit aux évènements
+<tt class="docutils literal"><span class="pre">kernel.response</span></tt> et <tt class="docutils literal"><span class="pre">store.order</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">namespace Acme\StoreBundle\Event;</span>
+
+<span class="x">use Symfony\Component\EventDispatcher\EventSubscriberInterface;</span>
+<span class="x">use Symfony\Component\HttpKernel\Event\FilterResponseEvent;</span>
+
+<span class="x">class StoreSubscriber implements EventSubscriberInterface</span>
+<span class="x">{</span>
+<span class="x">    static public function getSubscribedEvents()</span>
+<span class="x">    {</span>
+<span class="x">        return array(</span>
+<span class="x">            &#39;kernel.response&#39; =&gt; &#39;onKernelResponse&#39;,</span>
+<span class="x">            &#39;store.order&#39;     =&gt; &#39;onStoreOrder&#39;,</span>
+<span class="x">        );</span>
+<span class="x">    }</span>
+
+<span class="x">    public function onKernelResponse(FilterResponseEvent $event)</span>
+<span class="x">    {</span>
+<span class="x">        // ...</span>
+<span class="x">    }</span>
+
+<span class="x">    public function onStoreOrder(FilterOrderEvent $event)</span>
+<span class="x">    {</span>
+<span class="x">        // ...</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Cela ressemble très fortement à une classe listener, excepté que la classe
+peut elle-même dire au dispatcher quels évènements il devrait écouter. Pour
+souscrire un souscripteur avec le dispatcher, utilisez la méthode
+<a href="#id14"><span class="problematic" id="id15">:method:`Symfony\\Component\\EventDispatcher\\EventDispatcher::addSubscriber`</span></a> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\StoreBundle\Event\StoreSubscriber;</span>
+
+<span class="x">$subscriber = new StoreSubscriber();</span>
+<span class="x">$dispatcher-&gt;addSubscriber($subscriber);</span>
+</pre></div>
+</div>
+<p>Le dispatcher va automatiquement souscrire le souscripteur pour chaque
+évènement retourné par la méthode <tt class="docutils literal"><span class="pre">getSubscribedEvents</span></tt>. Cette méthode
+retourne un tableau indexé par les noms des évènements et dont les valeurs
+sont soit le nom de la méthode à appeler, soit un tableau composé de noms
+de méthodes à appeler et une priorité.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Si vous utilisez le framework MVC Symfony2, les souscripteurs peuvent être enregistrés
+via votre <a class="reference internal" href="../reference/dic_tags.html#dic-tags-kernel-event-subscriber"><em>configuration</em></a>. Petit bonus
+en plus, les objets du souscripteur sont instanciés seulement lorsque c&#8217;est
+nécessaire.</p>
+</div>
+</div>
+<div class="section" id="arreter-le-deroulement-la-propagation-d-un-evenement">
+<span id="event-dispatcher-event-propagation"></span><span id="index-18"></span><h3>Arrêter le Déroulement/la Propagation d&#8217;un Evènement<a class="headerlink" href="#arreter-le-deroulement-la-propagation-d-un-evenement" title="Permalink to this headline">¶</a></h3>
+<p>Dans certains cas, cela peut faire du sens pour un listener d&#8217;empêcher n&#8217;importe
+quel autre listener d&#8217;être appelé. En d&#8217;autres termes, le listener a besoin
+d&#8217;être capable de dire au dispatcher d&#8217;arrêter toute propagation de l&#8217;évènement
+aux prochains listeners (c-a-d de ne plus notifier aucun autre listener). Cela
+peut être réalisé via la méthode
+<a href="#id16"><span class="problematic" id="id17">:method:`Symfony\\Component\\EventDispatcher\\Event::stopPropagation`</span></a> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Acme\StoreBundle\Event\FilterOrderEvent;</span>
+
+<span class="x">public function onStoreOrder(FilterOrderEvent $event)</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+
+<span class="x">    $event-&gt;stopPropagation();</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Maintenant, tous les listeners de <tt class="docutils literal"><span class="pre">store.order</span></tt> qui n&#8217;ont pas encore été
+appelés <em>ne seront pas</em> appelés.</p>
+</div>
+</div>
+<div class="section" id="profiler">
+<span id="index-19"></span><h2>Profiler<a class="headerlink" href="#profiler" title="Permalink to this headline">¶</a></h2>
+<p>Lorsqu&#8217;il est activé, le profiler de Symfony2 collecte des informations
+utiles concernant chaque requête envoyée à votre application et les stocke
+pour une analyse future. Utilisez le profiler dans l&#8217;environnement de
+développement afin de vous aider à débugger votre code et à améliorer
+les performances de votre application; utilisez le dans l&#8217;environnement
+de production pour explorer des problèmes après coup.</p>
+<p>Vous avez rarement besoin d&#8217;intéragir avec le profiler directement puisque
+Symfony2 vous fournit des outils de visualisation tels la Barre d&#8217;Outils de
+Débuggage Web (« Web Debug Toolbar ») et le Profiler Web (« Web Profiler »).
+Si vous utilisez l&#8217;Edition Standard de Symfony2, le profiler, la barre d&#8217;outils
+de débuggage web, et le profiler web sont tous déjà configurés avec des
+paramètres prédéfinis.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Le profiler collecte des informations pour toutes les requêtes (simples
+requêtes, redirections, exceptions, requêtes Ajax, requêtes ESI; et pour
+toutes les méthodes HTTP et tous les formats). Cela signifie que pour
+une même URL, vous pouvez avoir plusieurs données de profiling associées
+(une par paire de requête/réponse externe).</p>
+</div>
+<div class="section" id="visualiser-les-donnees-de-profiling">
+<span id="index-20"></span><h3>Visualiser les Données de Profiling<a class="headerlink" href="#visualiser-les-donnees-de-profiling" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="utiliser-la-barre-d-outils-de-debuggage-web">
+<h4>Utiliser la Barre d&#8217;Outils de Débuggage Web<a class="headerlink" href="#utiliser-la-barre-d-outils-de-debuggage-web" title="Permalink to this headline">¶</a></h4>
+<p>Dans l&#8217;environnement de développement, la barre d&#8217;outils de débuggage web
+est disponible en bas de toutes les pages. Elle affiche un bon résumé des
+données de profiling qui vous donne accès instantanément à plein
+d&#8217;informations utiles quand quelque chose ne fonctionne pas comme prévu.</p>
+<p>Si le résumé fourni par la Barre d&#8217;Outils de Débuggage Web n&#8217;est pas suffisant,
+cliquez sur le lien du jeton (une chaîne de caractères composée de 13 caractères
+aléatoires) pour pouvoir accéder au Profiler Web.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Si le jeton n&#8217;est pas cliquable, cela signifie que les routes du profiler
+ne sont pas enregistrées (voir ci-dessous pour les informations concernant
+la configuration).</p>
+</div>
+</div>
+<div class="section" id="analyser-les-donnees-de-profiling-avec-le-profiler-web">
+<h4>Analyser les données de Profiling avec le Profiler Web<a class="headerlink" href="#analyser-les-donnees-de-profiling-avec-le-profiler-web" title="Permalink to this headline">¶</a></h4>
+<p>Le Profiler Web est un outil de visualisation pour profiler des données que vous
+pouvez utiliser en développement pour débugger votre code et améliorer les
+performances ; mais il peut aussi être utilisé pour explorer des problèmes
+qui surviennent en production. Il expose toutes les informations collectées
+par le profiler via une interface web.</p>
+</div>
+<div class="section" id="acceder-aux-informations-de-profiling">
+<span id="index-21"></span><h4>Accéder aux informations de Profiling<a class="headerlink" href="#acceder-aux-informations-de-profiling" title="Permalink to this headline">¶</a></h4>
+<p>Vous n&#8217;avez pas besoin d&#8217;utiliser l&#8217;outil de visualisation par défaut pour
+accéder aux informations de profiling. Mais comment pouvez-vous obtenir
+les informations de profiling pour une requête spécifique après coup ?
+Lorsque le profiler stocke les données concernant une Requête, il
+lui associe aussi un jeton ; ce jeton est disponible dans l&#8217;en-tête HTTP
+<tt class="docutils literal"><span class="pre">X-Debug-Token</span></tt> de la Réponse</p>
+<div class="highlight-python"><pre>$profile = $container-&gt;get('profiler')-&gt;loadProfileFromResponse($response);
+
+$profile = $container-&gt;get('profiler')-&gt;loadProfile($token);</pre>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Lorsque le profiler est activé mais sans la barre d&#8217;outils de débuggage web,
+ou lorsque vous voulez récupérer le jeton pour une requête Ajax, utilisez un
+outil comme Firebug pour obtenir la valeur de l&#8217;en-tête HTTP <tt class="docutils literal"><span class="pre">X-Debug-Token</span></tt>.</p>
+</div>
+<p>Utilisez la méthode <tt class="docutils literal"><span class="pre">find()</span></tt> pour accéder aux jetons basés sur quelques critères :</p>
+<blockquote>
+<div><p>// récupère les 10 derniers jetons
+$tokens = $container-&gt;get(&#8216;profiler&#8217;)-&gt;find(&#8216;&#8217;, &#8216;&#8217;, 10);</p>
+<p>// récupère les 10 derniers jetons pour toutes les URL contenant /admin/
+$tokens = $container-&gt;get(&#8216;profiler&#8217;)-&gt;find(&#8216;&#8217;, &#8216;/admin/&#8217;, 10);</p>
+<p>// récupère les 10 derniers jetons pour les requêtes locales
+$tokens = $container-&gt;get(&#8216;profiler&#8217;)-&gt;find(&#8216;127.0.0.1&#8217;, &#8216;&#8217;, 10);</p>
+</div></blockquote>
+<p>Si vous souhaitez manipuler les données de profiling sur une machine différente
+que celle où les informations ont été générées, utilisez les méthodes <tt class="docutils literal"><span class="pre">export()</span></tt>
+et <tt class="docutils literal"><span class="pre">import()</span></tt></p>
+<div class="highlight-python"><pre>// sur la machine de production
+$profile = $container-&gt;get('profiler')-&gt;loadProfile($token);
+$data = $profiler-&gt;export($profile);
+
+// sur la machine de développement
+$profiler-&gt;import($data);</pre>
+</div>
+</div>
+<div class="section" id="configuration">
+<span id="index-22"></span><h4>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h4>
+<p>La configuration par défaut de Symfony2 vient avec des paramètres prédéfinis
+pour le profiler, la barre d&#8217;outils de débuggage web, et le profiler web.
+Voici par exemple la configuration pour l&#8217;environnement de développement :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># charge le profiler</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">only_exceptions</span><span class="p-Indicator">:</span> <span class="nv">false</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># active le profiler web</span>
+<span class="l-Scalar-Plain">web_profiler</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">toolbar</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+    <span class="l-Scalar-Plain">intercept_redirects</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+    <span class="l-Scalar-Plain">verbose</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- xmlns:webprofiler=&quot;http://symfony.com/schema/dic/webprofiler&quot; --&gt;</span>
+<span class="c">&lt;!-- xsi:schemaLocation=&quot;http://symfony.com/schema/dic/webprofiler http://symfony.com/schema/dic/webprofiler/webprofiler-1.0.xsd&quot;&gt; --&gt;</span>
+
+<span class="c">&lt;!-- charge le profiler --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler</span> <span class="na">only-exceptions=</span><span class="s">&quot;false&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- active le profiler web --&gt;</span>
+<span class="nt">&lt;webprofiler:config</span>
+    <span class="na">toolbar=</span><span class="s">&quot;true&quot;</span>
+    <span class="na">intercept-redirects=</span><span class="s">&quot;true&quot;</span>
+    <span class="na">verbose=</span><span class="s">&quot;true&quot;</span>
+<span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// charge le profiler</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(&#39;only-exceptions&#39; =&gt; false),</span>
+<span class="x">));</span>
+
+<span class="x">// active le profiler web</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;web_profiler&#39;, array(</span>
+<span class="x">    &#39;toolbar&#39; =&gt; true,</span>
+<span class="x">    &#39;intercept-redirects&#39; =&gt; true,</span>
+<span class="x">    &#39;verbose&#39; =&gt; true,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Quand l&#8217;option <tt class="docutils literal"><span class="pre">only-exceptions</span></tt> est définie comme <tt class="docutils literal"><span class="pre">true</span></tt>, le profiler
+collecte uniquement des données lorsqu&#8217;une exception est capturée par
+l&#8217;application.</p>
+<p>Quand l&#8217;option <tt class="docutils literal"><span class="pre">intercept-redirects</span></tt> est définie à <tt class="docutils literal"><span class="pre">true</span></tt>, le web
+profiler intercepte les redirections et vous donne l&#8217;opportunité d&#8217;inspecter
+les données collectées avant de suivre la redirection.</p>
+<p>Quand l&#8217;option <tt class="docutils literal"><span class="pre">verbose</span></tt> est définie à <tt class="docutils literal"><span class="pre">true</span></tt>, la Barre d&#8217;Outils de
+Débuggage Web affiche beaucoup d&#8217;informations. Définir <tt class="docutils literal"><span class="pre">verbose</span></tt> à <tt class="docutils literal"><span class="pre">false</span></tt>
+cache quelques informations secondaires afin de rendre la barre d&#8217;outils plus
+petite.</p>
+<p>Si vous activez le profiler web, vous avez aussi besoin de monter les routes
+du profiler :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><pre>_profiler:
+    resource: @WebProfilerBundle/Resources/config/routing/profiler.xml
+    prefix:   /_profiler</pre>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;import</span> <span class="na">resource=</span><span class="s">&quot;@WebProfilerBundle/Resources/config/routing/profiler.xml&quot;</span> <span class="na">prefix=</span><span class="s">&quot;/_profiler&quot;</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">$collection-&gt;addCollection($loader-&gt;import(&quot;@WebProfilerBundle/Resources/config/routing/profiler.xml&quot;), &#39;/_profiler&#39;);</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Comme le profiler rajoute du traitement supplémentaire, vous pourriez vouloir
+l&#8217;activer uniquement selon certaines circonstances dans l&#8217;environnement de
+production. Le paramètre <tt class="docutils literal"><span class="pre">only-exceptions</span></tt> limite le profiling aux pages 500,
+mais qu&#8217;en est-il si vous voulez avoir les informations lorsque l&#8217;IP du client
+provient d&#8217;une adresse spécifique, ou pour une portion limitée du site web ?
+Vous pouvez utiliser la correspondance de requête :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># active le profiler uniquement pour les requêtes venant du réseau 192.168.0.0</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">ip</span><span class="p-Indicator">:</span> <span class="nv">192.168.0.0/24</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># active le profiler uniquement pour les URLs /admin</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="s">&quot;^/admin/&quot;</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># associe des règles</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">ip</span><span class="p-Indicator">:</span> <span class="nv">192.168.0.0/24</span><span class="p-Indicator">,</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="s">&quot;^/admin/&quot;</span> <span class="p-Indicator">}</span>
+
+<span class="c1"># utilise une instance de correspondance personnalisée définie dans le</span>
+<span class="c1"># service &quot;custom_matcher&quot;</span>
+<span class="l-Scalar-Plain">framework</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">profiler</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">matcher</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">service</span><span class="p-Indicator">:</span> <span class="nv">custom_matcher</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- active le profiler uniquement pour les requêtes venant du réseau 192.168.0.0 --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">ip=</span><span class="s">&quot;192.168.0.0/24&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- active le profiler uniquement pour les URLs /admin --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">path=</span><span class="s">&quot;^/admin/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- associe des règles --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">ip=</span><span class="s">&quot;192.168.0.0/24&quot;</span> <span class="na">path=</span><span class="s">&quot;^/admin/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+
+<span class="c">&lt;!-- utilise une instance de correspondance personnalisée définie dans le service &quot;custom_matcher&quot; --&gt;</span>
+<span class="nt">&lt;framework:config&gt;</span>
+    <span class="nt">&lt;framework:profiler&gt;</span>
+        <span class="nt">&lt;framework:matcher</span> <span class="na">service=</span><span class="s">&quot;custom_matcher&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/framework:profiler&gt;</span>
+<span class="nt">&lt;/framework:config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// active le profiler uniquement pour les requêtes venant du réseau 192.168.0.0</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;ip&#39; =&gt; &#39;192.168.0.0/24&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+
+<span class="x">// active le profiler uniquement pour les URLs /admin</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;path&#39; =&gt; &#39;^/admin/&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+
+<span class="x">// associe des règles</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;ip&#39; =&gt; &#39;192.168.0.0/24&#39;, &#39;path&#39; =&gt; &#39;^/admin/&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+
+<span class="x"># utilise une instance de correspondance personnalisée définie dans le</span>
+<span class="x"># service &quot;custom_matcher&quot;</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;framework&#39;, array(</span>
+<span class="x">    &#39;profiler&#39; =&gt; array(</span>
+<span class="x">        &#39;matcher&#39; =&gt; array(&#39;service&#39; =&gt; &#39;custom_matcher&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="en-savoir-plus-grace-au-cookbook">
+<h2>En savoir plus grâce au Cookbook<a class="headerlink" href="#en-savoir-plus-grace-au-cookbook" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="../cookbook/testing/profiling.html"><em>How to use the Profiler in a Functional Test</em></a></li>
+<li><a class="reference internal" href="../cookbook/profiler/data_collector.html"><em>How to create a custom Data Collector</em></a></li>
+<li><a class="reference internal" href="../cookbook/event_dispatcher/class_extension.html"><em>How to extend a Class without using Inheritance</em></a></li>
+<li><a class="reference internal" href="../cookbook/event_dispatcher/method_behavior.html"><em>How to customize a Method Behavior without using Inheritance</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Composants Internes</a><ul>
+<li><a class="reference internal" href="#vue-globale">Vue Globale</a><ul>
+<li><a class="reference internal" href="#le-composant-httpfoundation">Le Composant <tt class="docutils literal"><span class="pre">HttpFoundation</span></tt></a></li>
+<li><a class="reference internal" href="#le-composant-httpkernel">Le Composant <tt class="docutils literal"><span class="pre">HttpKernel</span></tt></a></li>
+<li><a class="reference internal" href="#le-bundle-frameworkbundle">Le Bundle <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#le-kernel">Le Kernel</a><ul>
+<li><a class="reference internal" href="#les-controleurs">Les Contrôleurs</a></li>
+<li><a class="reference internal" href="#gestion-des-requetes">Gestion des Requêtes</a></li>
+<li><a class="reference internal" href="#requetes-internes">Requêtes Internes</a></li>
+<li><a class="reference internal" href="#les-evenements">Les Evènements</a><ul>
+<li><a class="reference internal" href="#getrequesttype"><tt class="docutils literal"><span class="pre">getRequestType()</span></tt></a></li>
+<li><a class="reference internal" href="#l-evenement-kernel-request">L&#8217;Evènement <tt class="docutils literal"><span class="pre">kernel.request</span></tt></a></li>
+<li><a class="reference internal" href="#l-evenement-kernel-controller">L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.controller</span></tt></a></li>
+<li><a class="reference internal" href="#l-evenement-kernel-view">L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.view</span></tt></a></li>
+<li><a class="reference internal" href="#l-evenement-kernel-response">L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.response</span></tt></a></li>
+<li><a class="reference internal" href="#l-evenement-kernel-exception">L&#8217;évènement <tt class="docutils literal"><span class="pre">kernel.exception</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#le-dispatcher-d-evenements">Le Dispatcher d&#8217;Evènements</a><ul>
+<li><a class="reference internal" href="#event-dispatcher">Les Evènements</a><ul>
+<li><a class="reference internal" href="#conventions-de-nommage">Conventions de Nommage</a></li>
+<li><a class="reference internal" href="#noms-d-evenements-et-objets-evenements">Noms d&#8217;Evènements et Objets Evènements</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#le-dispatcher">Le Dispatcher</a></li>
+<li><a class="reference internal" href="#connecter-les-listeners">Connecter les Listeners</a></li>
+<li><a class="reference internal" href="#creer-et-repartir-un-evenement">Créer et Répartir un Evènement</a><ul>
+<li><a class="reference internal" href="#la-classe-statique-events">La Classe Statique <tt class="docutils literal"><span class="pre">Events</span></tt></a></li>
+<li><a class="reference internal" href="#creer-un-objet-evenement">Créer un Objet Evènement</a></li>
+<li><a class="reference internal" href="#repartir-l-evenement">Répartir l&#8217;Evènement</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#passer-l-objet-dispatcher-d-evenements">Passer l&#8217;Objet Dispatcher d&#8217;Evènements</a></li>
+<li><a class="reference internal" href="#utiliser-les-souscripteurs-d-evenements">Utiliser les Souscripteurs d&#8217;Evènements</a></li>
+<li><a class="reference internal" href="#arreter-le-deroulement-la-propagation-d-un-evenement">Arrêter le Déroulement/la Propagation d&#8217;un Evènement</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#profiler">Profiler</a><ul>
+<li><a class="reference internal" href="#visualiser-les-donnees-de-profiling">Visualiser les Données de Profiling</a><ul>
+<li><a class="reference internal" href="#utiliser-la-barre-d-outils-de-debuggage-web">Utiliser la Barre d&#8217;Outils de Débuggage Web</a></li>
+<li><a class="reference internal" href="#analyser-les-donnees-de-profiling-avec-le-profiler-web">Analyser les données de Profiling avec le Profiler Web</a></li>
+<li><a class="reference internal" href="#acceder-aux-informations-de-profiling">Accéder aux informations de Profiling</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#en-savoir-plus-grace-au-cookbook">En savoir plus grâce au Cookbook</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="performance.html"
+                        title="previous chapter">Performance</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="stable_api.html"
+                        title="next chapter">L&#8217;API stable de Symfony2</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/internals.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="stable_api.html" title="L’API stable de Symfony2"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="performance.html" title="Performance"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

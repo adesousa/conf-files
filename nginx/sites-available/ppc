@@ -1,0 +1,113 @@
+
+###################################################################
+###############  Section configuration Server   ###################
+############### Virtual hosts + type de serveur ###################
+###################################################################
+
+# Utilisation du serveur comme principal serveur avec php/fastcgi
+server {
+
+    # Port à écouter
+    listen 80;
+   
+    # Nom du serveur - virtual host : localhost - dev.vivalur.fr - ...
+    server_name dev.pneu-pas-cher.eu;
+
+    root /var/www/ppc/web;
+   
+    location / {
+        index app.php
+        try_files $uri $uri/ /app.php$uri?$args;
+    }
+  
+    # Routage de toutes les requetes PHP vers PHP-fastcgi
+    location ~ "^(.+\.php)($|/)" {
+        fastcgi_split_path_info ^(.+\.php)(.*)$;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME $fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        fastcgi_pass   127.0.0.1:9000;
+        include        fastcgi_params;
+    }
+   
+}
+
+# Utilisation d'un serveur utilisant le framework Symfony
+#server {
+#    listen 80;
+#    server_name symfony2;
+#    root /var/www/symfony2/web;
+#    error_log /var/log/nginx/symfony2.error.log;
+#    access_log /var/log/nginx/symfony2.access.log;
+#     
+#    # strip app.php/ prefix if it is present
+#    rewrite ^/app\.php/?(.*)$ /$1 permanent;
+#    location / {
+#        index app.php;
+#        if (-f $request_filename) {
+#            break;
+#        }
+#        rewrite ^(.*)$ /app.php last;
+#    }
+#    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+#    location ~ ^/(app|app_dev)\.php(/|$) {
+#        fastcgi_pass   127.0.0.1:9000;
+#        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+#        include fastcgi_params;
+#        fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+#        fastcgi_param  HTTPS              off;
+#    }
+#}
+
+# Utilisation du serveur en tant que reverse-proxy: Uniquement pour le contenu statique, le reste des requêtes est géré par Apache
+#server {
+#    listen       80;
+#    server_name  domain2.com www.domain2.com;
+#    access_log   logs/domain2.access.log  main;
+#   #Fichier de log spécifique à ce virtual host
+#   error_log  logs/error_bigserver.log;
+#    # serve static files
+#    location ~ ^/(images|javascript|js|css|flash|media|static)/  {
+#      root    /var/www/virtual/big.server.com/htdocs;
+#      expires 30d;
+#    }
+#    # pass requests for dynamic content to apache
+#    location / {
+#      proxy_pass      http://127.0.0.1:80;
+#    }
+#}
+
+# Utilisation du serveur en loadbalancing: configuration ultra simplié pour du load balancing
+#server {
+#    listen          80;
+#    server_name     big.server.com;
+#    access_log      logs/big.server.access.log main;
+#   #Fichier de log spécifique à ce virtual host
+#   error_log  logs/error_bigserver.log;
+#
+#    location / {
+#      proxy_pass      http://big_server_com;
+#    }
+#}
+
+# Utilisation d'un serveur HTTPS
+#
+#server {
+#    listen       443;
+#    server_name  localhost;
+#    ssl                  on;
+#    ssl_certificate      cert.pem;
+#    ssl_certificate_key  cert.key;
+#    ssl_session_timeout  5m;
+#    ssl_protocols  SSLv2 SSLv3 TLSv1;
+#    ssl_ciphers  HIGH:!aNULL:!MD5;
+#    ssl_prefer_server_ciphers   on;
+#    location / {
+#        root   html;
+#        index  index.html index.htm;
+#    }
+#}
+
+# Pour plus de types de serveurs voir : http://wiki.nginx.org/Configuration
+
+

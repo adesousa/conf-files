@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Performance &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="Composants Internes" href="internals.html" />
+    <link rel="prev" title="Service Container" href="service_container.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="internals.html" title="Composants Internes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="service_container.html" title="Service Container"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="performance">
+<span id="index-0"></span><h1>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h1>
+<p>Symfony2 est rapide, sans aucune configuration. Bien entendu, si vous voulez
+que ça soit plus rapide, il y a de nombreuses façons de rendre Symfony
+encore plus rapide. Dans ce chapitre, vous explorerez les méthodes les plus courantes
+et les plus puissantes pour rendre votre application Symfony encore plus rapide.</p>
+<div class="section" id="utiliser-un-cache-de-byte-code-ex-apc">
+<span id="index-1"></span><h2>Utiliser un cache de byte code (ex APC)<a class="headerlink" href="#utiliser-un-cache-de-byte-code-ex-apc" title="Permalink to this headline">¶</a></h2>
+<p>L&#8217;une des meilleures choses (et des plus simples) que vous devriez faire pour
+augmenter la performance est d&#8217;utiliser un cache de byte code (« byte code cache »).
+L&#8217;idée d&#8217;un cache de byte code est de ne plus avoir à recompiler constamment
+le code source PHP. Il existe un certain nombre de <cite>caches de byte code</cite>, dont certains
+sont open source. Le cache de byte code le plus largement utilisé est
+probablement <a class="reference external" href="http://php.net/manual/en/book.apc.php">APC</a></p>
+<p>Il n&#8217;y a aucun effet négatif à utiliser un cache de byte code, et Symfony2
+a été conçu pour être vraiment performant dans ce type d&#8217;environnement.</p>
+<div class="section" id="d-autres-optimisations">
+<h3>D&#8217;autres optimisations<a class="headerlink" href="#d-autres-optimisations" title="Permalink to this headline">¶</a></h3>
+<p>Le cache de byte code surveille normalement tout changement de code source.
+Cela permet de recompiler automatiquement le byte code en cas de changement
+d&#8217;un fichier source. C&#8217;est très pratique, mais cela a évidemment un coût.</p>
+<p>Pour cette raison, certains cache de byte code offrent l&#8217;option de désactiver
+la vérification, ce sera donc à l&#8217;administrateur système de vider le cache
+à chaque changement de fichier. Sinon, les mises à jour ne seront pas visibles.</p>
+<p>Par exemple, pour désactiver cette vérification avec APC, ajoutez simplement
+<tt class="docutils literal"><span class="pre">apc.stat=0</span></tt> à votre fichier de configuration php.ini.</p>
+</div>
+</div>
+<div class="section" id="utiliser-un-chargeur-automatique-qui-met-en-cache-par-exemple-apcuniversalclassloader">
+<span id="index-2"></span><h2>Utiliser un chargeur automatique qui met en cache (par exemple <tt class="docutils literal"><span class="pre">ApcUniversalClassLoader</span></tt>)<a class="headerlink" href="#utiliser-un-chargeur-automatique-qui-met-en-cache-par-exemple-apcuniversalclassloader" title="Permalink to this headline">¶</a></h2>
+<p>Par défaut, la distribution Symfony standard utilise <tt class="docutils literal"><span class="pre">UniversalClassLoader</span></tt>
+dans le fichier <a class="reference external" href="https://github.com/symfony/symfony-standard/blob/master/app/autoload.php">autoloader.php</a>. Ce chargeur automatique (autoloader) est facile
+à utiliser, car il va automatiquement trouver toute nouvelle classe que vous aurez
+placée dans les répertoires enregistrés.</p>
+<p>Malheureusement, cela a un coût, et le chargeur itère à travers tous les espaces de noms
+(namespaces) pour trouver un fichier en particulier, en appelant <tt class="docutils literal"><span class="pre">file_exists</span></tt>
+jusqu&#8217;à ce qu&#8217;il trouve le fichier qu&#8217;il recherchait.</p>
+<p>La solution la plus simple est de mettre en cache l&#8217;emplacement de chaque classe
+après qu&#8217;il l&#8217;ait trouvé la première fois. Symfony est fourni avec une classe chargeur
+- <tt class="docutils literal"><span class="pre">ApcUniversalClassLoader</span></tt> - qui étend <tt class="docutils literal"><span class="pre">UniversalClassLoader</span></tt> et qui sauvegarde
+l&#8217;emplacement de la classe dans APC.</p>
+<p>Pour utiliser cette classe de chargeur, vous n&#8217;avez qu&#8217;à adapter votre fichier
+<tt class="docutils literal"><span class="pre">autoloader.php</span></tt> de la manière suivante :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// app/autoload.php</span>
+<span class="x">require __DIR__.&#39;/../vendor/symfony/src/Symfony/Component/ClassLoader/ApcUniversalClassLoader.php&#39;;</span>
+
+<span class="x">use Symfony\Component\ClassLoader\ApcUniversalClassLoader;</span>
+
+<span class="x">$loader = new ApcUniversalClassLoader(&#39;un préfixe de caching unique&#39;);</span>
+<span class="x">// ...</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Lorsque vous utilisez le chargeur automatique APC, si vous avez de nouvelles
+classes, elles vont être trouvées automatiquement et tout fonctionnera comme
+avant (donc aucune raison de vider le cache). Par contre, si vous changez
+l&#8217;emplacement d&#8217;un espace de noms ou d&#8217;un préfixe, il va falloir que vous vidiez le
+cache APC. Sinon, le chargeur automatique verra toujours l&#8217;ancien emplacement
+des classes à l&#8217;intérieur de ce namespace.</p>
+</div>
+</div>
+<div class="section" id="utiliser-des-fichiers-d-amorcage">
+<span id="index-3"></span><h2>Utiliser des fichiers d&#8217;amorçage<a class="headerlink" href="#utiliser-des-fichiers-d-amorcage" title="Permalink to this headline">¶</a></h2>
+<p>Afin d&#8217;assurer une flexibilité maximale et de favoriser la réutilisation du code,
+les applications Symfony2 profitent de nombreuses classes et composants externes.
+Mais charger toutes les classes depuis des fichiers séparés à chaque requête peut
+entraîner des coûts. Afin de réduire ces coûts, la distribution Symfony standard
+fournit un script qui génère ce qu&#8217;on appelle un <a class="reference external" href="https://github.com/sensio/SensioDistributionBundle/blob/master/Resources/bin/build_bootstrap.php">fichier d&#8217;amorçage</a>
+(« bootstrap file »), qui consiste en une multitude de définitions de classes
+en un seul fichier. En incluant ce fichier (qui contient une copie de
+nombreux fichiers du core), Symfony n&#8217;a plus besoin d&#8217;inclure les fichiers
+sources individuels qui contiennent ces classes. Cela va réduire un peu
+les lectures/écritures sur le disque.</p>
+<p>Si vous utilisez l&#8217;édition Symfony standard, alors vous utilisez probablement
+déjà le fichier d&#8217;amorçage. Pour vous en assurer, ouvrez votre contrôleur frontal
+(généralement <tt class="docutils literal"><span class="pre">app.php</span></tt>) et vérifiez que la ligne suivante est présente :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">require_once __DIR__.&#39;/../app/bootstrap.php.cache&#39;;</span>
+</pre></div>
+</div>
+<p>Veuillez noter qu&#8217;il y a deux inconvénients à utiliser un fichier d&#8217;amorçage :</p>
+<ul class="simple">
+<li>le fichier nécessite d&#8217;être régénéré à chaque fois que les fichiers sources</li>
+</ul>
+<p>originaux changent (à savoir quand vous mettez à jour le code source de Symfony2
+ou une librairie tierce),</p>
+<ul class="simple">
+<li>lors du débogage, vous devrez placer des points d&#8217;arrêt (breakpoints) dans ce fichier</li>
+</ul>
+<p>d&#8217;amorçage.</p>
+<p>Si vous utilisez l&#8217;édition Symfony2 standard, les fichiers d&#8217;amorçage sont automatiquement
+regénérés après avoir mis à jour les librairies tierces (« vendors »)
+grâce à la commande <tt class="docutils literal"><span class="pre">php</span> <span class="pre">bin/vendors</span> <span class="pre">install</span></tt>.</p>
+<div class="section" id="fichiers-d-amorcage-et-caches-de-byte-code">
+<h3>Fichiers d&#8217;amorçage et caches de byte code<a class="headerlink" href="#fichiers-d-amorcage-et-caches-de-byte-code" title="Permalink to this headline">¶</a></h3>
+<p>Même en utilisant un cache de byte code, la performance sera améliorée si vous utilisez
+un fichier d&#8217;amorçage, car il y aura moins de fichiers dont il faut surveiller
+les changements. Bien sûr, si vous désactivez la surveillance des changements de fichiers
+(par exemple <tt class="docutils literal"><span class="pre">apc.stat=0</span></tt> in APC), il n&#8217;y a plus de raison d&#8217;utiliser un fichier
+d&#8217;amorçage.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Performance</a><ul>
+<li><a class="reference internal" href="#utiliser-un-cache-de-byte-code-ex-apc">Utiliser un cache de byte code (ex APC)</a><ul>
+<li><a class="reference internal" href="#d-autres-optimisations">D&#8217;autres optimisations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utiliser-un-chargeur-automatique-qui-met-en-cache-par-exemple-apcuniversalclassloader">Utiliser un chargeur automatique qui met en cache (par exemple <tt class="docutils literal"><span class="pre">ApcUniversalClassLoader</span></tt>)</a></li>
+<li><a class="reference internal" href="#utiliser-des-fichiers-d-amorcage">Utiliser des fichiers d&#8217;amorçage</a><ul>
+<li><a class="reference internal" href="#fichiers-d-amorcage-et-caches-de-byte-code">Fichiers d&#8217;amorçage et caches de byte code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="service_container.html"
+                        title="previous chapter">Service Container</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="internals.html"
+                        title="next chapter">Composants Internes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/performance.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="internals.html" title="Composants Internes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="service_container.html" title="Service Container"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

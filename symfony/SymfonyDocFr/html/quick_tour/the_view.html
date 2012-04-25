@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>La vue &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Quick Tour" href="index.html" />
+    <link rel="next" title="Le Contrôleur" href="the_controller.html" />
+    <link rel="prev" title="Vue d’ensemble" href="the_big_picture.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="the_controller.html" title="Le Contrôleur"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="the_big_picture.html" title="Vue d’ensemble"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Quick Tour</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="la-vue">
+<h1>La vue<a class="headerlink" href="#la-vue" title="Permalink to this headline">¶</a></h1>
+<p>Après avoir lu la première partie de ce tutoriel, vous avez décidé que Symfony2
+méritait 10 minutes de plus. Excellent choix ! Dans cette seconde partie, vous
+en apprendrez plus sur le moteur de template de Symfony2, <a class="reference external" href="http://twig.sensiolabs.org/">Twig</a>. Twig est un
+moteur de template PHP flexible, rapide et sécurisé. Il rend vos templates plus
+concis et lisibles; il les rend également plus accessibles aux web designers.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Plutôt que Twig, vous pouvez tout aussi bien utiliser <a class="reference internal" href="../cookbook/templating/PHP.html"><em>PHP</em></a>
+pour vos templates. Les deux moteurs sont supportés par Symfony2.</p>
+</div>
+<div class="section" id="decouvrir-twig">
+<h2>Découvrir Twig<a class="headerlink" href="#decouvrir-twig" title="Permalink to this headline">¶</a></h2>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Si vous voulez maîtriser Twig, nous vous recommandons fortement de lire sa
+<a class="reference external" href="http://twig.sensiolabs.org/documentation">documentation</a> officielle. Cette section est juste un rapide aperçu des
+concepts de base.</p>
+</div>
+<p>Un template Twig est un fichier texte qui peut générer n&#8217;importe quel type de
+contenu (HTML, XML, CSV, LaTeX, ...). Twig définit deux sortes de délimiteurs :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">{{</span> <span class="pre">...</span> <span class="pre">}}</span></tt>: Affiche une variable ou le résultat d&#8217;une expression.</li>
+<li><tt class="docutils literal"><span class="pre">{%</span> <span class="pre">...</span> <span class="pre">%}</span></tt>: Contrôle la logique du template; il est utilisé pour éxécuter des</li>
+</ul>
+<p>boucles <tt class="docutils literal"><span class="pre">for</span></tt> et des conditions <tt class="docutils literal"><span class="pre">if</span></tt>, entre autres.</p>
+<p>Ci-dessous un template minimal qui illustre quelques bases; en utilisant deux
+variables <tt class="docutils literal"><span class="pre">page_title</span></tt> et <tt class="docutils literal"><span class="pre">navigation</span></tt>, qui ont été passées au template :</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="nt">&lt;html&gt;</span>
+    <span class="nt">&lt;head&gt;</span>
+        <span class="nt">&lt;title&gt;</span>My Webpage<span class="nt">&lt;/title&gt;</span>
+    <span class="nt">&lt;/head&gt;</span>
+    <span class="nt">&lt;body&gt;</span>
+        <span class="nt">&lt;h1&gt;</span><span class="cp">{{</span> <span class="nv">page_title</span> <span class="cp">}}</span><span class="nt">&lt;/h1&gt;</span>
+
+        <span class="nt">&lt;ul</span> <span class="na">id=</span><span class="s">&quot;navigation&quot;</span><span class="nt">&gt;</span>
+            <span class="cp">{%</span> <span class="k">for</span> <span class="nv">item</span> <span class="k">in</span> <span class="nv">navigation</span> <span class="cp">%}</span>
+                <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">item.href</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span><span class="cp">{{</span> <span class="nv">item.caption</span> <span class="cp">}}</span><span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+            <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+        <span class="nt">&lt;/ul&gt;</span>
+    <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Des commentaires peuvent être inclus dans le template en utilisant le
+délimiteur <tt class="docutils literal"><span class="pre">{#</span> <span class="pre">...</span> <span class="pre">#}</span></tt>.</p>
+</div>
+<p>Pour rendre un template dans Symfony, utilisez la méthode <tt class="docutils literal"><span class="pre">render</span></tt> depuis un
+contrôleur et passez toutes les variables requises par le template :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$this-&gt;render(&#39;AcmeDemoBundle:Demo:hello.html.twig&#39;, array(</span>
+<span class="x">    &#39;name&#39; =&gt; $name,</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+<p>Les variables passées à un template peuvent être des chaînes de caractères, des
+tableaux ou même des objets. Twig les gère de la même manière et vous permet
+d&#8217;accéder aux « attributs » d&#8217;une variable grâce à la notation (<tt class="docutils literal"><span class="pre">.</span></tt>) :</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span class="c">{# array(&#39;name&#39; =&gt; &#39;Fabien&#39;) #}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span><span class="x"></span>
+
+<span class="c">{# array(&#39;user&#39; =&gt; array(&#39;name&#39; =&gt; &#39;Fabien&#39;)) #}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">user.name</span> <span class="cp">}}</span><span class="x"></span>
+
+<span class="c">{# force array lookup #}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">user</span><span class="o">[</span><span class="s1">&#39;name&#39;</span><span class="o">]</span> <span class="cp">}}</span><span class="x"></span>
+
+<span class="c">{# array(&#39;user&#39; =&gt; new User(&#39;Fabien&#39;)) #}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">user.name</span> <span class="cp">}}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">user.getName</span> <span class="cp">}}</span><span class="x"></span>
+
+<span class="c">{# force method name lookup #}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">user.name</span><span class="o">()</span> <span class="cp">}}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">user.getName</span><span class="o">()</span> <span class="cp">}}</span><span class="x"></span>
+
+<span class="c">{# pass arguments to a method #}</span><span class="x"></span>
+<span class="cp">{{</span> <span class="nv">user.date</span><span class="o">(</span><span class="s1">&#39;Y-m-d&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="x"></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Il est important de savoir que les accolades ne font pas partie de la variable
+mais de son affichage. Si vous accéder à une variable dans un tag, ne mettez
+pas d&#8217;accolades autour.</p>
+</div>
+</div>
+<div class="section" id="templates-de-decoration">
+<h2>Templates de décoration<a class="headerlink" href="#templates-de-decoration" title="Permalink to this headline">¶</a></h2>
+<p>Bien souvent, les templates d&#8217;un projet partagent des éléments communs, comme les
+célèbres entête et pied de page. Dans Symfony2, nous abordons ce problème
+différemment : un template peut être décoré par un autre. Cela fonctionne exactement
+comme les classes PHP : l&#8217;héritage de template vous permet de batir un template
+« layout » de base qui contient tous les éléments communs de votre site et de définir
+des « blocks » que les templates enfants pourront surcharger.</p>
+<p>Le template <tt class="docutils literal"><span class="pre">hello.html.twig</span></tt> hérite du template <tt class="docutils literal"><span class="pre">layout.html.twig</span></tt>, grâce au
+tag <tt class="docutils literal"><span class="pre">extends</span></tt> :</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# src/Acme/DemoBundle/Resources/views/Demo/hello.html.twig #}</span>
+<span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;AcmeDemoBundle::layout.html.twig&quot;</span> <span class="cp">%}</span>
+
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">title</span> <span class="s2">&quot;Hello &quot;</span> <span class="o">~</span> <span class="nv">name</span> <span class="cp">%}</span>
+
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">content</span> <span class="cp">%}</span>
+    <span class="nt">&lt;h1&gt;</span>Hello <span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span>!<span class="nt">&lt;/h1&gt;</span>
+<span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<p>La notation <tt class="docutils literal"><span class="pre">AcmeDemoBundle::layout.html.twig</span></tt> vous semble familière, n&#8217;est-ce pas ?
+C&#8217;est la même notation utilisée pour référencer un template classique. La partie
+<tt class="docutils literal"><span class="pre">::</span></tt> signifie simplement que le contrôleur est vide, et donc que le fichier
+correspondant est directement stocké dans le répertoire <tt class="docutils literal"><span class="pre">Resources/views/</span></tt>.</p>
+<p>Maintenant, jettons à un oeil à un exemple simple du template <tt class="docutils literal"><span class="pre">layout.html.twig</span></tt> :</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span class="c">{# src/Acme/DemoBundle/Resources/views/layout.html.twig #}</span><span class="x"></span>
+<span class="x">&lt;div class=&quot;symfony-content&quot;&gt;</span>
+<span class="x">    </span><span class="cp">{%</span> <span class="k">block</span> <span class="nv">content</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    </span><span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">&lt;/div&gt;</span>
+</pre></div>
+</div>
+<p>Le tag <tt class="docutils literal"><span class="pre">{%</span> <span class="pre">block</span> <span class="pre">%}</span></tt> définit des blocs que les templates enfants vont pouvoir remplir.
+Tout ce que le tag block fait est de spécifier au moteur de template qu&#8217;un template
+enfant va surcharger cette partie du template.</p>
+<p>Dans cet exemple, le template <tt class="docutils literal"><span class="pre">hello.html.twig</span></tt> surcharge le block <tt class="docutils literal"><span class="pre">content</span></tt>,
+ce qui signifie que le texte « Hello Fabien » sera affiché dans l&#8217;élément <tt class="docutils literal"><span class="pre">div.symfony-content</span></tt>.</p>
+</div>
+<div class="section" id="utiliser-les-tags-les-filtres-et-les-fonctions">
+<h2>Utiliser les tags, les filtres et les fonctions<a class="headerlink" href="#utiliser-les-tags-les-filtres-et-les-fonctions" title="Permalink to this headline">¶</a></h2>
+<p>L&#8217;une des meilleurs fonctionnalités de Twig est son extensibilité via les tags,
+les filtres et les fonctions. Symfony2 est fourni avec beaucoup de fonctions
+préconstruites pour faciliter le travail des designers.</p>
+<div class="section" id="inclure-d-autres-templates">
+<h3>Inclure d&#8217;autres templates<a class="headerlink" href="#inclure-d-autres-templates" title="Permalink to this headline">¶</a></h3>
+<p>La meilleure manière de partager un morceau de code entre plusieurs templates
+distincts est de créer un nouveau template qui sera inclu dans les autres.</p>
+<p>Créez un template <tt class="docutils literal"><span class="pre">embedded.html.twig</span></tt> :</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span class="c">{# src/Acme/DemoBundle/Resources/views/Demo/embedded.html.twig #}</span><span class="x"></span>
+<span class="x">Hello </span><span class="cp">{{</span> <span class="nv">name</span> <span class="cp">}}</span><span class="x"></span>
+</pre></div>
+</div>
+<p>Et changez le template <tt class="docutils literal"><span class="pre">index.html.twig</span></tt> pour l&#8217;inclure:</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span class="c">{# src/Acme/DemoBundle/Resources/views/Demo/hello.html.twig #}</span><span class="x"></span>
+<span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;AcmeDemoBundle::layout.html.twig&quot;</span> <span class="cp">%}</span><span class="x"></span>
+
+<span class="c">{# override the body block from embedded.html.twig #}</span><span class="x"></span>
+<span class="cp">{%</span> <span class="k">block</span> <span class="nv">content</span> <span class="cp">%}</span><span class="x"></span>
+<span class="x">    </span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;AcmeDemoBundle:Demo:embedded.html.twig&quot;</span> <span class="cp">%}</span><span class="x"></span>
+<span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span><span class="x"></span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="imbriquer-d-autres-controleurs">
+<h3>Imbriquer d&#8217;autres contrôleurs<a class="headerlink" href="#imbriquer-d-autres-controleurs" title="Permalink to this headline">¶</a></h3>
+<p>Et si vous vouliez inclure le résultat d&#8217;un autre contrôleur dans votre template ?
+C&#8217;est très utile en travaillant avec Ajax, ou quand les templates inclus
+ont besoin de variables qui ne sont pas disponibles dans le template principal.</p>
+<p>Supposez que vous avez créé une action <tt class="docutils literal"><span class="pre">fancy</span></tt> et que vous voulez l&#8217;inclure
+à l&#8217;interieur du template <tt class="docutils literal"><span class="pre">index</span></tt>. Pour faire cela, utilisez le tag <tt class="docutils literal"><span class="pre">render</span></tt> :</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span class="c">{# src/Acme/DemoBundle/Resources/views/Demo/index.html.twig #}</span><span class="x"></span>
+<span class="cp">{%</span> <span class="k">render</span> <span class="s2">&quot;AcmeDemoBundle:Demo:fancy&quot;</span> <span class="k">with</span> <span class="o">{</span> <span class="s1">&#39;name&#39;</span><span class="o">:</span> <span class="nv">name</span><span class="o">,</span> <span class="s1">&#39;color&#39;</span><span class="o">:</span> <span class="s1">&#39;green&#39;</span> <span class="o">}</span> <span class="cp">%}</span><span class="x"></span>
+</pre></div>
+</div>
+<p>Ici, la chaîne de caractères <tt class="docutils literal"><span class="pre">AcmeDemoBundle:Demo:fancy</span></tt> fait référence à l&#8217;action
+<tt class="docutils literal"><span class="pre">fancy</span></tt> du contrôleur <tt class="docutils literal"><span class="pre">Demo</span></tt>. Les arguments (<tt class="docutils literal"><span class="pre">name</span></tt> et <tt class="docutils literal"><span class="pre">color</span></tt>) agissent
+comme des variables de requête simulée (comme si l&#8217;action <tt class="docutils literal"><span class="pre">fancyAction</span></tt>
+était gérée comme une toute nouvelle requête) et sont mis à disposition du contrôleur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/DemoBundle/Controller/DemoController.php</span>
+
+<span class="x">class DemoController extends Controller</span>
+<span class="x">{</span>
+<span class="x">    public function fancyAction($name, $color)</span>
+<span class="x">    {</span>
+<span class="x">        // create some object, based on the $color variable</span>
+<span class="x">        $object = ...;</span>
+
+<span class="x">        return $this-&gt;render(&#39;AcmeDemoBundle:Demo:fancy.html.twig&#39;, array(&#39;name&#39; =&gt; $name, &#39;object&#39; =&gt; $object));</span>
+<span class="x">    }</span>
+
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="creer-des-liens-entre-les-pages">
+<h3>Créer des liens entre les pages<a class="headerlink" href="#creer-des-liens-entre-les-pages" title="Permalink to this headline">¶</a></h3>
+<p>Créer des liens entre les pages d&#8217;une application web est incontournable. Au
+lieu de coder en dur les URLs dans les templates, la fonction <tt class="docutils literal"><span class="pre">path</span></tt> peut
+générer des URLs en se basant sur la configuration du routing. De cette manière,
+toutes vos URLs peuvent être facilement mise à jour en changeant juste le fichier
+de configuration :</p>
+<div class="highlight-html+jinja"><div class="highlight"><pre><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">path</span><span class="o">(</span><span class="s1">&#39;_demo_hello&#39;</span><span class="o">,</span> <span class="o">{</span> <span class="s1">&#39;name&#39;</span><span class="o">:</span> <span class="s1">&#39;Fabien&#39;</span> <span class="o">})</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="nt">&gt;</span>Hello Fabien!<span class="nt">&lt;/a&gt;</span>
+</pre></div>
+</div>
+<p>La fonction <tt class="docutils literal"><span class="pre">path</span></tt> prend le nom de la route et un tableau de paramètres comme
+arguments. Le nom de la route est la clé principale sous laquelle les
+routes sont référencées et les paramètres sont les valeurs définies dans le
+masque (pattern) de chaque route :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/DemoBundle/Controller/DemoController.php</span>
+<span class="x">use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;</span>
+<span class="x">use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;</span>
+
+<span class="x">/**</span>
+<span class="x"> * @Route(&quot;/hello/{name}&quot;, name=&quot;_demo_hello&quot;)</span>
+<span class="x"> * @Template()</span>
+<span class="x"> */</span>
+<span class="x">public function helloAction($name)</span>
+<span class="x">{</span>
+<span class="x">    return array(&#39;name&#39; =&gt; $name);</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">La fonction <tt class="docutils literal"><span class="pre">url</span></tt> génère des URLs <em>absolues</em> : <tt class="docutils literal"><span class="pre">{{</span> <span class="pre">url('_demo_hello',</span> <span class="pre">{</span>
+<span class="pre">'name':</span> <span class="pre">'Thomas'</span> <span class="pre">})</span> <span class="pre">}}</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="inclure-les-assets-images-javascripts-et-feuilles-de-style">
+<h3>Inclure les assets: images, javascripts, et feuilles de style<a class="headerlink" href="#inclure-les-assets-images-javascripts-et-feuilles-de-style" title="Permalink to this headline">¶</a></h3>
+<p>Que serait Internet sans images, javascripts, et feuilles de style ?
+Symfony2 fournit la fonction <tt class="docutils literal"><span class="pre">asset</span></tt> pour les gérer très facilement :</p>
+<div class="highlight-jinja"><div class="highlight"><pre><span class="x">&lt;link href=&quot;</span><span class="cp">{{</span> <span class="nv">asset</span><span class="o">(</span><span class="s1">&#39;css/blog.css&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="x">&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; /&gt;</span>
+
+<span class="x">&lt;img src=&quot;</span><span class="cp">{{</span> <span class="nv">asset</span><span class="o">(</span><span class="s1">&#39;images/logo.png&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="x">&quot; /&gt;</span>
+</pre></div>
+</div>
+<p>Le but principal de la fonction <tt class="docutils literal"><span class="pre">asset</span></tt> est de rendre votre application plus
+portable. Grâce à cette fonction, vous pouvez déplacer le répertoire racine
+de votre application n&#8217;importe où sous le répertoire racine web sans changer le
+moindre code dans vos templates.</p>
+</div>
+</div>
+<div class="section" id="echapper-les-variables">
+<h2>Echapper les variables<a class="headerlink" href="#echapper-les-variables" title="Permalink to this headline">¶</a></h2>
+<p>Twig est configuré par défaut pour échapper automatiquement le flux de sortie.
+Lisez la <a class="reference external" href="http://twig.sensiolabs.org/documentation">documentation</a>  de Twig pour en apprendre plus sur l&#8217;échappement et
+l&#8217;extension Escaper.</p>
+</div>
+<div class="section" id="le-mot-de-la-fin">
+<h2>Le mot de la fin<a class="headerlink" href="#le-mot-de-la-fin" title="Permalink to this headline">¶</a></h2>
+<p>Twig est simple mais puissant. Grâce aux layouts, aux blocks, aux templates et
+aux inclusions d&#8217;actions, il est très facile d&#8217;organiser vos templates de façon
+logique et extensible. Pourtant, si vous n&#8217;êtes pas à l&#8217;aise avec
+Twig, vous pouvez toujours utiliser PHP dans les templates de Symfony sans aucun
+soucis.</p>
+<p>Vous avez travaillé à peine 20 minutes avec Symfony2, mais vous pouvez déjà faire
+des choses incroyables avec. C&#8217;est la puissance de Symfony2. Apprendre les concepts de base
+est très simple, et vous apprendrez bientôt que cette simplicité est cachée derrière
+une architecture flexible.</p>
+<p>Mais il ne faut pas aller trop vite. D&#8217;abord, vous devez en apprendre plus sur le
+contrôleur et c&#8217;est justement le sujet de la <a class="reference internal" href="the_controller.html"><em>prochaine partie de ce tutoriel</em></a>.
+Prêt pour 10 nouvelles minutes avec Symfony2 ?</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">La vue</a><ul>
+<li><a class="reference internal" href="#decouvrir-twig">Découvrir Twig</a></li>
+<li><a class="reference internal" href="#templates-de-decoration">Templates de décoration</a></li>
+<li><a class="reference internal" href="#utiliser-les-tags-les-filtres-et-les-fonctions">Utiliser les tags, les filtres et les fonctions</a><ul>
+<li><a class="reference internal" href="#inclure-d-autres-templates">Inclure d&#8217;autres templates</a></li>
+<li><a class="reference internal" href="#imbriquer-d-autres-controleurs">Imbriquer d&#8217;autres contrôleurs</a></li>
+<li><a class="reference internal" href="#creer-des-liens-entre-les-pages">Créer des liens entre les pages</a></li>
+<li><a class="reference internal" href="#inclure-les-assets-images-javascripts-et-feuilles-de-style">Inclure les assets: images, javascripts, et feuilles de style</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#echapper-les-variables">Echapper les variables</a></li>
+<li><a class="reference internal" href="#le-mot-de-la-fin">Le mot de la fin</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="the_big_picture.html"
+                        title="previous chapter">Vue d&#8217;ensemble</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="the_controller.html"
+                        title="next chapter">Le Contrôleur</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/quick_tour/the_view.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="the_controller.html" title="Le Contrôleur"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="the_big_picture.html" title="Vue d’ensemble"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Quick Tour</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

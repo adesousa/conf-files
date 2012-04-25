@@ -1,0 +1,152 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>L’API stable de Symfony2 &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="Cookbook" href="../cookbook/index.html" />
+    <link rel="prev" title="Composants Internes" href="internals.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../cookbook/index.html" title="Cookbook"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="internals.html" title="Composants Internes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="l-api-stable-de-symfony2">
+<h1>L&#8217;API stable de Symfony2<a class="headerlink" href="#l-api-stable-de-symfony2" title="Permalink to this headline">¶</a></h1>
+<p>L&#8217;API stable de Symfony2 est un sous-ensemble de toutes les méthodes publiques
+de Symfony2 (composants et bundles &#8220;du coeur&#8221;) qui partagent les propriétés suivantes:</p>
+<ul class="simple">
+<li>le namespace et le nom de la classe ne changera pas,</li>
+<li>le nom de la méthode ne changera pas,</li>
+<li>la signatude de la méthode (arguments et valeur de retour) ne changera pas,</li>
+<li>l&#8217;objectif de la méthode ne changera pas</li>
+</ul>
+<p>L&#8217;implémentation elle-même peut changer. La seule raison valable d&#8217;un changement
+de l&#8217;API stable de Symfony2 serait de corriger un problème de sécurité.</p>
+<p>L&#8217;API stable est basée sur un principe de liste blanche (&#8220;whitelist&#8221;), taggée
+par <cite>&#64;api</cite>. En conséquence, tout ce qui n&#8217;est pas explicitement taggé ne fait pas
+partie de l&#8217;API stable.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Chaque bundle tiers devrait aussi publier sa propre API stable.</p>
+</div>
+<p>Tout comme Symfony 2.0, les composants suivants ont leur propre API publique :</p>
+<ul class="simple">
+<li>BrowserKit</li>
+<li>ClassLoader</li>
+<li>Console</li>
+<li>CssSelector</li>
+<li>DependencyInjection</li>
+<li>DomCrawler</li>
+<li>EventDispatcher</li>
+<li>Finder</li>
+<li>HttpFoundation</li>
+<li>HttpKernel</li>
+<li>Locale</li>
+<li>Process</li>
+<li>Routing</li>
+<li>Templating</li>
+<li>Translation</li>
+<li>Validator</li>
+<li>Yaml</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="internals.html"
+                        title="previous chapter">Composants Internes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../cookbook/index.html"
+                        title="next chapter">Cookbook</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/stable_api.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../cookbook/index.html" title="Cookbook"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="internals.html" title="Composants Internes"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,178 @@
+###################################################################
+############### Virtual hosts + type de serveur ###################
+###################################################################
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# http://wiki.nginx.org/Pitfalls
+# http://wiki.nginx.org/QuickStart
+# http://wiki.nginx.org/Configuration
+#
+# Generally, you will want to move this file somewhere, and start with a clean
+# file but keep this around for reference. Or just disable in sites-enabled.
+#
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+# Utilisation d'un serveur principal avec php/fastcgi - Configuration classique. Symfony voir plus bas.
+server {
+	# Valeur par défaut et implicite	
+	#listen   80;
+
+	root /var/www;
+	index index.html index.htm index.php;
+
+	# Rendre le site accessible à travers http://localhost/. C'est le virtual host : localhost - dev.vivalur.fr ...
+	server_name localhost;
+
+	location / {
+		# Essaye de comprendre la requête comme un appel à un fichier, ensuite comme un dossier et s'il ne trouve pas affiche par défaut index.html
+		try_files $uri $uri/ /index.html;
+	}
+
+	# Emplacement du fichier spécifique au log d'accès de ce serveur virtuel
+	access_log  /var/log/nginx/access_localhost.log;
+
+	# Emplacement du fichier spécifique au log d'erreurs de ce serveur virtuel
+	error_log  /var/log/nginx/error_localhost.log; 
+
+	# Redirection vers les pages d'erreurs spécifiques à ce serveur
+	error_page   404          /404.html;
+	error_page   500 502 503 504  /50x.html;
+	
+	location = /50x.html {
+		root   /var/www/errors/localhost;
+	}
+
+	location = /404.html {
+		root   /var/www/errors/localhost;
+	}
+
+	# Le type du charset du document utf-8 - windows-1251
+	# charset utf-8; # non testé l'utf-8
+   
+	# pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+	#
+	location ~ \.php$ {
+		fastcgi_pass 127.0.0.1:9000;
+		fastcgi_index index.php;
+		include fastcgi_params;
+	}
+
+	# On fait un proxy entre Apache et Nginx pour les PHP scripts sur 127.0.0.1:80 (si on utilise pas php-fast-cgi (php-fpm)
+	#
+	#location ~ \.php$ {
+	#	proxy_pass http://127.0.0.1;
+	#}
+
+	# deny access to .htaccess files, if Apache's document root
+	# concurs with nginx's one
+	#
+	#location ~ /\.ht {
+	#	deny all;
+	#}
+}
+
+
+# Utilisation d'un serveur utilisant le framework Symfony 2, pour Symfony 1.4 voir plus bas !
+#server {
+#    listen 80;
+#    server_name symfony2;
+#    root /var/www/symfony2/web;
+#    error_log /var/log/nginx/symfony2.error.log;
+#    access_log /var/log/nginx/symfony2.access.log;
+#     
+#    # strip app.php/ prefix if it is present
+#    rewrite ^/app\.php/?(.*)$ /$1 permanent;
+#    location / {
+#        index app.php;
+#        if (-f $request_filename) {
+#            break;
+#        }
+#        rewrite ^(.*)$ /app.php last;
+#    }
+#    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+#    location ~ ^/(app|app_dev)\.php(/|$) {
+#        fastcgi_pass   127.0.0.1:9000;
+#        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+#        include fastcgi_params;
+#        fastcgi_param  SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+#        fastcgi_param  HTTPS              off;
+#    }
+#}
+
+# Utilisation d'un serveur utilisant le framework symfony 1.4 (conf minimale...)
+#server {
+#    # Port à écouter
+#    listen 80;
+#    # Nom du serveur - virtual host : localhost - dev.vivalur.fr - ...
+#    server_name dev.code-chouchou.fr;
+#    root /var/www/chouchou/web;
+#    # Routage de toutes les requetes PHP vers PHP-fastcgi
+#	location ~ ^/(index|frontend|frontend_dev|backend|backend_dev)\.php$ {
+#		include fastcgi_params;
+#		fastcgi_split_path_info ^(.+\.php)(/.+)$;
+#		fastcgi_param PATH_INFO $fastcgi_path_info;
+#		fastcgi_param PATH_TRANSLATED $document_root$fastcgi_path_info;
+#		fastcgi_param HTTPS off;
+# 		fastcgi_pass   127.0.0.1:9000;
+#  	}
+#    location / {
+#		index index.php;
+#		try_files $uri /index.php?$args;
+#  	}
+#    location ^~ /sf/ {
+#        alias   /var/www/chouchou/lib/vendor/symfony/data/web/sf/;
+#    }
+#}
+
+# Utilisation du serveur en tant que reverse-proxy: Uniquement pour le contenu statique, le reste des requêtes est géré par Apache
+#server {
+#    listen       80;
+#    server_name  domain2.com www.domain2.com;
+#    access_log   logs/domain2.access.log  main;
+#   #Fichier de log spécifique à ce virtual host
+#   error_log  logs/error_bigserver.log;
+#    # serve static files
+#    location ~ ^/(images|javascript|js|css|flash|media|static)/  {
+#      root    /var/www/virtual/big.server.com/htdocs;
+#      expires 30d;
+#    }
+#    # pass requests for dynamic content to apache
+#    location / {
+#      proxy_pass      http://127.0.0.1:80;
+#    }
+#}
+
+# Utilisation du serveur en loadbalancing: configuration ultra simplié pour du load balancing
+#server {
+#    listen          80;
+#    server_name     big.server.com;
+#    access_log      logs/big.server.access.log main;
+#   #Fichier de log spécifique à ce virtual host
+#   error_log  logs/error_bigserver.log;
+#
+#    location / {
+#      proxy_pass      http://big_server_com;
+#    }
+#}
+
+# Utilisation d'un serveur HTTPS
+#
+#server {
+#    listen       443;
+#    server_name  localhost;
+#    ssl                  on;
+#    ssl_certificate      cert.pem;
+#    ssl_certificate_key  cert.key;
+#    ssl_session_timeout  5m;
+#    ssl_protocols  SSLv2 SSLv3 TLSv1;
+#    ssl_ciphers  HIGH:!aNULL:!MD5;
+#    ssl_prefer_server_ciphers   on;
+#    location / {
+#        root   html;
+#        index  index.html index.htm;
+#    }
+#}
+
+# Pour plus de types de serveurs voir : http://wiki.nginx.org/Configuration

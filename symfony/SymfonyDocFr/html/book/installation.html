@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Installer et Configurer Symfony &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="La création de pages avec Symfony2" href="page_creation.html" />
+    <link rel="prev" title="Symfony2 versus PHP pur" href="from_flat_php_to_symfony2.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="page_creation.html" title="La création de pages avec Symfony2"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="from_flat_php_to_symfony2.html" title="Symfony2 versus PHP pur"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="installer-et-configurer-symfony">
+<span id="index-0"></span><h1>Installer et Configurer Symfony<a class="headerlink" href="#installer-et-configurer-symfony" title="Permalink to this headline">¶</a></h1>
+<p>Le but de ce chapitre est de vous permettre de démarrer avec une application
+construite avec Symfony. Heureusement, Symfony propose un système de « distributions ».
+Ce sont des projets Symfony fonctionnels « de départ » que vous pouvez télécharger
+et qui vous permettent de développer immédiatement.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Si vous cherchez des instructions sur la meilleure façon de créer un nouveau
+projet et de le stocker dans un gestionnaire de versions, lisez <a class="reference internal" href="#utiliser-un-gestionnaire-de-versions">Utiliser un Gestionnaire de Versions</a>.</p>
+</div>
+<div class="section" id="telecharger-une-distribution-symfony2">
+<h2>Télécharger une Distribution Symfony2<a class="headerlink" href="#telecharger-une-distribution-symfony2" title="Permalink to this headline">¶</a></h2>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Premièrement, vérifiez que vous avez installé et configuré un serveur web
+(comme Apache) avec PHP 5.3.2 ou supérieur. Pour plus d&#8217;informations sur les
+prérequis Symfony2, lisez le chapitre <a class="reference internal" href="../reference/requirements.html"><em>requirements reference</em></a>.</p>
+</div>
+<p>Les « distributions » Symfony2 sont des applications entièrement fonctionnelles
+qui incluent les librairies du coeur de Symfony2, une sélection de bundles utiles,
+une arborescence pratique et une configuration par défaut. Quand vous téléchargez
+une distribution Symfony2, vous téléchargez un squelette d&#8217;application qui peut
+être immédiatement utilisé pour commencer à développer votre application.</p>
+<p>Commencez par visiter la page de téléchargement de Symfony2 à <a class="reference external" href="http://symfony.com/download">http://symfony.com/download</a>.
+Sur cette page, vous verrez la <em>Symfony Standard Edition</em>, qui est la principale
+distribution Symfony2. Vous devrez alors faire deux choix :</p>
+<ul class="simple">
+<li>Télécharger l&#8217;archive au format <tt class="docutils literal"><span class="pre">.tgz</span></tt> ou <tt class="docutils literal"><span class="pre">.zip</span></tt>. Les deux sont équivalentes
+donc téléchargez celle avec laquelle vous vous sentez le plus à l&#8217;aise.</li>
+<li>Téléchargez la distribution avec ou sans vendors. Si vous avez installé <a class="reference external" href="http://git-scm.com/">Git</a>
+sur votre ordinateur, vous devriez télécharger Symfony2 « sans vendors ». Cela
+vous donnera plus de flexibilité quand vous incluerez des librairies tierces.</li>
+</ul>
+<p>Téléchargez l&#8217;une des archives quelque part dans le dossier racine de votre serveur
+web et extrayez là. Depuis une interface de commande UNIX, cela peut être fait
+avec l&#8217;une des commandes suivantes (remplacez <tt class="docutils literal"><span class="pre">###</span></tt> par le nom du fichier) :</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># pour l&#39;archive .tgz</span>
+tar zxvf Symfony_Standard_Vendors_2.0.###.tgz
+
+<span class="c"># pour l&#39;archive .zip</span>
+unzip Symfony_Standard_Vendors_2.0.###.zip
+</pre></div>
+</div>
+<p>Lorsque vous aurez fini, vous devriez avoir un répertoire <tt class="docutils literal"><span class="pre">Symfony/</span></tt> qui
+ressemble à ceci :</p>
+<div class="highlight-text"><div class="highlight"><pre>www/ &lt;- votre dossier racine
+    Symfony/ &lt;- l&#39;archive extraite
+        app/
+            cache/
+            config/
+            logs/
+        src/
+            ...
+        vendor/
+            ...
+        web/
+            app.php
+            ...
+</pre></div>
+</div>
+<div class="section" id="mettre-a-jour-les-vendors">
+<h3>Mettre à jour les Vendors<a class="headerlink" href="#mettre-a-jour-les-vendors" title="Permalink to this headline">¶</a></h3>
+<p>Finallement, si vous avez téléchargé l&#8217;archive « sans vendors », installez les en
+lancant la commande suivante depuis une invite de commande :</p>
+<div class="highlight-bash"><div class="highlight"><pre>php bin/vendors install
+</pre></div>
+</div>
+<p>Cette commande télécharge toutes les librairies vendor nécessaires - incluant
+Symfony - dans le répertoire <tt class="docutils literal"><span class="pre">vendor/</span></tt>. Pour plus d&#8217;informations sur la façon
+dont les librairies tierces sont gérées dans Symfony2, lisez le chapitre
+«<a class="reference internal" href="../cookbook/workflow/new_project_git.html#cookbook-managing-vendor-libraries"><em>Managing Vendor Libraries with bin/vendors and deps</em></a>».</p>
+</div>
+<div class="section" id="configuration-et-installation">
+<h3>Configuration et installation<a class="headerlink" href="#configuration-et-installation" title="Permalink to this headline">¶</a></h3>
+<p>Maintenant, toutes les librairies tierces nécessaires sont dans le répertoire
+<tt class="docutils literal"><span class="pre">vendor/</span></tt>. Vous avez également une application par défaut installée dans le
+répertoire <tt class="docutils literal"><span class="pre">app/</span></tt> et un exemple de code dans le répertoire <tt class="docutils literal"><span class="pre">src/</span></tt>.</p>
+<p>Symfony2 est livré avec un testeur de configuration de votre serveur afin de
+vérifier que votre serveur web et PHP sont bien configurés pour utiliser Symfony.
+Utilisez l&#8217;URL suivante pour vérifier votre configuration :</p>
+<div class="highlight-text"><div class="highlight"><pre>http://localhost/Symfony/web/config.php
+</pre></div>
+</div>
+<p>S&#8217;il y a des problèmes, corrigez les maintenant avant de poursuivre.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Définir les permissions</p>
+<p>Un des problèmes les plus fréquents et que les répertoires <tt class="docutils literal"><span class="pre">app/cache</span></tt> et
+<tt class="docutils literal"><span class="pre">app/logs</span></tt> ne sont pas accessibles en écriture par le serveur web et par
+l&#8217;utilisateur de ligne de commande. Sur un système UNIX, si votre utilisateur
+de ligne de commande est différent de celui du serveur web, vous pouvez lancer
+les commandes suivantes une fois dans votre projet pour vous assurer que les
+permissions sont correctement définies. Changez l&#8217;utilisateur du serveur web
+pour <tt class="docutils literal"><span class="pre">www-data</span></tt> et celui de la ligne de commande pour <tt class="docutils literal"><span class="pre">yourname</span></tt> :</p>
+<p><strong>1. Utiliser l&#8217;ACL sur un système qui supporte chmod +a</strong></p>
+<p>Beaucoup de systèmes autorisent l&#8217;usage de la commande <tt class="docutils literal"><span class="pre">chmod</span> <span class="pre">+a</span></tt>.
+Essayez d&#8217;abord cela, et si vous avez une erreur, essayez la méthode suivante.</p>
+<div class="highlight-bash"><div class="highlight"><pre>rm -rf app/cache/*
+rm -rf app/logs/*
+
+sudo chmod +a <span class="s2">&quot;www-data allow delete,write,append,file_inherit,directory_inherit&quot;</span> app/cache app/logs
+sudo chmod +a <span class="s2">&quot;yourname allow delete,write,append,file_inherit,directory_inherit&quot;</span> app/cache app/logs
+</pre></div>
+</div>
+<p><strong>2. Utiliser l&#8217;ACL sur un système qui ne supporte pas chmod +a</strong></p>
+<p>Certains systèmes ne supportent pas la commande``chmod +a``,
+mais supportent un autre utilitaire appelé <tt class="docutils literal"><span class="pre">setfacl</span></tt>. Vous devrez sans doute
+<a class="reference external" href="https://help.ubuntu.com/community/FilePermissions#ACLs">activer le support ACL</a> sur votre partition et installer setfacl avant de
+pouvoir l&#8217;utiliser (comme c&#8217;est le cas avec Ubuntu), de cette façon :</p>
+<div class="highlight-bash"><div class="highlight"><pre>sudo setfacl -R -m u:www-data:rwx -m u:yourname:rwx app/cache app/logs
+sudo setfacl -dR -m u:www-data:rwx -m u:yourname:rwx app/cache app/logs
+</pre></div>
+</div>
+<p><strong>3. Sans utiliser l&#8217;ACL</strong></p>
+<p>Si vous n&#8217;avez pas les droits de changer les accès aux répertoires, vous aurez
+besoin de changer le umask pour que les répertoires cache et log soit accessibles
+en écriture au groupe ou aux autres (cela dépend si l&#8217;utilisateur serveur web
+et l&#8217;utilisateur de ligne de commande sont dans le même groupe ou non). Pour
+faire ceci, ajoutez la ligne suivante au début des fichiers <tt class="docutils literal"><span class="pre">app/console</span></tt>,
+<tt class="docutils literal"><span class="pre">web/app.php</span></tt> et <tt class="docutils literal"><span class="pre">web/app_dev.php</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">umask(0002); // Définit une permission 0775</span>
+
+<span class="x">// ou</span>
+
+<span class="x">umask(0000); // Définit une permission 0777</span>
+</pre></div>
+</div>
+<p class="last">Notez que utiliser l&#8217;ALC est recommandé si vous y avez accès sur votre serveur
+car changer le umask n&#8217;est pas sûr.</p>
+</div>
+<p>Lorsque tout est bon, cliquez sur « Go to the Welcome page » pour afficher votre
+première « vraie » page Symfony2 :</p>
+<div class="highlight-text"><div class="highlight"><pre>http://localhost/Symfony/web/app_dev.php/
+</pre></div>
+</div>
+<p>Symfony2 devrait vous accueillir et vous féliciter pour tout le travail accompli
+jusqu&#8217;ici !</p>
+<img alt="../_images/welcome.jpg" src="../_images/welcome.jpg" />
+</div>
+</div>
+<div class="section" id="commencer-a-developper">
+<h2>Commencer à développer<a class="headerlink" href="#commencer-a-developper" title="Permalink to this headline">¶</a></h2>
+<p>Maintenant que vous avez une application Symfony2 fonctionnelle, vous pouvez
+commencer à développer ! Votre distribution devrait contenir un exemple de code.
+Vérifiez le fichier <tt class="docutils literal"><span class="pre">README.rst</span></tt> inclu avec la distribution (ouvrez le en tant
+que fichier texte) pour savoir quel exemple de code est inclu avec votre distribution
+et savoir comment le supprimer par la suite.</p>
+<p>Si vous découvrez Symfony, jetez un oeil au chapitre « <a class="reference internal" href="page_creation.html"><em>La création de pages avec Symfony2</em></a> », où
+vous apprendrez comment créer des pages, changer la configuration  et faire tout
+ce que vous aurez besoin de faire dans votre nouvelle application.</p>
+</div>
+<div class="section" id="utiliser-un-gestionnaire-de-versions">
+<h2>Utiliser un Gestionnaire de Versions<a class="headerlink" href="#utiliser-un-gestionnaire-de-versions" title="Permalink to this headline">¶</a></h2>
+<p>Si vous utilisez un système de contrôle de version comme <tt class="docutils literal"><span class="pre">Git</span></tt> ou <tt class="docutils literal"><span class="pre">Subversion</span></tt>,
+vous pouvez le configurer et commencer à commiter votre projet normalement. La
+Symfony Standard edition <em>est</em> le point de départ de votre nouveau projet.</p>
+<p>Pour des instructions spécifiques sur la meilleur façon de gérer votre projet avec git,
+lisez le chapitre <a class="reference internal" href="../cookbook/workflow/new_project_git.html"><em>How to Create and store a Symfony2 Project in git</em></a>.</p>
+<div class="section" id="ignorer-le-repertoire-vendor">
+<h3>Ignorer le répertoire <tt class="docutils literal"><span class="pre">vendor/</span></tt><a class="headerlink" href="#ignorer-le-repertoire-vendor" title="Permalink to this headline">¶</a></h3>
+<p>Si vous avez téléchargé l&#8217;archive <em>sans vendors</em>, vous pouvez ignorer tout le
+répertoire <tt class="docutils literal"><span class="pre">vendor/</span></tt> en toute sécurité et ne pas le commiter. Avec <tt class="docutils literal"><span class="pre">Git</span></tt>,
+cela se fait en créant le fichier <tt class="docutils literal"><span class="pre">.gitignore</span></tt> et en y ajoutant la ligne suivante:</p>
+<div class="highlight-text"><div class="highlight"><pre>vendor/
+</pre></div>
+</div>
+<p>Maintenant, le répertoire vendor ne sera pas commité sur votre système de gestion
+de code. C&#8217;est plutôt bien (en fait c&#8217;est génial !) car lorsque quelqu&#8217;un clone ou
+récupère le projet, il lui suffit de lancer la commande <tt class="docutils literal"><span class="pre">php</span> <span class="pre">bin/vendors</span> <span class="pre">install</span></tt>
+pour récupérer toutes les librairies nécessaires.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Installer et Configurer Symfony</a><ul>
+<li><a class="reference internal" href="#telecharger-une-distribution-symfony2">Télécharger une Distribution Symfony2</a><ul>
+<li><a class="reference internal" href="#mettre-a-jour-les-vendors">Mettre à jour les Vendors</a></li>
+<li><a class="reference internal" href="#configuration-et-installation">Configuration et installation</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#commencer-a-developper">Commencer à développer</a></li>
+<li><a class="reference internal" href="#utiliser-un-gestionnaire-de-versions">Utiliser un Gestionnaire de Versions</a><ul>
+<li><a class="reference internal" href="#ignorer-le-repertoire-vendor">Ignorer le répertoire <tt class="docutils literal"><span class="pre">vendor/</span></tt></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="from_flat_php_to_symfony2.html"
+                        title="previous chapter">Symfony2 versus PHP pur</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="page_creation.html"
+                        title="next chapter">La création de pages avec Symfony2</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/installation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="page_creation.html" title="La création de pages avec Symfony2"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="from_flat_php_to_symfony2.html" title="Symfony2 versus PHP pur"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

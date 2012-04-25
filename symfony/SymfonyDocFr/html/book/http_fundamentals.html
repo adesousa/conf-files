@@ -1,0 +1,637 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Les fondamentaux de Symfony2 et HTTP &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="Symfony2 versus PHP pur" href="from_flat_php_to_symfony2.html" />
+    <link rel="prev" title="Book" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="from_flat_php_to_symfony2.html" title="Symfony2 versus PHP pur"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Book"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="les-fondamentaux-de-symfony2-et-http">
+<span id="index-0"></span><h1>Les fondamentaux de Symfony2 et HTTP<a class="headerlink" href="#les-fondamentaux-de-symfony2-et-http" title="Permalink to this headline">¶</a></h1>
+<p>Félicitations! Grâce à l&#8217;apprentissage de Symfony2, vous êtes sur la bonne voie pour
+devenir un développeur web plus <em>productif</em> et <em>populaire</em> (en fait vous serez livré
+à vous-même pour la dernière partie). Symfony2 est construit de manière à revenir à
+l&#8217;essentiel : implémenter des outils qui vous aident à développer plus rapidement
+et à construire des applications plus robustes, sans pour autant vous gêner dans votre
+progression.
+Symfony repose sur les meilleures idées provenant de diverses technologies : les outils
+et concepts que vous êtes sur le point d&#8217;apprendre représentent les efforts de
+milliers de personnes depuis de nombreuses années. En d&#8217;autres termes, vous
+n&#8217;apprenez pas juste &#8220;Symfony&#8221;, vous apprenez les fondamentaux du web,
+les bonnes pratiques de développement, et comment utiliser de nombreuses
+nouvelles bibliothèques PHP, internes ou indépendantes de Symfony2. Alors,
+soyez prêt !</p>
+<p>Fidèle à la philosophie de Symfony2, ce chapitre débute par une explication du
+concept fondamental du développement web : HTTP. Quelles que soient vos
+connaissances ou votre langage de programmation préféré, ce chapitre <strong>doit
+être lu</strong> par tout un chacun.</p>
+<div class="section" id="http-est-simple">
+<h2>HTTP est Simple<a class="headerlink" href="#http-est-simple" title="Permalink to this headline">¶</a></h2>
+<p>HTTP (HyperText Transfer Protocol pour les geeks) est un langage texte qui
+permet à deux machines de communiquer ensemble. C&#8217;est tout ! Par exemple,
+lorsque vous regardez la dernière BD de <a class="reference external" href="http://xkcd.com/">xkcd</a>, la conversation suivante
+(approximative) se déroule:</p>
+<img alt="../_images/http-xkcd.png" class="align-center" src="../_images/http-xkcd.png" />
+<p>Et alors que l&#8217;actuel langage utilisé est un peu plus formel, cela reste
+toujours très simple. HTTP est le terme utilisé pour décrire ce simple
+langage basé sur le texte. Et peu importe comment vous développez sur
+le web, le but de votre serveur est <em>toujours</em> de comprendre de simples
+requêtes composées de texte, et de retourner de simples réponses composées
+elles aussi de texte.</p>
+<p>Symfony2 est construit sur les bases de cette réalité. Que vous le
+réalisiez ou non, HTTP est quelque chose que vous utilisez tous les jours.
+Avec Symfony2, vous allez apprendre comment le maîtriser.</p>
+<div class="section" id="etape-1-le-client-envoie-une-requete">
+<span id="index-1"></span><h3>Etape 1: Le Client envoie une Requête<a class="headerlink" href="#etape-1-le-client-envoie-une-requete" title="Permalink to this headline">¶</a></h3>
+<p>Chaque conversation sur le web débute avec une <em>requête</em>. La requête est
+un message textuel créé par un client (par exemple: un navigateur, une
+application iPhone, etc...) dans un format spécial connu sous le nom d&#8217;HTTP.
+Le client envoie cette requête à un serveur, et puis attend la réponse.</p>
+<p>Jetez un oeil à la première partie de l&#8217;intéraction (la requête) entre un
+navigateur et le serveur web xkcd:</p>
+<img alt="../_images/http-xkcd-request.png" class="align-center" src="../_images/http-xkcd-request.png" />
+<p>Dans le langage HTTP, cette requête HTTP ressemblerait à quelque chose
+comme ça:</p>
+<div class="highlight-text"><div class="highlight"><pre>GET / HTTP/1.1
+Host: xkcd.com
+Accept: text/html
+User-Agent: Mozilla/5.0 (Macintosh)
+</pre></div>
+</div>
+<p>Ce simple message communique <em>tout</em> ce qui est nécessaire concernant la
+ressource que le client a demandée. La première ligne d&#8217;une requête HTTP
+est la plus importante et contient deux choses: l&#8217;URI et la méthode HTTP.</p>
+<p>L&#8217;URI (par exemple: <tt class="docutils literal"><span class="pre">/</span></tt>, <tt class="docutils literal"><span class="pre">/contact</span></tt>, etc...) est l&#8217;adresse unique ou
+la localisation qui identifie la ressource que le client veut. La méthode
+HTTP (par exemple: <tt class="docutils literal"><span class="pre">GET</span></tt>) définit ce que vous voulez <em>faire</em> avec la
+ressource. Les méthodes HTTP sont les <em>verbes</em> de la requête et définissent
+les quelques moyens avec lesquels vous pouvez agir sur la ressource:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><em>GET</em></td>
+<td>Récupère la ressource depuis le serveur</td>
+</tr>
+<tr class="row-even"><td><em>POST</em></td>
+<td>Crée une ressource sur le serveur</td>
+</tr>
+<tr class="row-odd"><td><em>PUT</em></td>
+<td>Met à jour la ressource sur le serveur</td>
+</tr>
+<tr class="row-even"><td><em>DELETE</em></td>
+<td>Supprime la ressource sur le serveur</td>
+</tr>
+</tbody>
+</table>
+<p>Avec ceci en mémoire, vous pouvez imaginer ce à quoi ressemblerait une
+requête HTTP pour supprimer une entrée spécifique d&#8217;un blog, par exemple:</p>
+<div class="highlight-text"><div class="highlight"><pre>DELETE /blog/15 HTTP/1.1
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Il y a en fait neuf méthodes HTTP définies par la spécification HTTP,
+mais beaucoup d&#8217;entre elles ne sont pas largement utilisées ou supportées.
+En réalité, beaucoup de navigateurs modernes ne supportent pas les méthodes
+<tt class="docutils literal"><span class="pre">PUT</span></tt> et <tt class="docutils literal"><span class="pre">DELETE</span></tt>.</p>
+</div>
+<p>En plus de la première ligne, une requête HTTP contient invariablement
+d&#8217;autres lignes d&#8217;informations appelées en-têtes de requête. Les en-têtes
+peuvent fournir un large éventail d&#8217;informations telles que l&#8217;en-tête <tt class="docutils literal"><span class="pre">Host</span></tt>,
+le format de réponse que le client accepte (<tt class="docutils literal"><span class="pre">Accept</span></tt>) et
+l&#8217;application que le client utilise pour effectuer la requête (<tt class="docutils literal"><span class="pre">User-Agent</span></tt>).
+Beaucoup d&#8217;autres en-têtes existent et peuvent être trouvées sur la page
+Wikipedia <a class="reference external" href="http://en.wikipedia.org/wiki/List_of_HTTP_header_fields">List of HTTP header fields</a> (anglais).</p>
+</div>
+<div class="section" id="etape-2-le-serveur-retourne-une-reponse">
+<h3>Etape 2: Le Serveur retourne une réponse<a class="headerlink" href="#etape-2-le-serveur-retourne-une-reponse" title="Permalink to this headline">¶</a></h3>
+<p>Une fois que le serveur a reçu la requête, il connaît exactement quelle ressource
+le client a besoin (via l&#8217;URI) et ce que le client souhaite faire avec cette
+ressource (via la méthode). Par exemple, dans le cas d&#8217;une requête GET, le
+serveur prépare la ressource et la retourne dans une réponse HTTP. Considérez
+la réponse du serveur web xkcd :</p>
+<img alt="../_images/http-xkcd.png" class="align-center" src="../_images/http-xkcd.png" />
+<p>Traduit en HTTP, la réponse envoyée au navigateur va ressembler à quelque chose
+comme ça :</p>
+<div class="highlight-text"><div class="highlight"><pre>HTTP/1.1 200 OK
+Date: Sat, 02 Apr 2011 21:05:05 GMT
+Server: lighttpd/1.4.19
+Content-Type: text/html
+
+&lt;html&gt;
+  &lt;!-- HTML for the xkcd comic --&gt;
+&lt;/html&gt;
+</pre></div>
+</div>
+<p>La réponse HTTP contient la ressource demandée (le contenu HTML dans ce cas),
+ainsi que d&#8217;autres informations à propos de la réponse. La première ligne
+est spécialement importante et contient le code de statut de la réponse
+HTTP (200 dans ce cas). Le code de statut communique le résultat global
+de la requête retournée au client. A-t-elle réussi ? Y&#8217;a-t-il eu une
+erreur ? Différents codes de statut existent qui indiquent le succès, une
+erreur, ou que le client a besoin de faire quelque chose (par exemple:
+rediriger sur une autre page). Une liste complète peut être trouvée sur
+la page Wikipedia <a class="reference external" href="http://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes</a> (anglais).</p>
+<p>Comme la requête, une réponse HTTP contient de l&#8217;information additionnelle
+appelée en-têtes HTTP. Par exemple, une importante en-tête de réponse HTTP
+est le <tt class="docutils literal"><span class="pre">Content-Type</span></tt>. Le corps d&#8217;une même ressource peut être retournée
+dans de multiples formats incluant HTML, XML ou JSON pour en nommer quelques
+uns. L&#8217;en-tête <tt class="docutils literal"><span class="pre">Content-Type</span></tt> dit au client quel format va être retourné.</p>
+<p>De nombreuses autres en-têtes existent, dont quelques unes sont très puissantes.
+Par exemple, certaines en-têtes peuvent être utilisées pour créer un puissant
+système de cache.</p>
+</div>
+<div class="section" id="requetes-reponses-et-developpement-web">
+<h3>Requêtes, Réponses et Développement Web<a class="headerlink" href="#requetes-reponses-et-developpement-web" title="Permalink to this headline">¶</a></h3>
+<p>Cette conversation requête-réponse est le procédé fondamental qui dirige
+toute communication sur le web. Et tout aussi important et puissant que ce
+procédé soit, il est inéluctablement simple.</p>
+<p>Le plus important fait est : quel que soit le langage que vous utilisez, le
+type d&#8217;application que vous construisez (web, mobile, API JSON), ou la
+philosophie de développement que vous suivez, l&#8217;objectif final d&#8217;une
+application est <strong>toujours</strong> de comprendre chaque requête et de créer et
+retourner la réponse appropriée.</p>
+<p>Symfony est conçu pour correspondre à cette réalité.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Pour en savoir plus à propos de la spécification HTTP, lisez l&#8217;original
+<a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616.html">HTTP 1.1 RFC</a> ou le <a class="reference external" href="http://datatracker.ietf.org/wg/httpbis/">HTTP Bis</a>, qui est un effort actif pour clarifier la
+spécification originale. Un super outil pour inspecter/vérifier les en-têtes
+de la requête et de la réponse durant votre navigation est l&#8217;extension
+pour Firefox <a class="reference external" href="https://addons.mozilla.org/en-US/firefox/addon/3829/">Live HTTP Headers</a>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="requetes-et-reponses-en-php">
+<span id="index-2"></span><h2>Requêtes et réponses en PHP<a class="headerlink" href="#requetes-et-reponses-en-php" title="Permalink to this headline">¶</a></h2>
+<p>Alors comment intéragissez-vous avec la «requête» et créez-vous la «réponse»
+quand vous utilisez PHP ? En réalité, PHP vous abstrait une partie du processus
+global :</p>
+<div class="highlight-php"><pre>&lt;?php
+$uri = $_SERVER['REQUEST_URI'];
+$foo = $_GET['foo'];
+
+header('Content-type: text/html');
+echo 'L'URI demandée est: '.$uri;
+echo 'La valeur du paramètre "foo" est: '.$foo;</pre>
+</div>
+<p>Aussi étrange que cela puisse paraître, cette petite application utilise les
+informations de la requête HTTP afin de  créer une réponse.
+Plutôt que d&#8217;analyser le message texte de la requête HTTP directement,
+PHP prépare des variables superglobales telles que <tt class="docutils literal"><span class="pre">$_SERVER</span></tt> et <tt class="docutils literal"><span class="pre">$_GET</span></tt>
+qui contiennent toute l&#8217;information de la requête. De même, au lieu de
+retourner la réponse texte HTTP formatée, vous pouvez utiliser la fonction
+<tt class="docutils literal"><span class="pre">header()</span></tt> pour créer des en-têtes de réponse et simplement délivrer le
+contenu actuel qui sera la portion «contenu» du message de la réponse.
+PHP va ainsi créer une véritable réponse HTTP et la retourner au client :</p>
+<div class="highlight-text"><div class="highlight"><pre>HTTP/1.1 200 OK
+Date: Sat, 03 Apr 2011 02:14:33 GMT
+Server: Apache/2.2.17 (Unix)
+Content-Type: text/html
+
+L&#39;URI demandée est: /testing?foo=symfony
+La valeur du paramètre &quot;foo&quot; est: symfony
+</pre></div>
+</div>
+</div>
+<div class="section" id="requetes-et-reponses-dans-symfony">
+<h2>Requêtes et Réponses dans Symfony<a class="headerlink" href="#requetes-et-reponses-dans-symfony" title="Permalink to this headline">¶</a></h2>
+<p>Symfony fournit une alternative à l&#8217;approche basique de PHP via deux classes
+qui vous permettent d&#8217;intéragir avec la requête et la réponse HTTP de manière
+plus facile. La classe <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\Request</span></tt>
+est une simple représentation orientée objet du message de la requête HTTP.
+Avec elle, vous avez toute l&#8217;information de la requête à votre portée :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\HttpFoundation\Request;</span>
+
+<span class="x">$request = Request::createFromGlobals();</span>
+
+<span class="x">// l&#39;URI demandée (par exemple: /about) sans aucun paramètre</span>
+<span class="x">$request-&gt;getPathInfo();</span>
+
+<span class="x">// obtenir respectivement des variables GET et POST</span>
+<span class="x">$request-&gt;query-&gt;get(&#39;foo&#39;);</span>
+
+<span class="x">$request-&gt;request-&gt;get(&#39;bar&#39;, &#39;valeur par défaut si bar est inexistant&#39;);</span>
+
+<span class="x">// obtenir les variables SERVER</span>
+<span class="x">$request-&gt;server-&gt;get(&#39;HTTP_HOST&#39;);</span>
+
+<span class="x">// obtenir une instance de UploadedFile identifiée par foo</span>
+<span class="x">$request-&gt;files-&gt;get(&#39;foo&#39;);</span>
+
+
+<span class="x">// obtenir la valeur d&#39;un COOKIE value</span>
+<span class="x">$request-&gt;cookies-&gt;get(&#39;PHPSESSID&#39;);</span>
+
+<span class="x">// obtenir un entête de requête HTTP request header, normalisé en minuscules</span>
+<span class="x">$request-&gt;headers-&gt;get(&#39;host&#39;);</span>
+<span class="x">$request-&gt;headers-&gt;get(&#39;content_type&#39;);</span>
+
+<span class="x">$request-&gt;getMethod();          // GET, POST, PUT, DELETE, HEAD</span>
+<span class="x">$request-&gt;getLanguages();       // un tableau des langues que le client accepte</span>
+</pre></div>
+</div>
+<p>En bonus, la classe <tt class="docutils literal"><span class="pre">Request</span></tt> effectue beaucoup de travail en arrière-plan
+dont vous n&#8217;aurez jamais à vous soucier. Par exemple, la méthode <tt class="docutils literal"><span class="pre">isSecure()</span></tt>
+vérifie les <em>trois</em> valeurs PHP qui peuvent indiquer si oui ou non l&#8217;utilisateur
+est connecté via une connexion sécurisée (i.e. <tt class="docutils literal"><span class="pre">https</span></tt>).</p>
+<div class="sidebar">
+<p class="first sidebar-title">Attributs de ParameterBags et Request</p>
+<p>Comme vu ci-dessus, les variables <tt class="docutils literal"><span class="pre">$_GET</span></tt> et <tt class="docutils literal"><span class="pre">$_POST</span></tt> sont accessibles
+respectivement via les propriétés publiques <tt class="docutils literal"><span class="pre">query</span></tt> et <tt class="docutils literal"><span class="pre">request</span></tt>. Chacun
+de ces objets et un objet <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\HttpFoundation\ParameterBag</span></tt>
+qui a des méthodes comme <a href="#id1"><span class="problematic" id="id2">:method:`Symfony\\Component\\HttpFoundation\\ParameterBag::get`</span></a>,
+<a href="#id3"><span class="problematic" id="id4">:method:`Symfony\\Component\\HttpFoundation\\ParameterBag::has`</span></a>,
+<a href="#id5"><span class="problematic" id="id6">:method:`Symfony\\Component\\HttpFoundation\\ParameterBag::all`</span></a> et bien d&#8217;autres.
+Dans les faits, chaque propriété publique utilisée dans l&#8217;exemple précédent est
+une instance de ParameterBag.</p>
+<p class="last">La classe Request a aussi une propriété publique <tt class="docutils literal"><span class="pre">attributes</span></tt> qui contient
+des données spéciales liées au fonctionnement interne de l&#8217;application. Pour
+le framework Symfony2, la propriété <tt class="docutils literal"><span class="pre">attributes</span></tt> contient la valeur retournée
+par la route identifiée, comme <tt class="docutils literal"><span class="pre">_controller</span></tt>, <tt class="docutils literal"><span class="pre">id</span></tt> (si vous utilisez le joker <tt class="docutils literal"><span class="pre">{id}</span></tt>),
+et même le nom de la route (<tt class="docutils literal"><span class="pre">_route</span></tt>). La propriété <tt class="docutils literal"><span class="pre">attributes</span></tt> existe pour
+vous permettre d&#8217;y stocker des informations spécifiques liées au contexte de
+la requête.</p>
+</div>
+<p>Symfony fournit aussi une classe <tt class="docutils literal"><span class="pre">Response</span></tt> : une simple représentation PHP du
+message d&#8217;une réponse HTTP. Cela permet à votre application d&#8217;utiliser une
+interface orientée objet pour construire la réponse qui doit être retournée
+au client:</p>
+<div class="highlight-python"><pre>use Symfony\Component\HttpFoundation\Response;
+$response = new Response();
+
+$response-&gt;setContent('&lt;html&gt;&lt;body&gt;&lt;h1&gt;Hello world!&lt;/h1&gt;&lt;/body&gt;&lt;/html&gt;');
+$response-&gt;setStatusCode(200);
+$response-&gt;headers-&gt;set('Content-Type', 'text/html');
+
+// affiche les en-têtes HTTP suivies du contenu
+$response-&gt;send();</pre>
+</div>
+<p>Si Symfony n&#8217;offre rien d&#8217;autre, vous devriez néanmoins déjà avoir en votre
+possession une boîte à outils pour accéder facilement aux informations de la
+requête et une interface orientée objet pour créer la réponse. Bien que vous
+appreniez les nombreuses et puissantes fonctions de Symfony, gardez à l&#8217;esprit
+que le but de votre application est toujours <em>d&#8217;interpréter une requête et de
+créer la réponse appropriée basée sur votre logique applicative</em>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Les classes <tt class="docutils literal"><span class="pre">Request</span></tt> et <tt class="docutils literal"><span class="pre">Response</span></tt> font partie d&#8217;un composant
+autonome inclus dans Symfony appelé <tt class="docutils literal"><span class="pre">HttpFoundation</span></tt>. Ce composant peut
+être utilisé de manière entièrement indépendante de Symfony et fournit aussi
+des classes pour gérer les sessions et les uploads de fichier.</p>
+</div>
+</div>
+<div class="section" id="le-parcours-de-la-requete-a-la-reponse">
+<h2>Le Parcours de la Requête à la Réponse<a class="headerlink" href="#le-parcours-de-la-requete-a-la-reponse" title="Permalink to this headline">¶</a></h2>
+<p>Comme HTTP lui-même, les objets <tt class="docutils literal"><span class="pre">Request</span></tt> et <tt class="docutils literal"><span class="pre">Response</span></tt> sont assez simples.
+La partie difficile de la création d&#8217;une application est d&#8217;écrire ce qui vient
+entre les deux. En d&#8217;autres mots, le réel travail commence lors de l&#8217;écriture
+du code qui interprète l&#8217;information de la requête et crée la réponse.</p>
+<p>Votre application fait probablement beaucoup de choses comme envoyer des emails,
+gérer des soumissions de formulaires, enregistrer des «trucs» dans votre base de données,
+délivrer des pages HTML et protéger du contenu de façon sécurisée. Comment pouvez-vous
+vous occuper de tout cela tout en conservant votre code organisé et maintenable ?</p>
+<p>Symfony a été créé pour résoudre ces problématiques afin que vous n&#8217;ayez pas à le
+faire vous-même.</p>
+<div class="section" id="le-controleur-frontal">
+<h3>Le Contrôleur Frontal<a class="headerlink" href="#le-controleur-frontal" title="Permalink to this headline">¶</a></h3>
+<p>Traditionnellement, les applications étaient construites de telle sorte que
+chaque «page» d&#8217;un site avait son propre fichier physique :</p>
+<div class="highlight-text"><div class="highlight"><pre>index.php
+contact.php
+blog.php
+</pre></div>
+</div>
+<p>Il y a plusieurs problèmes avec cette approche, incluant la non-flexibilité
+des URLs (que se passait-il si vous souhaitiez changer <tt class="docutils literal"><span class="pre">blog.php</span></tt> en
+<tt class="docutils literal"><span class="pre">news.php</span></tt> sans que tous vos liens existants ne cessent de fonctionner ?)
+et le fait que chaque fichier <em>doive</em> manuellement inclure tout un ensemble
+de fichiers coeurs pour que la sécurité, les connexions à la base de données
+et le «look» du site puissent rester consistents.</p>
+<p>Une bien meilleure solution est d&#8217;utiliser un simple fichier PHP appelé
+<em class="xref std std-term">contrôleur frontal</em>: qui s&#8217;occupe de chaque requête arrivant dans
+votre application. Par exemple:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="51%" />
+<col width="49%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">/index.php</span></tt></td>
+<td>exécute <tt class="docutils literal"><span class="pre">index.php</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">/index.php/contact</span></tt></td>
+<td>exécute <tt class="docutils literal"><span class="pre">index.php</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">/index.php/blog</span></tt></td>
+<td>exécute <tt class="docutils literal"><span class="pre">index.php</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">En utilisant la fonction <tt class="docutils literal"><span class="pre">mod_rewrite</span></tt> d&#8217;Apache (ou son équivalent
+avec d&#8217;autres serveurs web), les URLs peuvent être facilement réécrites
+afin de devenir simplement <tt class="docutils literal"><span class="pre">/</span></tt>, <tt class="docutils literal"><span class="pre">/contact</span></tt> et <tt class="docutils literal"><span class="pre">/blog</span></tt>.</p>
+</div>
+<p>Maintenant, chaque requête est gérée exactement de la même façon. Plutôt
+que d&#8217;avoir des URLs individuelles exécutant des fichiers PHP différents,
+le contrôleur frontal est <em>toujours</em> exécuté, et le routage («routing») des
+différentes URLs vers différentes parties de votre application est effectué
+en interne. Cela résoud les deux problèmes de l&#8217;approche originale.
+Presque toutes les applications web modernes font ça - incluant les
+applications comme WordPress.</p>
+</div>
+<div class="section" id="rester-organise">
+<h3>Rester Organisé<a class="headerlink" href="#rester-organise" title="Permalink to this headline">¶</a></h3>
+<p>Mais à l&#8217;intérieur de votre contrôleur frontal, comment savez-vous quelle page devrait
+être rendue et comment pouvez-vous délivrer chacune d&#8217;elles de façon «saine» ? D&#8217;une manière
+ou d&#8217;une autre, vous allez devoir inspecter l&#8217;URI entrante et exécuter les différentes
+parties de votre code dépendant de cette valeur. Cela peut rapidement devenir moche :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// index.php</span>
+
+<span class="x">$request = Request::createFromGlobals();</span>
+<span class="x">$path = $request-&gt;getPathInfo(); // the URL being requested</span>
+
+<span class="x">if (in_array($path, array(&#39;&#39;, &#39;/&#39;)) {</span>
+<span class="x">    $response = new Response(&#39;Welcome to the homepage.&#39;);</span>
+<span class="x">} elseif ($path == &#39;/contact&#39;) {</span>
+<span class="x">    $response = new Response(&#39;Contact us&#39;);</span>
+<span class="x">} else {</span>
+<span class="x">    $response = new Response(&#39;Page not found.&#39;, 404);</span>
+<span class="x">}</span>
+<span class="x">$response-&gt;send();</span>
+</pre></div>
+</div>
+<p>Résoudre ce problème peut être difficile. Heureusement, c&#8217;est <em>exactement</em> ce pourquoi
+Symfony a été conçu.</p>
+</div>
+<div class="section" id="le-deroulement-d-une-application-symfony">
+<h3>Le Déroulement d&#8217;une Application Symfony<a class="headerlink" href="#le-deroulement-d-une-application-symfony" title="Permalink to this headline">¶</a></h3>
+<p>Quand vous laissez Symfony gérer chaque requête, la vie est beaucoup plus facile.
+Symfony suit un schema simple et identique pour toutes les requêtes:</p>
+<div class="figure align-center" id="request-flow-figure">
+<img alt="Le déroulement d'une requête Symfony2" src="../_images/request-flow.png" />
+<p class="caption">Les requêtes entrantes sont interprétées par le routing et passées aux
+fonctions des contrôleurs qui retournent des objets <tt class="docutils literal"><span class="pre">Response</span></tt>.</p>
+</div>
+<p>Chaque «page» de votre site est définie dans un fichier de configuration du
+routing qui relie différentes URLs à différentes fonctions PHP. Le travail de
+chaque fonction PHP, appelée <em class="xref std std-term">contrôleur</em>, est d&#8217;utiliser les informations
+de la requête - en sus de beaucoup d&#8217;autres outils que Symfony met à votre
+disposition - pour créer et retourner un objet <tt class="docutils literal"><span class="pre">Response</span></tt>. En d&#8217;autres termes,
+le contrôleur est le lieu où <em>votre</em> code va : c&#8217;est là que vous interprétez la
+requête et que vous créez une réponse.</p>
+<p>C&#8217;est si facile ! Revoyons cela :</p>
+<ul class="simple">
+<li>Chaque requête exécute un même et unique fichier ayant le rôle de contrôleur frontal;</li>
+<li>Le système de routing détermine quelle fonction PHP doit être exécutée
+basé sur les informations provenant de la requête et la configuration de
+routage que vous avez créée;</li>
+<li>La fonction PHP correcte est exécutée, là où votre code crée et retourne
+l&#8217;objet <tt class="docutils literal"><span class="pre">Response</span></tt> approprié.</li>
+</ul>
+</div>
+<div class="section" id="une-requete-symfony-en-action">
+<h3>Une Requête Symfony en Action<a class="headerlink" href="#une-requete-symfony-en-action" title="Permalink to this headline">¶</a></h3>
+<p>Sans aller trop loin dans les détails, voyons ce procédé en action. Supposez
+que vous vouliez ajouter une page <tt class="docutils literal"><span class="pre">/contact</span></tt> à votre application Symfony.
+Premièrement, commencez par ajouter une entrée pour <tt class="docutils literal"><span class="pre">/contact</span></tt> dans votre
+fichier de configuration du routing :</p>
+<div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">contact</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>  <span class="l-Scalar-Plain">/contact</span>
+    <span class="l-Scalar-Plain">defaults</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">_controller</span><span class="p-Indicator">:</span> <span class="nv">AcmeDemoBundle</span><span class="p-Indicator">:</span><span class="nv">Main</span><span class="p-Indicator">:</span><span class="nv">contact</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Cet exemple utilise <a class="reference internal" href="../components/yaml.html"><em>YAML</em></a> pour définir la configuration de
+routage. Cette dernière peut aussi être écrite dans d&#8217;autres formats comme XML ou
+PHP.</p>
+</div>
+<p>Lorsque quelqu&#8217;un visite la page <tt class="docutils literal"><span class="pre">/contact</span></tt>, il y a correspondance avec cette route,
+et le contrôleur spécifié est exécuté. Comme vous l&#8217;apprendrez dans le
+<a class="reference internal" href="routing.html"><em>chapitre sur le routage</em></a>, la chaîne de caractères <tt class="docutils literal"><span class="pre">AcmeDemoBundle:Main:contact</span></tt>
+est une syntaxe raccourcie qui pointe vers une méthode PHP spécifique <tt class="docutils literal"><span class="pre">contactAction</span></tt> dans la
+classe appelée <tt class="docutils literal"><span class="pre">MainController</span></tt>:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">class MainController</span>
+<span class="x">{</span>
+<span class="x">    public function contactAction()</span>
+<span class="x">    {</span>
+<span class="x">        return new Response(&#39;&lt;h1&gt;Contact us!&lt;/h1&gt;&#39;);</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Dans cet exemple très simple, le contrôleur crée simplement un objet <tt class="docutils literal"><span class="pre">Response</span></tt> contenant l&#8217;HTML
+&#8220;&lt;h1&gt;Contact us!&lt;/h1&gt;&#8221;. Dans le <a class="reference internal" href="controller.html"><em>chapitre du contrôleur</em></a>, vous allez
+apprendre comment un contrôleur peut fournir des templates, permettant à votre code de
+«présentation» (i.e. quoi que ce soit qui délivre du HTML) de se trouver dans un fichier de template
+séparé. Cela libère le contrôleur et lui permet de s&#8217;occuper seulement des choses complexes :
+intéragir avec la base de données, gérer les données soumises, ou envoyer des emails.</p>
+</div>
+</div>
+<div class="section" id="symfony2-construisez-votre-application-pas-vos-outils">
+<h2>Symfony2: Construisez votre application, pas vos outils.<a class="headerlink" href="#symfony2-construisez-votre-application-pas-vos-outils" title="Permalink to this headline">¶</a></h2>
+<p>Vous savez maintenant que le but d&#8217;une quelconque application est d&#8217;interpréter
+chaque requête entrante et de créer une réponse appropriée. Avec le temps,
+une application grandit et il devient plus difficile de garder le code organisé
+et maintenable. Invariablement, les mêmes tâches complexes reviennent encore
+et toujours : persister des éléments dans la base de données, délivrer et
+réutiliser des templates, gérer des soumissions de formulaires, envoyer
+des emails, valider des entrées d&#8217;utilisateurs et gérer la sécurité.</p>
+<p>La bonne nouvelle est qu&#8217;aucun de ces problèmes n&#8217;est unique. Symfony fournit
+un framework rempli d&#8217;outils qui vous permettent de construire votre
+application, mais pas vos outils. Avec Symfony2, rien ne vous est imposé :
+vous êtes libre d&#8217;utiliser le framework Symfony en entier, ou juste une partie
+de Symfony toute seule.</p>
+<div class="section" id="outils-autonomes-les-composants-symfony2">
+<span id="index-3"></span><h3>Outils Autonomes: Les <em>Composants</em> Symfony2<a class="headerlink" href="#outils-autonomes-les-composants-symfony2" title="Permalink to this headline">¶</a></h3>
+<p>Donc <em>qu&#8217;est-ce</em> que Symfony2? Premièrement, Symfony2 est une collection de plus
+de vingt bibliothèques indépendantes qui peuvent être utilisées dans <em>n&#8217;importe quel</em>
+projet PHP. Ces bibliothèques, appelées les <em>Composants Symfony2</em>, contiennent
+quelque chose d&#8217;utile pour presque n&#8217;importe quelle situation, quelle que soit
+la manière dont votre projet est développé. Pour en nommer quelques unes :</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/symfony/HttpFoundation">HttpFoundation</a> - Contient les classes <tt class="docutils literal"><span class="pre">Request</span></tt> et <tt class="docutils literal"><span class="pre">Response</span></tt>, ainsi
+que d&#8217;autres classes pour la gestion des sessions et des uploads de fichiers;</li>
+<li><a class="reference external" href="https://github.com/symfony/Routing">Routing</a> - Un puissant et rapide système qui vous permet de lier une
+URI spécifique (par exemple: <tt class="docutils literal"><span class="pre">/contact</span></tt>) à l&#8217;information lui permettant
+de savoir comment gérer cette requête (par exemple: exécute la méthode
+<tt class="docutils literal"><span class="pre">contactAction()</span></tt>);</li>
+<li><a class="reference external" href="https://github.com/symfony/Form">Form</a> - Un framework complet et flexible pour la création de formulaires
+et la gestion de la soumission de ces derniers;</li>
+<li><a class="reference external" href="https://github.com/symfony/Validator">Validator</a> Un système permettant de créer des règles à propos de données
+et de valider ou non les données utilisateurs soumises suivant ces règles;</li>
+<li><a class="reference external" href="https://github.com/symfony/ClassLoader">ClassLoader</a> Une bibliothèque pour le chargement automatique («autoloading»)
+qui permet aux classes PHP d&#8217;être utilisées sans avoir besoin d&#8217;<tt class="docutils literal"><span class="pre">inclure</span></tt>
+(«require») manuellement les fichiers contenant ces dernières;</li>
+<li><a class="reference external" href="https://github.com/symfony/Templating">Templating</a> Une boîte à outils pour délivrer des templates, gérer leur
+inhéritance (i.e. un template est décoré par un layout) et effectuer d&#8217;autres
+tâches communes aux templates;</li>
+<li><a class="reference external" href="https://github.com/symfony/Security">Security</a> - Une puissante bibliothèque pour gérer tous les types de
+sécurité dans une application;</li>
+<li><a class="reference external" href="https://github.com/symfony/Translation">Translation</a> Un framework pour traduire les chaînes de caractères dans
+votre application.</li>
+</ul>
+<p>Chacun de ces composants est découplé et peut être utilisé dans <em>n&#8217;importe quel</em>
+projet PHP, que vous utilisiez le framework Symfony2 ou non.
+Chaque partie est faite pour être utilisée si besoin est, et remplacée quand cela
+est nécessaire.</p>
+</div>
+<div class="section" id="la-solution-complete-le-framework-symfony2">
+<h3>La Solution Complète: Le <em>Framework</em> Symfony2<a class="headerlink" href="#la-solution-complete-le-framework-symfony2" title="Permalink to this headline">¶</a></h3>
+<p>Donc finalement, <em>qu&#8217;est-ce</em> que le <em>Framework</em> Symfony2 ? Le <em>Framework Symfony2</em>
+est une bibliothèque PHP qui accomplit deux tâches distinctes :</p>
+<ol class="arabic simple">
+<li>Fournir une sélection de composants (i.e. les Composants Symfony2) et
+des bibliothèques tiers (e.g. <tt class="docutils literal"><span class="pre">Swiftmailer</span></tt> pour envoyer des emails);</li>
+<li>Fournir une configuration et une bibliothèque «colle» qui lie toutes ces
+pièces ensembles.</li>
+</ol>
+<p>Le but du framework est d&#8217;intégrer beaucoup d&#8217;outils indépendants afin de
+fournir une expérience consistente au développeur. Même le framework lui-même
+est un bundle Symfony2 (i.e. un plugin) qui peut être configuré ou remplacé
+entièrement.</p>
+<p>Symfony2 fournit un puissant ensemble d&#8217;outils pour développer rapidement des
+applications web sans pour autant s&#8217;imposer à votre application. Les utilisateurs
+normaux peuvent commencer rapidement à développer en utilisant une distribution
+Symfony2, ce qui fournit un squelette de projet avec des paramètres par défaut.
+Pour les utilisateurs avancés, le ciel est la seule limite.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Les fondamentaux de Symfony2 et HTTP</a><ul>
+<li><a class="reference internal" href="#http-est-simple">HTTP est Simple</a><ul>
+<li><a class="reference internal" href="#etape-1-le-client-envoie-une-requete">Etape 1: Le Client envoie une Requête</a></li>
+<li><a class="reference internal" href="#etape-2-le-serveur-retourne-une-reponse">Etape 2: Le Serveur retourne une réponse</a></li>
+<li><a class="reference internal" href="#requetes-reponses-et-developpement-web">Requêtes, Réponses et Développement Web</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#requetes-et-reponses-en-php">Requêtes et réponses en PHP</a></li>
+<li><a class="reference internal" href="#requetes-et-reponses-dans-symfony">Requêtes et Réponses dans Symfony</a></li>
+<li><a class="reference internal" href="#le-parcours-de-la-requete-a-la-reponse">Le Parcours de la Requête à la Réponse</a><ul>
+<li><a class="reference internal" href="#le-controleur-frontal">Le Contrôleur Frontal</a></li>
+<li><a class="reference internal" href="#rester-organise">Rester Organisé</a></li>
+<li><a class="reference internal" href="#le-deroulement-d-une-application-symfony">Le Déroulement d&#8217;une Application Symfony</a></li>
+<li><a class="reference internal" href="#une-requete-symfony-en-action">Une Requête Symfony en Action</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#symfony2-construisez-votre-application-pas-vos-outils">Symfony2: Construisez votre application, pas vos outils.</a><ul>
+<li><a class="reference internal" href="#outils-autonomes-les-composants-symfony2">Outils Autonomes: Les <em>Composants</em> Symfony2</a></li>
+<li><a class="reference internal" href="#la-solution-complete-le-framework-symfony2">La Solution Complète: Le <em>Framework</em> Symfony2</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Book</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="from_flat_php_to_symfony2.html"
+                        title="next chapter">Symfony2 versus PHP pur</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/http_fundamentals.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="from_flat_php_to_symfony2.html" title="Symfony2 versus PHP pur"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Book"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

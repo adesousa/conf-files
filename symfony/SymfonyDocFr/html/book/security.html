@@ -1,0 +1,1796 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>La sécurité &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Book" href="index.html" />
+    <link rel="next" title="Le Cache HTTP" href="http_cache.html" />
+    <link rel="prev" title="Formulaires" href="forms.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="http_cache.html" title="Le Cache HTTP"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="forms.html" title="Formulaires"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Book</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="la-securite">
+<h1>La sécurité<a class="headerlink" href="#la-securite" title="Permalink to this headline">¶</a></h1>
+<p>La sécurité est un processus comprenant 2 étapes, dont le but est de prévenir un utilisateur
+d&#8217;accéder à une ressource à laquelle il n&#8217;a pas accès.</p>
+<p>Dans la première étape du processus, le système de sécurité identifie l&#8217;utilisateur en lui
+demandant de soumettre une sorte d&#8217;identification. C&#8217;est ce qu&#8217;on appelle l&#8217;<strong>authentification</strong>,
+et cela signifie que le système cherche à savoir qui vous êtes.</p>
+<p>Une fois que le système sait qui vous êtes, l&#8217;étape suivante est de déterminer si vous avez
+accès à une ressource donnée. Cette étape du processus est appelée <strong>autorisation</strong>, et cela
+signifie que le système vérifie si vous avez les privilèges pour exécuter certaines actions.</p>
+<img alt="../_images/security_authentication_authorization.png" class="align-center" src="../_images/security_authentication_authorization.png" />
+<p>Comme la meilleure façon d&#8217;apprendre est par l&#8217;exemple, alors plongeons dans le vif du sujet.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Le <cite>composant de sécurité</cite> de Symfony est disponible en tant que librairie indépendante,
+et peut être utilisé pour tout projet PHP.</p>
+</div>
+<div class="section" id="exemple-simple-l-authentification-http">
+<h2>Exemple simple: l&#8217;authentification HTTP<a class="headerlink" href="#exemple-simple-l-authentification-http" title="Permalink to this headline">¶</a></h2>
+<p>Le composant de sécurité peut être configuré grâce aux fichiers de configurations de l&#8217;application.
+En fait, la plupart des réglages de sécurité ne nécessitent que l&#8217;utilisation d&#8217;une
+configuration adéquate. La configuration suivante indique à Symfony de sécuriser toute URL
+correspondant au format <tt class="docutils literal"><span class="pre">/admin/*</span></tt> et de demander à l&#8217;utilisateur de s&#8217;authentifier
+en utilisant l&#8217;authentification HTTP (c&#8217;est-à-dire un bon vieux système avec
+login/mot de passe) :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/config.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">secured_area</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>    <span class="l-Scalar-Plain">^/</span>
+            <span class="l-Scalar-Plain">anonymous</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+            <span class="l-Scalar-Plain">http_basic</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">realm</span><span class="p-Indicator">:</span> <span class="s">&quot;Secured</span><span class="nv"> </span><span class="s">Demo</span><span class="nv"> </span><span class="s">Area&quot;</span>
+
+    <span class="l-Scalar-Plain">access_control</span><span class="p-Indicator">:</span>
+        <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/admin</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">ROLE_ADMIN</span> <span class="p-Indicator">}</span>
+
+    <span class="l-Scalar-Plain">providers</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">in_memory</span><span class="p-Indicator">:</span>
+             <span class="l-Scalar-Plain">memory</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">users</span><span class="p-Indicator">:</span>
+                    <span class="l-Scalar-Plain">ryan</span><span class="p-Indicator">:</span>  <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">ryanpass</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_USER&#39;</span> <span class="p-Indicator">}</span>
+                    <span class="l-Scalar-Plain">admin</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">kitten</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_ADMIN&#39;</span> <span class="p-Indicator">}</span>
+
+    <span class="l-Scalar-Plain">encoders</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">Symfony\Component\Security\Core\User\User</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">plaintext</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/config.xml --&gt;</span>
+<span class="nt">&lt;srv:container</span> <span class="na">xmlns=</span><span class="s">&quot;http://symfony.com/schema/dic/security&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xmlns:srv=</span><span class="s">&quot;http://symfony.com/schema/dic/services&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;config&gt;</span>
+        <span class="nt">&lt;firewall</span> <span class="na">name=</span><span class="s">&quot;secured_area&quot;</span> <span class="na">pattern=</span><span class="s">&quot;^/&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;anonymous</span> <span class="nt">/&gt;</span>
+            <span class="nt">&lt;http-basic</span> <span class="na">realm=</span><span class="s">&quot;Secured Demo Area&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/firewall&gt;</span>
+
+        <span class="nt">&lt;access-control&gt;</span>
+            <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/admin&quot;</span> <span class="na">role=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/access-control&gt;</span>
+
+        <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">&quot;in_memory&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;memory&gt;</span>
+                <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;ryan&quot;</span> <span class="na">password=</span><span class="s">&quot;ryanpass&quot;</span> <span class="na">roles=</span><span class="s">&quot;ROLE_USER&quot;</span> <span class="nt">/&gt;</span>
+                <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;admin&quot;</span> <span class="na">password=</span><span class="s">&quot;kitten&quot;</span> <span class="na">roles=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+            <span class="nt">&lt;/memory&gt;</span>
+        <span class="nt">&lt;/provider&gt;</span>
+
+        <span class="nt">&lt;encoder</span> <span class="na">class=</span><span class="s">&quot;Symfony\Component\Security\Core\User\User&quot;</span> <span class="na">algorithm=</span><span class="s">&quot;plaintext&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/config&gt;</span>
+<span class="nt">&lt;/srv:container&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/config.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;firewalls&#39; =&gt; array(</span>
+<span class="x">        &#39;secured_area&#39; =&gt; array(</span>
+<span class="x">            &#39;pattern&#39; =&gt; &#39;^/&#39;,</span>
+<span class="x">            &#39;anonymous&#39; =&gt; array(),</span>
+<span class="x">            &#39;http_basic&#39; =&gt; array(</span>
+<span class="x">                &#39;realm&#39; =&gt; &#39;Secured Demo Area&#39;,</span>
+<span class="x">            ),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">    &#39;access_control&#39; =&gt; array(</span>
+<span class="x">        array(&#39;path&#39; =&gt; &#39;^/admin&#39;, &#39;role&#39; =&gt; &#39;ROLE_ADMIN&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">    &#39;providers&#39; =&gt; array(</span>
+<span class="x">        &#39;in_memory&#39; =&gt; array(</span>
+<span class="x">            &#39;memory&#39; =&gt; array(</span>
+<span class="x">                &#39;users&#39; =&gt; array(</span>
+<span class="x">                    &#39;ryan&#39; =&gt; array(&#39;password&#39; =&gt; &#39;ryanpass&#39;, &#39;roles&#39; =&gt; &#39;ROLE_USER&#39;),</span>
+<span class="x">                    &#39;admin&#39; =&gt; array(&#39;password&#39; =&gt; &#39;kitten&#39;, &#39;roles&#39; =&gt; &#39;ROLE_ADMIN&#39;),</span>
+<span class="x">                ),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">    &#39;encoders&#39; =&gt; array(</span>
+<span class="x">        &#39;Symfony\Component\Security\Core\User\User&#39; =&gt; &#39;plaintext&#39;,</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">La distribution Symfony Standard place la configuration de la sécurité dans un fichier
+séparé (<tt class="docutils literal"><span class="pre">app/config/security.yml</span></tt>). Si vous ne voulez pas utiliser un fichier séparé,
+vous pouvez mettre la configuration directement dans le fichier principal de configuration
+(<tt class="docutils literal"><span class="pre">app/config/security.yml</span></tt>).</p>
+</div>
+<p>Le résultat final de cette configuration est un système de sécurité entièrement fonctionnel,
+que l&#8217;on peut décrire de la manière suivante :</p>
+<ul class="simple">
+<li>Il y a 2 utilisateurs dans le système (<tt class="docutils literal"><span class="pre">ryan</span></tt> et <tt class="docutils literal"><span class="pre">admin</span></tt>);</li>
+<li>Les utilisateurs s&#8217;authentifient grâce à une authentification basique HTTP;</li>
+<li>Toute URL correspondant au format <cite>/admin/*`</cite> est sécurisée, et seul l&#8217;utilisateur <tt class="docutils literal"><span class="pre">admin</span></tt>
+peut y accéder</li>
+<li>Toutes les URLs qui ne correspondent pas au format <tt class="docutils literal"><span class="pre">/admin/*</span></tt> sont accessibles par
+tous les utilisateurs (et l&#8217;utilisateur n&#8217;aura pas à s&#8217;authentifier).</li>
+</ul>
+<p>Voyons rapidement comment la sécurité fonctionne et quel est le rôle de chaque élément de
+la configuration.</p>
+</div>
+<div class="section" id="comment-fonctionne-la-securite-authentification-et-autorisation">
+<h2>Comment fonctionne la sécurité : authentification et autorisation<a class="headerlink" href="#comment-fonctionne-la-securite-authentification-et-autorisation" title="Permalink to this headline">¶</a></h2>
+<p>Le système de sécurité de Symfony commence par déterminer qui est l&#8217;utilisateur
+(c&#8217;est l&#8217;authentification) puis il voit si l&#8217;utilisateur a accès à une ressource ou une URL.</p>
+<div class="section" id="pare-feu-authentification">
+<h3>Pare-feu (authentification)<a class="headerlink" href="#pare-feu-authentification" title="Permalink to this headline">¶</a></h3>
+<p>Lorsqu&#8217;un utilisateur fait une requête à une URL qui est protégée par un pare-feu (firewall),
+le système de sécurité est activé. Le rôle du pare-feu est de déterminer si un utilisateur doit
+ou ne doit pas être authentifié, et s&#8217;il doit l&#8217;être, de retourner une réponse à l&#8217;utilisateur
+afin d&#8217;entamer le processus d&#8217;authentification.</p>
+<p>Un pare-feu est activé lorsque l&#8217;URL d&#8217;une requête correspond à un <tt class="docutils literal"><span class="pre">masque</span></tt>
+d&#8217;expression régulière contenu dans la configuration du pare-feu. Dans cet exemple,
+le <tt class="docutils literal"><span class="pre">masque</span></tt> (<tt class="docutils literal"><span class="pre">^/</span></tt>) va correspondre à <em>toutes</em> les requêtes entrantes. Le fait que
+le pare-feu soit activé ne veut <em>pas</em> dire que la boite d&#8217;authentification HTTP contenant
+les champs « nom d&#8217;utilisateur » et « mot de passe » sera affichée pour chaque requête.
+Par exemple, tout utilisateur peut accéder <tt class="docutils literal"><span class="pre">/foo</span></tt>  sans qu&#8217;on lui demande de s&#8217;authentifier.</p>
+<img alt="../_images/security_anonymous_user_access.png" class="align-center" src="../_images/security_anonymous_user_access.png" />
+<p>Cela fonctionne d&#8217;abord parce que le pare-feu autorise les <em>utilisateurs anonymes</em> grâce au
+paramètre de configuration <tt class="docutils literal"><span class="pre">anonymous</span></tt>. En d&#8217;autres termes, un pare-feu ne nécessite pas
+qu&#8217;un utilisateur soit totalement authentifié immédiatement. Et comme aucun <tt class="docutils literal"><span class="pre">role</span></tt>
+n&#8217;est nécessaire pour accéder l&#8217;URL <tt class="docutils literal"><span class="pre">/foo``(dans</span> <span class="pre">la</span> <span class="pre">section</span> <span class="pre">``access_control</span></tt>), la requête peut
+être satisfaite sans jamais demander à l&#8217;utilisateur de s&#8217;authentifier.</p>
+<p>Si vous supprimez la clé <tt class="docutils literal"><span class="pre">anonymous</span></tt>, le pare-feu va <em>toujours</em> demander à l&#8217;utilisateur
+de s&#8217;authentifier immédiatement.</p>
+</div>
+<div class="section" id="controle-d-acces-autorisation">
+<h3>Contrôle d&#8217;accès (autorisation)<a class="headerlink" href="#controle-d-acces-autorisation" title="Permalink to this headline">¶</a></h3>
+<p>Par contre, si un utilisateur demande <tt class="docutils literal"><span class="pre">/admin/foo</span></tt>, le système se comporte différemment.
+C&#8217;est à cause de la section de la configuration <tt class="docutils literal"><span class="pre">access_control</span></tt> qui stipule que toute
+requête correspondant au masque d&#8217;expression régulière <tt class="docutils literal"><span class="pre">^/admin</span></tt> (c&#8217;est à dire <tt class="docutils literal"><span class="pre">/admin</span></tt>
+ou tout ce qui correspond à <tt class="docutils literal"><span class="pre">/admin/*</span></tt>) requiert le rôle <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>. Les rôles sont à
+la base de la plupart des mécanismes d&#8217;autorisation : un utilisateur peut accéder à
+<tt class="docutils literal"><span class="pre">/admin/foo</span></tt> seulement s&#8217;il possède le role <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>.</p>
+<img alt="../_images/security_anonymous_user_denied_authorization.png" class="align-center" src="../_images/security_anonymous_user_denied_authorization.png" />
+<p>Comme précédemment, quand l&#8217;utilisateur fait une requête, le pare-feu ne lui demande pas de
+s&#8217;authentifier. Par contre, dès que la couche de contrôle d&#8217;accès refuse l&#8217;accès à l&#8217;utilisateur
+(parce que l&#8217;utilisateur anonyme ne possède pas le rôle <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>), le pare-feu entre
+en action et initialise le processus d&#8217;authentification.
+Le processus d&#8217;authentification dépend du mécanisme d&#8217;authentification que vous utilisez.
+Par exemple, si vous utilisez la méthode d&#8217;authentification par formulaire de connexion,
+l&#8217;utilisateur sera redirigé à la page de formulaire de connexion.
+Si vous utilisez l&#8217;authentification HTTP, l&#8217;utilisateur recevra une réponse HTTP 401
+et verra donc la boite contenant les champs login et mot de passe.</p>
+<p>L&#8217;utilisateur a maintenant la possibilité de soumettre ses informations d&#8217;identification
+à l&#8217;application. Si ces informations sont valides, la requête initiale peut être lancée
+à nouveau.</p>
+<img alt="../_images/security_ryan_no_role_admin_access.png" class="align-center" src="../_images/security_ryan_no_role_admin_access.png" />
+<p>Dans cet exemple, l&#8217;utilisateur <tt class="docutils literal"><span class="pre">ryan``s'authentifie</span> <span class="pre">avec</span> <span class="pre">succès</span> <span class="pre">auprès</span> <span class="pre">du</span> <span class="pre">pare-feu.</span>
+<span class="pre">Mais</span> <span class="pre">comme</span> <span class="pre">``ryan</span></tt> n&#8217;a pas le rôle <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>, il se verra refuser l&#8217;accès à
+<tt class="docutils literal"><span class="pre">/admin/foo</span></tt>. Enfin, cela veut dire que l&#8217;utilisateur verra un message indiquant
+que l&#8217;accès lui est refusé.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Quand Symfony refuse à l&#8217;utilisateur l&#8217;accès, l&#8217;utilisateur voit une page d&#8217;erreur
+et recevra un code d&#8217;erreur HTTP 403 (<tt class="docutils literal"><span class="pre">Forbidden</span></tt>). Vous pouvez personnaliser
+la page d&#8217;erreur pour refus d&#8217;accès en suivant les instructions se trouvant dans la page
+du cookbook <cite>Pages d&#8217;erreurs&lt;cookbook-error-pages-by-status-code&gt;</cite> pour personnaliser
+la page d&#8217;erreur 403.</p>
+</div>
+<p>Enfin, si l&#8217;utilisateur <tt class="docutils literal"><span class="pre">admin</span></tt> demande <tt class="docutils literal"><span class="pre">/admin/foo</span></tt>, un processus similaire se déroule,
+sauf que maintenant, après s&#8217;être authentifié, la couche de contrôle d&#8217;accès va laisser la
+requête s&#8217;exécuter :</p>
+<img alt="../_images/security_admin_role_access.png" class="align-center" src="../_images/security_admin_role_access.png" />
+<p>Les étapes exécutées lorsqu&#8217;un utilisateur demande une ressource protégée sont simples, mais
+extrêmement flexibles. Comme vous le verrez plus tard, l&#8217;authentification peut être prise
+en charge de multiples façons, incluant les formulaires de connexion, les certificats X.509,
+ou les authentifications via Twitter. Quel que soit la méthode d&#8217;authentification, les
+étapes sont toujours les mêmes :</p>
+<ol class="arabic simple">
+<li>Un utilisateur accède à une ressource protégée;</li>
+<li>L&#8217;application redirige l&#8217;utilisateur au formulaire de connexion;</li>
+<li>L&#8217;utilisateur soumet ses informations d&#8217;identification (par exemple login/mot de passe);</li>
+<li>Le pare-feu authentifie l&#8217;utilisateur;</li>
+<li>L&#8217;utilisateur authentifié renvoie la requête initiale.</li>
+</ol>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Le processus <em>exact</em> dépend en fait légèrement du mécanisme d&#8217;authentification que vous
+utilisez. Par exemple, lorsque le formulaire de connexion est utilisé, l&#8217;utilisateur
+soumet ses informations d&#8217;identification à une URL qui traite le formulaire
+(par exemple <tt class="docutils literal"><span class="pre">/login_check</span></tt>) et est ensuite redirigé à l&#8217;URL qu&#8217;il a demandée initialement
+(par exemple <tt class="docutils literal"><span class="pre">/admin/foo</span></tt>). Par contre, avec l&#8217;authentification HTTP, l&#8217;utilisateur soumet
+ses informations d&#8217;identification directement à l&#8217;URL initiale (par exemple <tt class="docutils literal"><span class="pre">/admin/foo</span></tt>)
+et la page est retournée dans la même requête (donc pas de redirection).</p>
+<p class="last">Ces comportements différents (types d&#8217;idiosyncrasie) ne devraient pas vous causer de problèmes,
+mais il est bon de les garder à l&#8217;esprit.</p>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Vous apprendrez plus tard comment <em>tout</em> peut être sécurisé avec Symfony2, incluant certains
+contrôleurs, objets, ou même méthodes PHP.</p>
+</div>
+</div>
+</div>
+<div class="section" id="utilisation-d-un-formulaire-de-connexion-traditionnel">
+<span id="book-security-form-login"></span><h2>Utilisation d&#8217;un formulaire de connexion traditionnel<a class="headerlink" href="#utilisation-d-un-formulaire-de-connexion-traditionnel" title="Permalink to this headline">¶</a></h2>
+<p>Pour l&#8217;instant, vous avez vu comment protéger votre application derrière un pare-feu et
+ensuite comment protéger l&#8217;accès à certaines zones en utilisant les rôles. En utilisant
+l&#8217;authentification HTTP, vous pouvez sans effort profiter de la boite login/mot de passe
+offert par tous les navigateurs. Mais Symfony comprend plusieurs mécanismes d&#8217;authentification
+par défaut. Pour plus de détails sur chacun d&#8217;eux, référez-vous à la documentation de
+<a class="reference internal" href="../reference/configuration/security.html"><em>référence sur la configuration de la sécurité</em></a>.</p>
+<p>Dans cette section, vous allez améliorer le processus en autorisant l&#8217;utilisateur
+à s&#8217;authentifier via un formulaire de connexion traditionnel.</p>
+<p>D&#8217;abord, activez le formulaire de connexion (« form login ») de votre pare-feu:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">secured_area</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>    <span class="l-Scalar-Plain">^/</span>
+            <span class="l-Scalar-Plain">anonymous</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+            <span class="l-Scalar-Plain">form_login</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">login_path</span><span class="p-Indicator">:</span>  <span class="l-Scalar-Plain">/login</span>
+                <span class="l-Scalar-Plain">check_path</span><span class="p-Indicator">:</span>  <span class="l-Scalar-Plain">/login_check</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;srv:container</span> <span class="na">xmlns=</span><span class="s">&quot;http://symfony.com/schema/dic/security&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xmlns:srv=</span><span class="s">&quot;http://symfony.com/schema/dic/services&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;config&gt;</span>
+        <span class="nt">&lt;firewall</span> <span class="na">name=</span><span class="s">&quot;secured_area&quot;</span> <span class="na">pattern=</span><span class="s">&quot;^/&quot;</span><span class="nt">&gt;</span>
+            <span class="nt">&lt;anonymous</span> <span class="nt">/&gt;</span>
+            <span class="nt">&lt;form-login</span> <span class="na">login_path=</span><span class="s">&quot;/login&quot;</span> <span class="na">check_path=</span><span class="s">&quot;/login_check&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;/firewall&gt;</span>
+    <span class="nt">&lt;/config&gt;</span>
+<span class="nt">&lt;/srv:container&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;firewalls&#39; =&gt; array(</span>
+<span class="x">        &#39;secured_area&#39; =&gt; array(</span>
+<span class="x">            &#39;pattern&#39; =&gt; &#39;^/&#39;,</span>
+<span class="x">            &#39;anonymous&#39; =&gt; array(),</span>
+<span class="x">            &#39;form_login&#39; =&gt; array(</span>
+<span class="x">                &#39;login_path&#39; =&gt; &#39;/login&#39;,</span>
+<span class="x">                &#39;check_path&#39; =&gt; &#39;/login_check&#39;,</span>
+<span class="x">            ),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Si vous ne voulez pas personnaliser les valeurs de <tt class="docutils literal"><span class="pre">login_path</span></tt> ou <tt class="docutils literal"><span class="pre">check_path</span></tt>
+(les valeurs utilisées ici sont celles par défaut), vous pouvez raccourcir votre
+configuration :</p>
+<div class="last configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">form_login</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;form-login</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">&#39;form_login&#39; =&gt; array(),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<p>Maintenant, quand le système de sécurité initie le processus d&#8217;authentification,
+il va rediriger l&#8217;utilisateur au formulaire de connexion (<tt class="docutils literal"><span class="pre">/login</span></tt> by default).
+L&#8217;implémentation de ce formulaire de connexion est de toute évidence votre responsabilité.
+Tout d&#8217;abord, créez 2 routes : une qui affiche le formulaire de connexion (ici, <tt class="docutils literal"><span class="pre">/login</span></tt>)
+et une qui va prendre en charge la soumission du formulaire (ici, <tt class="docutils literal"><span class="pre">/login_check</span></tt>) :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/routing.yml</span>
+<span class="l-Scalar-Plain">login</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>   <span class="l-Scalar-Plain">/login</span>
+    <span class="l-Scalar-Plain">defaults</span><span class="p-Indicator">:</span>  <span class="p-Indicator">{</span> <span class="nv">_controller</span><span class="p-Indicator">:</span> <span class="nv">AcmeSecurityBundle</span><span class="p-Indicator">:</span><span class="nv">Security</span><span class="p-Indicator">:</span><span class="nv">login</span> <span class="p-Indicator">}</span>
+<span class="l-Scalar-Plain">login_check</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>   <span class="l-Scalar-Plain">/login_check</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/routing.xml --&gt;</span>
+<span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span>
+
+<span class="nt">&lt;routes</span> <span class="na">xmlns=</span><span class="s">&quot;http://symfony.com/schema/routing&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd&quot;</span><span class="nt">&gt;</span>
+
+    <span class="nt">&lt;route</span> <span class="na">id=</span><span class="s">&quot;login&quot;</span> <span class="na">pattern=</span><span class="s">&quot;/login&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;default</span> <span class="na">key=</span><span class="s">&quot;_controller&quot;</span><span class="nt">&gt;</span>AcmeSecurityBundle:Security:login<span class="nt">&lt;/default&gt;</span>
+    <span class="nt">&lt;/route&gt;</span>
+    <span class="nt">&lt;route</span> <span class="na">id=</span><span class="s">&quot;login_check&quot;</span> <span class="na">pattern=</span><span class="s">&quot;/login_check&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/routes&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/routing.php</span>
+<span class="x">use Symfony\Component\Routing\RouteCollection;</span>
+<span class="x">use Symfony\Component\Routing\Route;</span>
+
+<span class="x">$collection = new RouteCollection();</span>
+
+<span class="x">$collection-&gt;add(&#39;login&#39;, new Route(&#39;/login&#39;, array(</span>
+<span class="x">    &#39;_controller&#39; =&gt; &#39;AcmeDemoBundle:Security:login&#39;,</span>
+<span class="x">)));</span>
+<span class="x">$collection-&gt;add(&#39;login_check&#39;, new Route(&#39;/login_check&#39;, array()));</span>
+<span class="x">return $collection;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Vous <em>n&#8217;avez pas</em>  à implémenter un contrôleur pour l&#8217;URL <tt class="docutils literal"><span class="pre">/login_check</span></tt>
+car le pare-feu va automatiquement intercepter et traiter tout formulaire soumis
+à cette URL.</p>
+</div>
+<p class="versionadded">
+<span class="versionmodified">New in version 2.1: </span>Dans Symfony 2.1, vous <em>devez</em> avoir des routes configurées pour vos URLs <tt class="docutils literal"><span class="pre">login_path</span></tt>
+(ex <tt class="docutils literal"><span class="pre">/login</span></tt>) et <tt class="docutils literal"><span class="pre">check_path</span></tt> (ex <tt class="docutils literal"><span class="pre">/login_check</span></tt>).</p>
+<p>Veuillez noter que le nom de la route <tt class="docutils literal"><span class="pre">login</span></tt> n&#8217;est pas important. Ce qui importe est
+que l&#8217;URL de la route (<tt class="docutils literal"><span class="pre">login</span></tt>) corresponde à la valeur de <tt class="docutils literal"><span class="pre">login_path</span></tt>, car c&#8217;est
+là que le système de sécurité va rediriger les utilisateurs qui doivent se connecter.</p>
+<p>Ensuite, créez un contrôleur qui va afficher le formulaire de connexion :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/SecurityBundle/Controller/Main;</span>
+<span class="x">namespace Acme\SecurityBundle\Controller;</span>
+
+<span class="x">use Symfony\Bundle\FrameworkBundle\Controller\Controller;</span>
+<span class="x">use Symfony\Component\Security\Core\SecurityContext;</span>
+
+<span class="x">class SecurityController extends Controller</span>
+<span class="x">{</span>
+<span class="x">    public function loginAction()</span>
+<span class="x">    {</span>
+<span class="x">        $request = $this-&gt;getRequest();</span>
+<span class="x">        $session = $request-&gt;getSession();</span>
+<span class="x">        // get the login error if there is one</span>
+<span class="x">        if ($request-&gt;attributes-&gt;has(SecurityContext::AUTHENTICATION_ERROR)) {</span>
+<span class="x">            $error = $request-&gt;attributes-&gt;get(SecurityContext::AUTHENTICATION_ERROR);</span>
+<span class="x">        } else {</span>
+<span class="x">            $error = $session-&gt;get(SecurityContext::AUTHENTICATION_ERROR);</span>
+<span class="x">        }</span>
+<span class="x">        return $this-&gt;render(&#39;AcmeSecurityBundle:Security:login.html.twig&#39;, array(</span>
+<span class="x">            // last username entered by the user</span>
+<span class="x">            &#39;last_username&#39; =&gt; $session-&gt;get(SecurityContext::LAST_USERNAME),</span>
+<span class="x">            &#39;error&#39;         =&gt; $error,</span>
+<span class="x">        ));</span>
+<span class="x">    }</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Ne vous laissez pas impressionner par le contrôleur. Comme vous allez le voir dans un moment,
+lorsque l&#8217;utilisateur soumet le formulaire, le système de sécurité prend en charge automatiquement
+le formulaire soumis. Si l&#8217;utilisateur venait à soumettre un login ou un mot de passe
+invalide, ce formulaire lit les erreurs de soumission du système de sécurité afin
+qu&#8217;elles soient ensuite affichées à l&#8217;utilisateur.</p>
+<p>En d&#8217;autres termes, votre rôle est d&#8217;afficher le formulaire de connexion et toute erreur
+qui aurait pu survenir, mais c&#8217;est le système de sécurité lui-même qui prend en charge
+la validation du login et du mot de passe et qui authentifie l&#8217;utilisateur.</p>
+<p>Il ne nous reste qu&#8217;à créer le template correspondant :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="c">{# src/Acme/SecurityBundle/Resources/views/Security/login.html.twig #}</span>
+<span class="cp">{%</span> <span class="k">if</span> <span class="nv">error</span> <span class="cp">%}</span>
+    <span class="nt">&lt;div&gt;</span><span class="cp">{{</span> <span class="nv">error.message</span> <span class="cp">}}</span><span class="nt">&lt;/div&gt;</span>
+<span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span>
+
+<span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">path</span><span class="o">(</span><span class="s1">&#39;login_check&#39;</span><span class="o">)</span> <span class="cp">}}</span><span class="s">&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;username&quot;</span><span class="nt">&gt;</span>Login :<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">id=</span><span class="s">&quot;username&quot;</span> <span class="na">name=</span><span class="s">&quot;_username&quot;</span> <span class="na">value=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">last_username</span> <span class="cp">}}</span><span class="s">&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;password&quot;</span><span class="nt">&gt;</span>Mot de passe :<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span> <span class="na">id=</span><span class="s">&quot;password&quot;</span> <span class="na">name=</span><span class="s">&quot;_password&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="c">{#</span>
+<span class="c">        Si vous voulez controler l&#39;URL vers laquelle l&#39;utilisateur est redirigé en cas de succès</span>
+<span class="c">        (plus de détails ci-dessous)</span>
+<span class="c">        &lt;input type=&quot;hidden&quot; name=&quot;_target_path&quot; value=&quot;/account&quot; /&gt;</span>
+<span class="c">    #}</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;login&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="cp">&lt;?php</span> <span class="c1">// src/Acme/SecurityBundle/Resources/views/Security/login.html.php ?&gt;</span>
+<span class="o">&lt;?</span><span class="nx">php</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$error</span><span class="p">)</span><span class="o">:</span> <span class="cp">?&gt;</span>
+    <span class="nt">&lt;div&gt;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$error</span><span class="o">-&gt;</span><span class="na">getMessage</span><span class="p">()</span> <span class="cp">?&gt;</span><span class="nt">&lt;/div&gt;</span>
+<span class="cp">&lt;?php</span> <span class="k">endif</span><span class="p">;</span> <span class="cp">?&gt;</span>
+
+<span class="nt">&lt;form</span> <span class="na">action=</span><span class="s">&quot;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;router&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">generate</span><span class="p">(</span><span class="s1">&#39;login_check&#39;</span><span class="p">)</span> <span class="cp">?&gt;</span><span class="s">&quot;</span> <span class="na">method=</span><span class="s">&quot;post&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;username&quot;</span><span class="nt">&gt;</span>Login :<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;text&quot;</span> <span class="na">id=</span><span class="s">&quot;username&quot;</span> <span class="na">name=</span><span class="s">&quot;_username&quot;</span> <span class="na">value=</span><span class="s">&quot;</span><span class="cp">&lt;?php</span> <span class="k">echo</span> <span class="nv">$last_username</span> <span class="cp">?&gt;</span><span class="s">&quot;</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">&quot;password&quot;</span><span class="nt">&gt;</span>Mot de passe :<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;password&quot;</span> <span class="na">id=</span><span class="s">&quot;password&quot;</span> <span class="na">name=</span><span class="s">&quot;_password&quot;</span> <span class="nt">/&gt;</span>
+    <span class="c">&lt;!--</span>
+<span class="c">        Si vous voulez controler l&#39;URL vers laquelle l&#39;utilisateur est redirigé en cas de succès</span>
+<span class="c">        (plus de détails ci-dessous)</span>
+<span class="c">        &lt;input type=&quot;hidden&quot; name=&quot;_target_path&quot; value=&quot;/account&quot; /&gt;</span>
+<span class="c">    --&gt;</span>
+
+    <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;submit&quot;</span> <span class="na">name=</span><span class="s">&quot;login&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/form&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">La variable <tt class="docutils literal"><span class="pre">error</span></tt> passée au template est une instance de
+<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Security\Core\Exception\AuthenticationException</span></tt>.
+Elle peut contenir plus d&#8217;informations - et même des informations sensibles - à propos
+de l&#8217;échec de l&#8217;authentification, alors utilisez là judicieusement !</p>
+</div>
+<p>Le formulaire a très peu d&#8217;exigence. D&#8217;abord, en soumettant le formulaire à <tt class="docutils literal"><span class="pre">/login_check</span></tt>
+(via la route <tt class="docutils literal"><span class="pre">login_check</span></tt>), le système de sécurité va intercepter la soumission
+du formulaire et traiter le formulaire automatiquement. Ensuite, le système de sécurité
+s&#8217;attend à ce que les champs soumis soient nommés <tt class="docutils literal"><span class="pre">_username</span></tt> et <tt class="docutils literal"><span class="pre">_password</span></tt>
+(le nom de ces champs peut être <a class="reference internal" href="../reference/configuration/security.html#reference-security-firewall-form-login"><em>configuré</em></a>).</p>
+<p>Et c&#8217;est tout ! Lorsque vous soumettez le formulaire, le système de sécurité va automatiquement
+vérifier son identité et va soit authentifier l&#8217;utilisateur, soit renvoyer l&#8217;utilisateur
+au formulaire de connexion, où les erreurs vont être affichées.</p>
+<p>Récapitulons tout le processus :</p>
+<ol class="arabic simple">
+<li>L&#8217;utilisateur cherche à accéder une ressource qui est protégée;</li>
+<li>Le pare-feu initie le processus d&#8217;authentification en redirigeant l&#8217;utilisateur
+au formulaire de connexion (<tt class="docutils literal"><span class="pre">/login</span></tt>);</li>
+<li>La page <tt class="docutils literal"><span class="pre">/login</span></tt> affiche le formulaire de connexion en utilisant la route et le formulaire
+créés dans cet exemple.</li>
+<li>L&#8217;utilisateur soumet le formulaire de connexion à <tt class="docutils literal"><span class="pre">/login_check</span></tt>;</li>
+<li>Le système de sécurité intercepte la requête, vérifie les informations d&#8217;identification
+soumis par l&#8217;utilisateur, authentifie l&#8217;utilisateur si elles sont correctes et renvoie
+l&#8217;utilisateur au formulaire de connexion si elles ne le sont pas.</li>
+</ol>
+<p>Par défaut, si les informations d&#8217;identification sont correctes, l&#8217;utilisateur va être redirigé
+à la page originale qu&#8217;il avait demandée (par exemple <tt class="docutils literal"><span class="pre">/admin/foo</span></tt>). Si l&#8217;utilisateur
+est allé directement au formulaire de connexion, il sera redirigé à la page d&#8217;accueil.
+Cela peut être entièrement configuré, en vous permettant, par exemple, de rediriger l&#8217;utilisateur
+vers une URL spécifique.</p>
+<p>Pour plus de détails, et savoir comment personnaliser le processus de connexion par formulaire
+en général, veuillez vous reporter à <a class="reference internal" href="../cookbook/security/form_login.html"><em>How to customize your Form Login</em></a>.</p>
+<div class="sidebar" id="book-security-common-pitfalls">
+<p class="first sidebar-title">Éviter les erreurs courantes</p>
+<p>Lorsque vous configurez le formulaire de connexion, faites attention aux pièges.</p>
+<p><strong>1. Créez les routes adéquates</strong></p>
+<p>D&#8217;abord, assurez-vous que vous avez défini les routes <tt class="docutils literal"><span class="pre">/login</span></tt> et <tt class="docutils literal"><span class="pre">/login_check</span></tt>
+correctement et qu&#8217;elles correspondent aux valeurs de configuration <tt class="docutils literal"><span class="pre">login_path</span></tt> et
+<a href="#id1"><span class="problematic" id="id2">``</span></a>check_path`. Une mauvaise configuration ici pourrait vouloir dire que vous seriez redirigé
+à une page 404 au lieu de la page de connexion, ou que la soumission du formulaire ne
+fasse rien (vous ne verriez que le formulaire de connexion encore et encore).</p>
+<p><strong>2. Assurez-vous que la page de connexion n&#8217;est pas sécurisée</strong></p>
+<p>Aussi, assurez-vous que la page de connexion ne requiert <em>pas</em> un rôle particulier afin
+d&#8217;être affichée. Par exemple, la configuration suivante - qui nécessite le rôle
+<tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt> pour toutes les URLs (inluant l&#8217;URL <tt class="docutils literal"><span class="pre">/login</span></tt>), va provoquer une boucle de
+redirection :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">access_control</span><span class="p-Indicator">:</span>
+
+    <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">ROLE_ADMIN</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;access-control&gt;</span>
+    <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/&quot;</span> <span class="na">role=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/access-control&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">&#39;access_control&#39; =&gt; array(</span>
+<span class="x">    array(&#39;path&#39; =&gt; &#39;^/&#39;, &#39;role&#39; =&gt; &#39;ROLE_ADMIN&#39;),</span>
+<span class="x">),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Il suffit d&#8217;enlever le contrôle d&#8217;accès pour l&#8217;URL <tt class="docutils literal"><span class="pre">/login</span></tt> URL pour corriger
+le problème :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">access_control</span><span class="p-Indicator">:</span>
+    <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/login</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">IS_AUTHENTICATED_ANONYMOUSLY</span> <span class="p-Indicator">}</span>
+    <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">ROLE_ADMIN</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;access-control&gt;</span>
+    <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/login&quot;</span> <span class="na">role=</span><span class="s">&quot;IS_AUTHENTICATED_ANONYMOUSLY&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/&quot;</span> <span class="na">role=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/access-control&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">&#39;access_control&#39; =&gt; array(</span>
+<span class="x">    array(&#39;path&#39; =&gt; &#39;^/login&#39;, &#39;role&#39; =&gt; &#39;IS_AUTHENTICATED_ANONYMOUSLY&#39;),</span>
+<span class="x">    array(&#39;path&#39; =&gt; &#39;^/&#39;, &#39;role&#39; =&gt; &#39;ROLE_ADMIN&#39;),</span>
+<span class="x">),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Aussi, si votre pare-feu n&#8217;autorise <em>pas</em> les utilisateurs anonymes, vous devrez
+créer un pare-feu spécial qui permet l&#8217;accès à l&#8217;utilisateur anonyme d&#8217;accéder la page de
+connexion :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">login_firewall</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>    <span class="l-Scalar-Plain">^/login$</span>
+        <span class="l-Scalar-Plain">anonymous</span><span class="p-Indicator">:</span>  <span class="l-Scalar-Plain">~</span>
+    <span class="l-Scalar-Plain">secured_area</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>    <span class="l-Scalar-Plain">^/</span>
+        <span class="l-Scalar-Plain">form_login</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;firewall</span> <span class="na">name=</span><span class="s">&quot;login_firewall&quot;</span> <span class="na">pattern=</span><span class="s">&quot;^/login$&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;anonymous</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/firewall&gt;</span>
+<span class="nt">&lt;firewall</span> <span class="na">name=</span><span class="s">&quot;secured_area&quot;</span> <span class="na">pattern=</span><span class="s">&quot;^/&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;form_login</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/firewall&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">&#39;firewalls&#39; =&gt; array(</span>
+<span class="x">    &#39;login_firewall&#39; =&gt; array(</span>
+<span class="x">        &#39;pattern&#39; =&gt; &#39;^/login$&#39;,</span>
+<span class="x">        &#39;anonymous&#39; =&gt; array(),</span>
+<span class="x">    ),</span>
+<span class="x">    &#39;secured_area&#39; =&gt; array(</span>
+<span class="x">        &#39;pattern&#39; =&gt; &#39;^/&#39;,</span>
+<span class="x">        &#39;form_login&#39; =&gt; array(),</span>
+<span class="x">    ),</span>
+<span class="x">),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p><strong>3. Assurez-vous que ``/login_check`` est derrière un pare-feu</strong></p>
+<p>Ensuite, assurez-vous que l&#8217;URL <tt class="docutils literal"><span class="pre">check_path</span></tt> (ici, <tt class="docutils literal"><span class="pre">/login_check</span></tt>)
+est derrière le pare-feu que vous utilisez pour le formulaire de connexion
+(dans cet exemple, le pare-feu unique correspond à <em>toutes</em> les URLs, incluant
+<tt class="docutils literal"><span class="pre">/login_check</span></tt>). Si <tt class="docutils literal"><span class="pre">/login_check</span></tt> n&#8217;est pris en charge par aucun pare-feu, vous obtiendrez
+une exception <tt class="docutils literal"><span class="pre">Unable</span> <span class="pre">to</span> <span class="pre">find</span> <span class="pre">the</span> <span class="pre">controller</span> <span class="pre">for</span> <span class="pre">path</span> <span class="pre">&quot;/login_check&quot;</span></tt>.</p>
+<p><strong>4. Plusieurs pare-feu ne partagent pas de contexte de sécurité</strong></p>
+<p class="last">Si vous utilisez plusieurs pare-feu et que vous vous authentifiez auprès d&#8217;un pare-feu,
+vous ne serez <em>pas</em> automatiquement authentifié auprès des autres pare-feu automatiquement.
+Différents pare-feu sont comme plusieurs systèmes de sécurité. C&#8217;est pourquoi, pour la
+plupart des applications, avoir un seul pare-feu est suffisant.</p>
+</div>
+</div>
+<div class="section" id="autorisation">
+<h2>Autorisation<a class="headerlink" href="#autorisation" title="Permalink to this headline">¶</a></h2>
+<p>La première étape en sécurité est toujours l&#8217;authentification : le processus de vérifier
+l&#8217;identité de l&#8217;utilisateur. Avec Symfony, l&#8217;authentification peut être faite de toutes les façons
+voulues - au travers d&#8217;un formulaire de connexion, de l&#8217;authentification HTTP, ou même de facebook.</p>
+<p>Une fois l&#8217;utilisateur authentifié, l&#8217;autorisation commence. L&#8217;autorisation fournit une façon
+standard et puissante de décider si un utilisateur peut accéder une ressource
+(une URL, un objet du modèle, un appel de méthode...). Cela fonctionne en assignant des rôles
+à chaque utilisateur, et d&#8217;ensuite en requérant différents rôles pour différentes ressources.</p>
+<p>Le processus d&#8217;autorisation comporte 2 aspects :</p>
+<ol class="arabic simple">
+<li>Un utilisateur possède un ensemble de rôles;</li>
+<li>Une ressource requiert un rôle spécifique pour être atteinte.</li>
+</ol>
+<p>Dans cette section, vous verrez en détail comment sécuriser différentes ressources (ex. URLs,
+appels de méthodes...) grâce aux rôles. Plus tard, vous apprendrez comment les rôles
+peuvent être créés et assignés aux utilisateurs.</p>
+<div class="section" id="securisation-d-urls-specifiques">
+<h3>Sécurisation d&#8217;URLs spécifiques<a class="headerlink" href="#securisation-d-urls-specifiques" title="Permalink to this headline">¶</a></h3>
+<p>La façon la plus simple pour sécuriser une partie de votre application est de sécuriser un masque
+d&#8217;URL au complet. Vous avez déjà vu dans le premier exemple de ce chapitre, où tout ce qui
+correspondait à l&#8217;expression régulière <tt class="docutils literal"><span class="pre">^/admin</span></tt> nécessite le role <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>.</p>
+<p>Vous pouvez définir autant de masque d&#8217;URL que vous voulez - chacune étant une expression
+régulière.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="c1"># ...</span>
+    <span class="l-Scalar-Plain">access_control</span><span class="p-Indicator">:</span>
+        <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/admin/users</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">ROLE_SUPER_ADMIN</span> <span class="p-Indicator">}</span>
+        <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/admin</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">ROLE_ADMIN</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+    <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/admin/users&quot;</span> <span class="na">role=</span><span class="s">&quot;ROLE_SUPER_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/admin&quot;</span> <span class="na">role=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    // ...</span>
+<span class="x">    &#39;access_control&#39; =&gt; array(</span>
+<span class="x">        array(&#39;path&#39; =&gt; &#39;^/admin/users&#39;, &#39;role&#39; =&gt; &#39;ROLE_SUPER_ADMIN&#39;),</span>
+<span class="x">        array(&#39;path&#39; =&gt; &#39;^/admin&#39;, &#39;role&#39; =&gt; &#39;ROLE_ADMIN&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">En préfixant votre chemin par <tt class="docutils literal"><span class="pre">^</span></tt>, vous vous assurez que seules les URLs <em>commençant</em> par le masque
+correspondent. Par exemple, un chemin spécifiant simplement <tt class="docutils literal"><span class="pre">/admin</span></tt> (sans
+le <tt class="docutils literal"><span class="pre">^</span></tt>) reconnaitra une url du type <tt class="docutils literal"><span class="pre">/admin/foo</span></tt> mais aussi  <tt class="docutils literal"><span class="pre">/foo/admin</span></tt>.</p>
+</div>
+<p>Pour chaque requête entrante, Symfony essaie de trouver une règle d&#8217;accès de contrôle
+(la première gagne). Si l&#8217;utilisateur n&#8217;est pas encore authentifié, le processus
+d&#8217;authentification est initié (c&#8217;est-à-dire que l&#8217;utilisateur a une chance de se connecter).
+Mais si l&#8217;utilisateur <em>est</em> authentifié, mais qu&#8217;il ne possède pas le rôle nécessaire,
+une exception <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Security\Core\Exception\AccessDeniedException</span></tt>
+est lancée, qui peut être attrapée et convertie en une belle page d&#8217;erreur « accès refusé »
+présentée à l&#8217;utilisateur. Voir <a class="reference internal" href="../cookbook/controller/error_pages.html"><em>How to customize Error Pages</em></a> pour plus d&#8217;informations.</p>
+<p>Comme Symfony utilise la première règle d&#8217;accès de contrôle qui correspond, une URL comme
+<tt class="docutils literal"><span class="pre">/admin/users/new</span></tt> correspondra à la première règle et ne nécessitera que le rôle
+<tt class="docutils literal"><span class="pre">ROLE_SUPER_ADMIN</span></tt>.
+Tout URL comme <tt class="docutils literal"><span class="pre">/admin/blog</span></tt> correspondra à la seconde règle et nécessitera donc <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>.</p>
+</div>
+<div class="section" id="securiser-par-ip">
+<span id="book-security-securing-ip"></span><h3>Sécuriser par IP<a class="headerlink" href="#securiser-par-ip" title="Permalink to this headline">¶</a></h3>
+<p>Dans certaines situations qui peuvent survenir, vous aurez besoin de restreindre
+l&#8217;accès à une route donnée basée sur une IP. C&#8217;est particulièrement le cas des
+<a class="reference internal" href="http_cache.html#edge-side-includes"><em>Edge Side Includes</em></a> (ESI), par exemple, qui utilisent
+une route nommée « _internal ». Lorsque les ESI sont utilisés, la route _internal
+est requise par la passerelle de cache pour activer différentes options de cache
+pour les portions d&#8217;une même page. Dans la Standard Edition, cette route est préfixée
+par défaut par ^/_internal (en supposant que vous avez décommenté ces lignes dans
+le fichier de routage)</p>
+<p>Ci-dessous un exemple de comment sécuriser une route d&#8217;un accès externe :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="c1"># ...</span>
+    <span class="l-Scalar-Plain">access_control</span><span class="p-Indicator">:</span>
+        <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/cart/checkout</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">IS_AUTHENTICATED_ANONYMOUSLY</span><span class="p-Indicator">,</span> <span class="nv">ip</span><span class="p-Indicator">:</span> <span class="nv">127.0.0.1</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;access-control&gt;</span>
+    <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/cart/checkout&quot;</span> <span class="na">role=</span><span class="s">&quot;IS_AUTHENTICATED_ANONYMOUSLY&quot;</span> <span class="na">ip=</span><span class="s">&quot;127.0.0.1&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/access-control&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">&#39;access_control&#39; =&gt; array(</span>
+<span class="x">    array(&#39;path&#39; =&gt; &#39;^/cart/checkout&#39;, &#39;role&#39; =&gt; &#39;IS_AUTHENTICATED_ANONYMOUSLY&#39;, &#39;ip&#39; =&gt; &#39;127.0.0.1&#39;),</span>
+<span class="x">),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="securiser-par-canal">
+<span id="book-security-securing-channel"></span><h3>Sécuriser par canal<a class="headerlink" href="#securiser-par-canal" title="Permalink to this headline">¶</a></h3>
+<p>Tout comme la sécurisation basée sur IP, obliger l&#8217;usage d&#8217;SSL est aussi simple
+qu&#8217;ajouter une nouvelle entrée access_control :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="c1"># ...</span>
+    <span class="l-Scalar-Plain">access_control</span><span class="p-Indicator">:</span>
+        <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">path</span><span class="p-Indicator">:</span> <span class="nv">^/_internal</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="nv">IS_AUTHENTICATED_ANONYMOUSLY</span><span class="p-Indicator">,</span> <span class="nv">requires_channel</span><span class="p-Indicator">:</span> <span class="nv">https</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;access-control&gt;</span>
+    <span class="nt">&lt;rule</span> <span class="na">path=</span><span class="s">&quot;^/_internal&quot;</span> <span class="na">role=</span><span class="s">&quot;IS_AUTHENTICATED_ANONYMOUSLY&quot;</span> <span class="na">requires_channel=</span><span class="s">&quot;https&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/access-control&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">&#39;access_control&#39; =&gt; array(</span>
+<span class="x">    array(&#39;path&#39; =&gt; &#39;^/_internal&#39;, &#39;role&#39; =&gt; &#39;IS_AUTHENTICATED_ANONYMOUSLY&#39;, &#39;requires_channel&#39; =&gt; &#39;https&#39;),</span>
+<span class="x">),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="securiser-un-controleur">
+<span id="book-security-securing-controller"></span><h3>Sécuriser un contrôleur<a class="headerlink" href="#securiser-un-controleur" title="Permalink to this headline">¶</a></h3>
+<p>Protéger votre application en utilisant des masques d&#8217;URL est facile, mais pourrait ne pas offrir
+une granularité suffisante dans certains cas. Si nécessaire, vous pouvez facilement forcer
+l&#8217;autorisation dans un contrôleur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use Symfony\Component\Security\Core\Exception\AccessDeniedException;</span>
+<span class="x">// ...</span>
+<span class="x">public function helloAction($name)</span>
+<span class="x">{</span>
+<span class="x">    if (false === $this-&gt;get(&#39;security.context&#39;)-&gt;isGranted(&#39;ROLE_ADMIN&#39;)) {</span>
+<span class="x">        throw new AccessDeniedException();</span>
+<span class="x">    }</span>
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p id="book-security-securing-controller-annotations">Vous pouvez aussi choisir d&#8217;installer et d&#8217;utiliser le Bundle <tt class="docutils literal"><span class="pre">JMSSecurityExtraBundle</span></tt>,
+qui peut sécuriser un contrôleur en utilisant les annotations :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">use JMS\SecurityExtraBundle\Annotation\Secure;</span>
+<span class="x">/**</span>
+<span class="x"> * @Secure(roles=&quot;ROLE_ADMIN&quot;)</span>
+<span class="x"> */</span>
+<span class="x">public function helloAction($name)</span>
+<span class="x">{</span>
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Pour plus d&#8217;informations, voir la documentation de <a class="reference external" href="https://github.com/schmittjoh/JMSSecurityExtraBundle">JMSSecurityExtraBundle</a>. Si vous utilisez
+la distribution standard de Symfony, ce bundle est disponible par défaut.
+Sinon, vous pouvez facilement le télécharger et l&#8217;installer.</p>
+</div>
+<div class="section" id="securiser-d-autres-services">
+<h3>Sécuriser d&#8217;autres services<a class="headerlink" href="#securiser-d-autres-services" title="Permalink to this headline">¶</a></h3>
+<p>En fait, tout dans Symfony peut être protégé en utilisant une stratégie semblable à celle
+décrite dans les sections précédentes. Par exemple, supposez que vous avez un service
+(une classe PHP par exemple) dont la responsabilité est d&#8217;envoyer des courriels d&#8217;un utilisateur
+à un autre.
+Vous pouvez restreindre l&#8217;utilisation de cette classe - peu importe d&#8217;où vous l&#8217;utilisez -
+à des utilisateurs qui ont des rôles spécifiques.</p>
+<p>Pour plus d&#8217;informations sur la manière d&#8217;utiliser le composant de sécurité pour sécuriser
+différents services et méthodes de votre application, voir
+<a class="reference internal" href="../cookbook/security/securing_services.html"><em>How to secure any Service or Method in your Application</em></a>.</p>
+</div>
+<div class="section" id="listes-de-controle-d-acces-acl-securiser-des-objets-de-la-base-de-donnees">
+<h3>Listes de contrôle d&#8217;accès (ACL): sécuriser des objets de la base de données<a class="headerlink" href="#listes-de-controle-d-acces-acl-securiser-des-objets-de-la-base-de-donnees" title="Permalink to this headline">¶</a></h3>
+<p>Imaginez que vous êtes en train de concevoir un système de blog où les utilisateurs
+peuvent écrire des commentaires sur les articles. Mais vous voulez qu&#8217;un utilisateur
+puisse éditer ses propres commentaires, mais pas les autres utilisateurs. Aussi, vous, en tant
+qu&#8217;administrateur, voulez pouvoir éditer <em>tous</em> les commentaires.</p>
+<p>Le composant de sécurité comprend un système de liste de contrôle d&#8217;accès (Access Control List,
+ou ACL) que vous pouvez utiliser pour contrôler l&#8217;accès à des instances individuelles
+de votre système. <em>Sans</em> la liste d&#8217;accès de contrôle, vous pouvez sécuriser votre système
+pour que seulement certains utilisateurs puissent éditer les commentaires en général.
+Mais <em>avec</em> la liste d&#8217;accès de contrôle, vous pouvez restreindre ou autoriser l&#8217;accès à
+un commentaire en particulier.</p>
+<p>Pour plus d&#8217;informations, reportez-vous à l&#8217;article du cookbook <a class="reference internal" href="../cookbook/security/acl.html"><em>Access Control Lists (ACLs)</em></a>.</p>
+</div>
+</div>
+<div class="section" id="les-utilisateurs">
+<h2>Les utilisateurs<a class="headerlink" href="#les-utilisateurs" title="Permalink to this headline">¶</a></h2>
+<p>Dans les sections précédentes, vous avez appris comment vous pouvez protéger différentes
+ressources en exigeant un ensemble de rôles pour une ressource. Dans cette section, nous allons
+explorer l&#8217;autre aspect de l&#8217;autorisation : les utilisateurs.</p>
+<div class="section" id="d-ou-viennent-les-utilisateurs-fournisseurs-d-utilisateurs">
+<h3>D&#8217;où viennent les utilisateurs (<em>Fournisseurs d&#8217;utilisateurs</em>)<a class="headerlink" href="#d-ou-viennent-les-utilisateurs-fournisseurs-d-utilisateurs" title="Permalink to this headline">¶</a></h3>
+<p>Au cours de l&#8217;authentification, l&#8217;utilisateur soumet ses informations d&#8217;identité (généralement
+un login et un mot de passe). La responsabilité du système d&#8217;authentification
+est de faire correspondre cette identité avec un ensemble d&#8217;utilisateurs. Mais d&#8217;où cet
+ensemble provient-il?</p>
+<p>Dans Symfony2, les utilisateurs peuvent provenir de n&#8217;importe où - un fichier de configuration,
+une table de base de données, un service Web, ou tout ce que vous pouvez imaginer d&#8217;autre.
+Tout ce qui fournit un ou plusieurs utilisateurs au système d&#8217;authentification est appelé
+« fournisseur d&#8217;utilisateurs » (User Provider). Symfony2 comprend en standard deux des fournisseurs
+les plus utilisés : un qui charge ses utilisateurs depuis un fichier de configuration, et un autre
+qui charge ses utilisateurs d&#8217;une table de base de données.</p>
+<div class="section" id="specifier-les-utilisateurs-dans-un-fichier-de-configuration">
+<h4>Spécifier les utilisateurs dans un fichier de configuration<a class="headerlink" href="#specifier-les-utilisateurs-dans-un-fichier-de-configuration" title="Permalink to this headline">¶</a></h4>
+<p>La manière la plus simple de définir des utilisateurs est de la faire directement dans un
+fichier de configuration. En fait, vous avez déjà vu cet exemple dans ce chapitre.</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="c1"># ...</span>
+    <span class="l-Scalar-Plain">providers</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">default_provider</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">users</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">ryan</span><span class="p-Indicator">:</span>  <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">ryanpass</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_USER&#39;</span> <span class="p-Indicator">}</span>
+                <span class="l-Scalar-Plain">admin</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">kitten</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_ADMIN&#39;</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+    <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">&quot;default_provider&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;ryan&quot;</span> <span class="na">password=</span><span class="s">&quot;ryanpass&quot;</span> <span class="na">roles=</span><span class="s">&quot;ROLE_USER&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;admin&quot;</span> <span class="na">password=</span><span class="s">&quot;kitten&quot;</span> <span class="na">roles=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/provider&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    // ...</span>
+<span class="x">    &#39;providers&#39; =&gt; array(</span>
+<span class="x">        &#39;default_provider&#39; =&gt; array(</span>
+<span class="x">            &#39;users&#39; =&gt; array(</span>
+<span class="x">                &#39;ryan&#39; =&gt; array(&#39;password&#39; =&gt; &#39;ryanpass&#39;, &#39;roles&#39; =&gt; &#39;ROLE_USER&#39;),</span>
+<span class="x">                &#39;admin&#39; =&gt; array(&#39;password&#39; =&gt; &#39;kitten&#39;, &#39;roles&#39; =&gt; &#39;ROLE_ADMIN&#39;),</span>
+<span class="x">            ),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Ce fournisseur d&#8217;utilisateurs est appelé fournisseur d&#8217;utilisateurs en mémoire (« in-memory »)
+car les utilisateurs ne sont pas sauvegardés dans une base de données. L&#8217;objet User est fourni
+par Symfony (<tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Security\Core\User\User</span></tt>).</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">Tout fournisseur d&#8217;utilisateur peut charger des utilisateurs directement de la configuration
+en spécifiant le paramètre de configuration <tt class="docutils literal"><span class="pre">users</span></tt> et en listant les utilisateurs
+en dessous.</p>
+</div>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p>Si votre login est complètement numérique (par exemple <tt class="docutils literal"><span class="pre">77</span></tt>) ou contient un tiret
+(par exemple <tt class="docutils literal"><span class="pre">user-name</span></tt>), vous devez utiliser une syntaxe alternative pour définir
+les utilisateurs en YAML:</p>
+<div class="last highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">users</span><span class="p-Indicator">:</span>
+    <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">name</span><span class="p-Indicator">:</span> <span class="nv">77</span><span class="p-Indicator">,</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">pass</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_USER&#39;</span> <span class="p-Indicator">}</span>
+    <span class="p-Indicator">-</span> <span class="p-Indicator">{</span> <span class="nv">name</span><span class="p-Indicator">:</span> <span class="nv">user-name</span><span class="p-Indicator">,</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">pass</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_USER&#39;</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</div>
+<p>Pour les petits sites, cette méthode est rapide et facile à mettre en place. Pour des systèmes
+plus complexes, vous allez vouloir charger vos utilisateurs de la base de données.</p>
+</div>
+<div class="section" id="charger-les-utilisateurs-de-la-base-de-donnees">
+<span id="book-security-user-entity"></span><h4>Charger les utilisateurs de la base de données<a class="headerlink" href="#charger-les-utilisateurs-de-la-base-de-donnees" title="Permalink to this headline">¶</a></h4>
+<p>Si vous voulez charger vos utilisateurs depuis l&#8217;ORM Doctrine, vous pouvez facilement le faire
+en créant une classe <tt class="docutils literal"><span class="pre">User``et</span> <span class="pre">en</span> <span class="pre">configurant</span> <span class="pre">le</span> <span class="pre">fournisseur</span> <span class="pre">d'entités</span> <span class="pre">(``entity</span></tt> provider).</p>
+<p>Avec cette approche, vous devez d&#8217;abord créer votre propre classe <tt class="docutils literal"><span class="pre">User</span></tt>, qui va être
+sauvegardée dans la base de données.</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// src/Acme/UserBundle/Entity/User.php</span>
+<span class="x">namespace Acme\UserBundle\Entity;</span>
+<span class="x">use Symfony\Component\Security\Core\User\UserInterface;</span>
+<span class="x">use Doctrine\ORM\Mapping as ORM;</span>
+<span class="x">/**</span>
+<span class="x"> * @ORM\Entity</span>
+<span class="x"> */</span>
+<span class="x">class User implements UserInterface</span>
+<span class="x">{</span>
+<span class="x">    /**</span>
+<span class="x">     * @ORM\Column(type=&quot;string&quot;, length=&quot;255&quot;)</span>
+<span class="x">     */</span>
+<span class="x">    protected $username;</span>
+<span class="x">    // ...</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Pour ce qui concerne le système de sécurité, la seule exigence est que la classe User implémente
+l&#8217;interface <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\Security\Core\User\UserInterface</span></tt>.
+Cela signifie que le concept d&#8217;« utilisateur » peut être n&#8217;importe quoi, pour peu qu&#8217;il implémente
+cette interface.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">L&#8217;objet User sera sérialisé et sauvegardé dans la session lors des requêtes, il est donc
+recommandé d&#8217;<a class="reference external" href="http://php.net/manual/en/class.serializable.php">implémenter l&#8217;interface Serializable interface</a>
+dans votre classe User. Cela est spécialement important si votre classe <a href="#id3"><span class="problematic" id="id4">``</span></a>User``a une classe
+parente avec des propriétés privées.</p>
+</div>
+<p>Ensuite, il faut configurer le fournisseur d&#8217;utilisateur <tt class="docutils literal"><span class="pre">entity</span></tt> (<tt class="docutils literal"><span class="pre">entity</span></tt> user provider),
+le pointer vers la classe <tt class="docutils literal"><span class="pre">User</span></tt> :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">&quot;main&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;entity</span> <span class="na">class=</span><span class="s">&quot;Acme\UserBundle\Entity\User&quot;</span> <span class="na">property=</span><span class="s">&quot;username&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/provider&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;providers&#39; =&gt; array(</span>
+<span class="x">        &#39;main&#39; =&gt; array(</span>
+<span class="x">            &#39;entity&#39; =&gt; array(&#39;class&#39; =&gt; &#39;Acme\UserBundle\Entity\User&#39;, &#39;property&#39; =&gt; &#39;username&#39;),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Avec l&#8217;introduction de ce nouveau fournisseur, le système d&#8217;authentification va tenter de charger
+un objet <a href="#id5"><span class="problematic" id="id6">``</span></a>User``depuis la base de données en utilisant le champ <a href="#id7"><span class="problematic" id="id8">``</span></a>username``de cette classe.</p>
+<p>Pour en apprendre plus sur comment créer votre propre fournisseur (par exemple si vous devez charger
+des utilisateurs depuis un service Web), reportez-vous à <a class="reference internal" href="../cookbook/security/custom_provider.html"><em>How to create a custom User Provider</em></a>.</p>
+</div>
+</div>
+<div class="section" id="encoder-les-mots-de-passe">
+<span id="book-security-encoding-user-password"></span><h3>Encoder les mots de passe<a class="headerlink" href="#encoder-les-mots-de-passe" title="Permalink to this headline">¶</a></h3>
+<p>Jusqu&#8217;à maintenant, afin de garder ça simple, les mots de passe des utilisateurs ont tous été
+conservés au format texte (qu&#8217;ils soient sauvegardés dans un fichier de configuration ou dans
+la base de données). Il est clair que dans une vraie application, vous allez vouloir encoder
+les mots de passe de vos utilisateurs pour des raisons de sécurité. Ceci est facile à
+accomplir en mappant votre classe User avec un des nombreux « encodeurs » intégrés.</p>
+<p>Par exemple, pour rendre indéchiffrable les mots de passe de vos utilisateurs
+en utilisant <tt class="docutils literal"><span class="pre">sha1</span></tt>, suivez les instructions suivantes :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="c1"># ...</span>
+    <span class="l-Scalar-Plain">providers</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">in_memory</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">users</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">ryan</span><span class="p-Indicator">:</span>  <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">bb87a29949f3a1ee0559f8a57357487151281386</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_USER&#39;</span> <span class="p-Indicator">}</span>
+                <span class="l-Scalar-Plain">admin</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">74913f5cd5f61ec0bcfdb775414c2fb3d161b620</span><span class="p-Indicator">,</span> <span class="nv">roles</span><span class="p-Indicator">:</span> <span class="s">&#39;ROLE_ADMIN&#39;</span> <span class="p-Indicator">}</span>
+
+    <span class="l-Scalar-Plain">encoders</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">Symfony\Component\Security\Core\User\User</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">algorithm</span><span class="p-Indicator">:</span>   <span class="l-Scalar-Plain">sha1</span>
+            <span class="l-Scalar-Plain">iterations</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">1</span>
+            <span class="l-Scalar-Plain">encode_as_base64</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+    <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">&quot;in_memory&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;ryan&quot;</span> <span class="na">password=</span><span class="s">&quot;bb87a29949f3a1ee0559f8a57357487151281386&quot;</span> <span class="na">roles=</span><span class="s">&quot;ROLE_USER&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;admin&quot;</span> <span class="na">password=</span><span class="s">&quot;74913f5cd5f61ec0bcfdb775414c2fb3d161b620&quot;</span> <span class="na">roles=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/provider&gt;</span>
+
+    <span class="nt">&lt;encoder</span> <span class="na">class=</span><span class="s">&quot;Symfony\Component\Security\Core\User\User&quot;</span> <span class="na">algorithm=</span><span class="s">&quot;sha1&quot;</span> <span class="na">iterations=</span><span class="s">&quot;1&quot;</span> <span class="na">encode_as_base64=</span><span class="s">&quot;false&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    // ...</span>
+<span class="x">    &#39;providers&#39; =&gt; array(</span>
+<span class="x">        &#39;in_memory&#39; =&gt; array(</span>
+<span class="x">            &#39;users&#39; =&gt; array(</span>
+<span class="x">                &#39;ryan&#39; =&gt; array(&#39;password&#39; =&gt; &#39;bb87a29949f3a1ee0559f8a57357487151281386&#39;, &#39;roles&#39; =&gt; &#39;ROLE_USER&#39;),</span>
+<span class="x">                &#39;admin&#39; =&gt; array(&#39;password&#39; =&gt; &#39;74913f5cd5f61ec0bcfdb775414c2fb3d161b620&#39;, &#39;roles&#39; =&gt; &#39;ROLE_ADMIN&#39;),</span>
+<span class="x">            ),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">    &#39;encoders&#39; =&gt; array(</span>
+<span class="x">        &#39;Symfony\Component\Security\Core\User\User&#39; =&gt; array(</span>
+<span class="x">            &#39;algorithm&#39;         =&gt; &#39;sha1&#39;,</span>
+<span class="x">            &#39;iterations&#39;        =&gt; 1,</span>
+<span class="x">            &#39;encode_as_base64&#39;  =&gt; false,</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>En spécifiant les <tt class="docutils literal"><span class="pre">itérations</span></tt> à <tt class="docutils literal"><span class="pre">1``et</span> <span class="pre">le</span> <span class="pre">paramètre</span> <span class="pre">``encode_as_base64</span></tt> à false,
+le mot de passe est simplement encrypté en utilisant l&#8217;algorithme <tt class="docutils literal"><span class="pre">sha1``une</span> <span class="pre">fois,</span> <span class="pre">et</span> <span class="pre">sans</span>
+<span class="pre">aucun</span> <span class="pre">encodage</span> <span class="pre">additionnel.</span> <span class="pre">Vous</span> <span class="pre">pouvez</span> <span class="pre">maintenant</span> <span class="pre">calculer</span> <span class="pre">le</span> <span class="pre">mot</span> <span class="pre">de</span> <span class="pre">passe</span> <span class="pre">soit</span>
+<span class="pre">programmatiquement</span> <span class="pre">(c'est-à-dire</span> <span class="pre">``hash('sha1',</span> <span class="pre">'ryanpass')</span></tt>) ou soit avec des outils en ligne
+comme <a class="reference external" href="http://www.functions-online.com/sha1.html">functions-online.com</a></p>
+<p>Si vous créez vos utilisateurs dynamiquement (et que vous les sauvegardez dans une base de
+données), vous pouvez rendre l&#8217;algorithme de hachage plus complexe puis utiliser un objet
+d&#8217;encodage de mot de passe pour vous aider à encoder les mots de passe.
+Par exemple, supposez que votre objet User est un <tt class="docutils literal"><span class="pre">Acme\UserBundle\Entity\User</span></tt>
+(comme dans l&#8217;exemple ci-dessus). D&#8217;abord, configurez l&#8217;encodeur pour cet utilisateur :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="c1"># ...</span>
+
+    <span class="l-Scalar-Plain">encoders</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">Acme\UserBundle\Entity\User</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">sha512</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+
+    <span class="nt">&lt;encoder</span> <span class="na">class=</span><span class="s">&quot;Acme\UserBundle\Entity\User&quot;</span> <span class="na">algorithm=</span><span class="s">&quot;sha512&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    // ...</span>
+
+<span class="x">    &#39;encoders&#39; =&gt; array(</span>
+<span class="x">        &#39;Acme\UserBundle\Entity\User&#39; =&gt; &#39;sha512&#39;,</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Dans cet exemple, nous utilisons L&#8217;algorithme plus puissant <tt class="docutils literal"><span class="pre">sha512</span></tt>. Aussi, comme nous
+avons uniquement spécifié l&#8217;algorithme (<tt class="docutils literal"><span class="pre">sha512</span></tt>) sous forme de chaine de caractères,
+le système va par défaut hacher votre mot de passe 5000 fois de suite et ensuite l&#8217;encoder
+en base64. En d&#8217;autres termes, le mot de passe a été très fortement obscurci pour ne pas
+qu&#8217;il puisse être décodé (c&#8217;est-à-dire que vous ne pouvez pas retrouver le mot
+de passe depuis le mot de passe haché).</p>
+<p>Si vous avez une sorte de formulaire d&#8217;enregistrement pour les utilisateurs, vous devez pouvoir
+générer un mot de passe haché pour pouvoir le sauvegarder. Peu importe l&#8217;algorithme que vous
+avez configuré pour votre objet User, le mot de passe haché peut toujours être déterminé de
+la manière suivante depuis un contrôleur :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">$factory = $this-&gt;get(&#39;security.encoder_factory&#39;);</span>
+<span class="x">$user = new Acme\UserBundle\Entity\User();</span>
+
+<span class="x">$encoder = $factory-&gt;getEncoder($user);</span>
+<span class="x">$password = $encoder-&gt;encodePassword(&#39;ryanpass&#39;, $user-&gt;getSalt());</span>
+<span class="x">$user-&gt;setPassword($password);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="recuperer-l-objet-user">
+<h3>Récupérer l&#8217;objet User<a class="headerlink" href="#recuperer-l-objet-user" title="Permalink to this headline">¶</a></h3>
+<p>Après l&#8217;authentification, l&#8217;objet <tt class="docutils literal"><span class="pre">User</span></tt> correspondant à l&#8217;utilisateur courant peut être
+récupéré via le service <tt class="docutils literal"><span class="pre">security.context</span></tt>. Depuis un controleur, cela ressemble à ça :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function indexAction()</span>
+<span class="x">{</span>
+<span class="x">    $user = $this-&gt;get(&#39;security.context&#39;)-&gt;getToken()-&gt;getUser();</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>Dans un contrôleur, vous pouvez utiliser le raccourci suivant :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function indexAction()</span>
+<span class="x">{</span>
+<span class="x">    $user = $this-&gt;getUser();</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Les utilisateurs anonymes sont techniquement authentifiés, ce qui veut dire que la méthode
+<tt class="docutils literal"><span class="pre">isAuthenticated()</span></tt> sur un objet d&#8217;utilisateur anonyme va retourner true. Pour vérifier
+si un utilisateur est vraiment authentifié, vérifiez si l&#8217;utilisateur a le rôle
+<tt class="docutils literal"><span class="pre">IS_AUTHENTICATED_FULLY</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="utiliser-plusieurs-fournisseurs-d-utilisateurs">
+<h3>Utiliser plusieurs fournisseurs d&#8217;utilisateurs<a class="headerlink" href="#utiliser-plusieurs-fournisseurs-d-utilisateurs" title="Permalink to this headline">¶</a></h3>
+<p>Chaque mécanisme d&#8217;authentification (par exemple authentification HTTP, formulaire de connexion,
+etc...) utilise exactement un fournisseur d&#8217;utilisateur (user provider), et va utiliser
+par défaut le premier fournisseur d&#8217;utilisateurs déclaré. Mais que faire si vous voulez déclarer
+quelques utilisateurs via la configuration et le reste des utilisateurs dans
+la base de données? C&#8217;est possible en créant un fournisseur qui lie les 2 fournisseurs ensemble :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">providers</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">chain_provider</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">providers</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="nv">in_memory</span><span class="p-Indicator">,</span> <span class="nv">user_db</span><span class="p-Indicator">]</span>
+        <span class="l-Scalar-Plain">in_memory</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">users</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">foo</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">test</span> <span class="p-Indicator">}</span>
+        <span class="l-Scalar-Plain">user_db</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">entity</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">class</span><span class="p-Indicator">:</span> <span class="nv">Acme\UserBundle\Entity\User</span><span class="p-Indicator">,</span> <span class="nv">property</span><span class="p-Indicator">:</span> <span class="nv">username</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">&quot;chain_provider&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;provider&gt;</span>in_memory<span class="nt">&lt;/provider&gt;</span>
+        <span class="nt">&lt;provider&gt;</span>user_db<span class="nt">&lt;/provider&gt;</span>
+    <span class="nt">&lt;/provider&gt;</span>
+    <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">&quot;in_memory&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;foo&quot;</span> <span class="na">password=</span><span class="s">&quot;test&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/provider&gt;</span>
+    <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">&quot;user_db&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;entity</span> <span class="na">class=</span><span class="s">&quot;Acme\UserBundle\Entity\User&quot;</span> <span class="na">property=</span><span class="s">&quot;username&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/provider&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;providers&#39; =&gt; array(</span>
+<span class="x">        &#39;chain_provider&#39; =&gt; array(</span>
+<span class="x">            &#39;providers&#39; =&gt; array(&#39;in_memory&#39;, &#39;user_db&#39;),</span>
+<span class="x">        ),</span>
+<span class="x">        &#39;in_memory&#39; =&gt; array(</span>
+<span class="x">            &#39;users&#39; =&gt; array(</span>
+<span class="x">                &#39;foo&#39; =&gt; array(&#39;password&#39; =&gt; &#39;test&#39;),</span>
+<span class="x">            ),</span>
+<span class="x">        ),</span>
+<span class="x">        &#39;user_db&#39; =&gt; array(</span>
+<span class="x">            &#39;entity&#39; =&gt; array(&#39;class&#39; =&gt; &#39;Acme\UserBundle\Entity\User&#39;, &#39;property&#39; =&gt; &#39;username&#39;),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Maintenant, tous les mécanismes d&#8217;authentification vont utiliser le <tt class="docutils literal"><span class="pre">chain_provider</span></tt>,
+car c&#8217;est le premier spécifié. Le <tt class="docutils literal"><span class="pre">chain_provider</span></tt> va essayer de charger les utilisateurs
+depuis les fournisseurs <tt class="docutils literal"><span class="pre">in_memory</span></tt> et <tt class="docutils literal"><span class="pre">user_db</span></tt>.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p>Si vous n&#8217;avez pas de raison de séparer vos utilisateurs <tt class="docutils literal"><span class="pre">in_memory</span></tt>
+des utilisateurs <tt class="docutils literal"><span class="pre">user_db</span></tt>, vous pouvez accomplir cela facilement en combinant les 2
+sources dans un seul fournisseur :</p>
+<div class="last configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">providers</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">main_provider</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">users</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">foo</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">password</span><span class="p-Indicator">:</span> <span class="nv">test</span> <span class="p-Indicator">}</span>
+            <span class="l-Scalar-Plain">entity</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">class</span><span class="p-Indicator">:</span> <span class="nv">Acme\UserBundle\Entity\User</span><span class="p-Indicator">,</span> <span class="nv">property</span><span class="p-Indicator">:</span> <span class="nv">username</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;provider</span> <span class="na">name=</span><span class="s">=&quot;main_provider&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;user</span> <span class="na">name=</span><span class="s">&quot;foo&quot;</span> <span class="na">password=</span><span class="s">&quot;test&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;entity</span> <span class="na">class=</span><span class="s">&quot;Acme\UserBundle\Entity\User&quot;</span> <span class="na">property=</span><span class="s">&quot;username&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/provider&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;providers&#39; =&gt; array(</span>
+<span class="x">        &#39;main_provider&#39; =&gt; array(</span>
+<span class="x">            &#39;users&#39; =&gt; array(</span>
+<span class="x">                &#39;foo&#39; =&gt; array(&#39;password&#39; =&gt; &#39;test&#39;),</span>
+<span class="x">            ),</span>
+<span class="x">            &#39;entity&#39; =&gt; array(&#39;class&#39; =&gt; &#39;Acme\UserBundle\Entity\User&#39;, &#39;property&#39; =&gt; &#39;username&#39;),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<p>Vous pouvez configurer le pare-feu ou des mécanismes individuels d&#8217;authentification afin
+qu&#8217;ils utilisent un fournisseur spécifique. Encore une fois, le premier fournisseur sera toujours
+utilisé, sauf si vous en spécifiez un explicitement :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">secured_area</span><span class="p-Indicator">:</span>
+            <span class="c1"># ...</span>
+            <span class="l-Scalar-Plain">provider</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">user_db</span>
+            <span class="l-Scalar-Plain">http_basic</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">realm</span><span class="p-Indicator">:</span> <span class="s">&quot;Secured</span><span class="nv"> </span><span class="s">Demo</span><span class="nv"> </span><span class="s">Area&quot;</span>
+                <span class="l-Scalar-Plain">provider</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">in_memory</span>
+            <span class="l-Scalar-Plain">form_login</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;firewall</span> <span class="na">name=</span><span class="s">&quot;secured_area&quot;</span> <span class="na">pattern=</span><span class="s">&quot;^/&quot;</span> <span class="na">provider=</span><span class="s">&quot;user_db&quot;</span><span class="nt">&gt;</span>
+        <span class="c">&lt;!-- ... --&gt;</span>
+        <span class="nt">&lt;http-basic</span> <span class="na">realm=</span><span class="s">&quot;Secured Demo Area&quot;</span> <span class="na">provider=</span><span class="s">&quot;in_memory&quot;</span> <span class="nt">/&gt;</span>
+        <span class="nt">&lt;form-login</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/firewall&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;firewalls&#39; =&gt; array(</span>
+<span class="x">        &#39;secured_area&#39; =&gt; array(</span>
+<span class="x">            // ...</span>
+<span class="x">            &#39;provider&#39; =&gt; &#39;user_db&#39;,</span>
+<span class="x">            &#39;http_basic&#39; =&gt; array(</span>
+<span class="x">                // ...</span>
+<span class="x">                &#39;provider&#39; =&gt; &#39;in_memory&#39;,</span>
+<span class="x">            ),</span>
+<span class="x">            &#39;form_login&#39; =&gt; array(),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Dans cet exemple, si un utilisateur essaie de se connecter via l&#8217;authentification HTTP,
+le système utilisera le fournisseur d&#8217;utilisateurs <tt class="docutils literal"><span class="pre">in_memory</span></tt>. Mais si l&#8217;utilisateur
+essaie de se connecter via le formulaire de connexion, le fournisseur <tt class="docutils literal"><span class="pre">user_db</span></tt> sera
+utilisé (car c&#8217;est celui par défaut du pare-feu).</p>
+<p>Pour plus d&#8217;informations à propos des fournisseurs d&#8217;utilisateurs et de la configuration
+des pare-feu, veuillez vous reporter à <a class="reference internal" href="../reference/configuration/security.html"><em>Security Configuration Reference</em></a>.</p>
+</div>
+</div>
+<div class="section" id="les-roles">
+<h2>Les rôles<a class="headerlink" href="#les-roles" title="Permalink to this headline">¶</a></h2>
+<p>La notion de « rôle » est au centre du processus d&#8217;autorisation. Chaque utilisateur se fait
+assigner un groupe de rôles et chaque ressource nécessite un ou plusieurs rôles.
+Si un utilisateur a les rôles requis, l&#8217;accès est accordé. Sinon, l&#8217;accès est refusé.</p>
+<p>Les rôles sont assez simples, et sont en fait des chaines de caractères que vous créez
+et utilisez au besoin (même si les rôles sont des objets en interne). Par exemple,
+si vous désirez limiter l&#8217;accès à la section d&#8217;administration du blog de votre site web,
+vous pouvez protéger cette section en utilisant un rôle <tt class="docutils literal"><span class="pre">ROLE_BLOG_ADMIN</span></tt>.
+Ce rôle n&#8217;a pas besoin d&#8217;être défini quelque part - vous n&#8217;avez qu&#8217;à commencer à l&#8217;utiliser.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Tous les rôles <em>doivent</em> commencer par le préfixe <tt class="docutils literal"><span class="pre">ROLE_</span></tt> afin d&#8217;être gérés par
+Symfony2. Si vous définissez vos propres rôles avec une classe <tt class="docutils literal"><span class="pre">Role``dédiée</span>
+<span class="pre">(plus</span> <span class="pre">avancé),</span> <span class="pre">n'utilisez</span> <span class="pre">pas</span> <span class="pre">le</span> <span class="pre">préfixe</span> <span class="pre">``ROLE_</span></tt>.</p>
+</div>
+<div class="section" id="roles-hierarchiques">
+<h3>Rôles hiérarchiques<a class="headerlink" href="#roles-hierarchiques" title="Permalink to this headline">¶</a></h3>
+<p>Au lieu d&#8217;associer plusieurs rôles aux utilisateurs, vous pouvez définir des règles
+d&#8217;héritage de rôle en créant une hiérarchie de rôles :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">role_hierarchy</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">ROLE_ADMIN</span><span class="p-Indicator">:</span>       <span class="l-Scalar-Plain">ROLE_USER</span>
+        <span class="l-Scalar-Plain">ROLE_SUPER_ADMIN</span><span class="p-Indicator">:</span> <span class="p-Indicator">[</span><span class="nv">ROLE_ADMIN</span><span class="p-Indicator">,</span> <span class="nv">ROLE_ALLOWED_TO_SWITCH</span><span class="p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+   <span class="nt">&lt;role</span> <span class="na">id=</span><span class="s">&quot;ROLE_ADMIN&quot;</span><span class="nt">&gt;</span>ROLE_USER<span class="nt">&lt;/role&gt;</span>
+   <span class="nt">&lt;role</span> <span class="na">id=</span><span class="s">&quot;ROLE_SUPER_ADMIN&quot;</span><span class="nt">&gt;</span>ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH<span class="nt">&lt;/role&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;role_hierarchy&#39; =&gt; array(</span>
+<span class="x">        &#39;ROLE_ADMIN&#39;       =&gt; &#39;ROLE_USER&#39;,</span>
+<span class="x">        &#39;ROLE_SUPER_ADMIN&#39; =&gt; array(&#39;ROLE_ADMIN&#39;, &#39;ROLE_ALLOWED_TO_SWITCH&#39;),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Dans la configuration ci-dessus, les utilisateurs avec le rôle <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt> vont aussi avoir
+le rôle <tt class="docutils literal"><span class="pre">ROLE_USER</span></tt>. Le rôle <tt class="docutils literal"><span class="pre">ROLE_SUPER_ADMIN</span></tt> a les rôles <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>,
+<tt class="docutils literal"><span class="pre">ROLE_ALLOWED_TO_SWITCH</span></tt> et <tt class="docutils literal"><span class="pre">ROLE_USER</span></tt> (hérité de <tt class="docutils literal"><span class="pre">ROLE_ADMIN</span></tt>).</p>
+</div>
+</div>
+<div class="section" id="se-deconnecter">
+<h2>Se déconnecter<a class="headerlink" href="#se-deconnecter" title="Permalink to this headline">¶</a></h2>
+<p>Généralement, vous désirez aussi que vos utilisateurs puissent se déconnecter.
+Heureusement, le pare-feu peut prendre ça en charge automatiquement lorsque vous activez le
+paramètre de configuration <tt class="docutils literal"><span class="pre">logout</span></tt> :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">secured_area</span><span class="p-Indicator">:</span>
+            <span class="c1"># ...</span>
+            <span class="l-Scalar-Plain">logout</span><span class="p-Indicator">:</span>
+                <span class="l-Scalar-Plain">path</span><span class="p-Indicator">:</span>   <span class="l-Scalar-Plain">/logout</span>
+                <span class="l-Scalar-Plain">target</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">/</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;firewall</span> <span class="na">name=</span><span class="s">&quot;secured_area&quot;</span> <span class="na">pattern=</span><span class="s">&quot;^/&quot;</span><span class="nt">&gt;</span>
+        <span class="c">&lt;!-- ... --&gt;</span>
+        <span class="nt">&lt;logout</span> <span class="na">path=</span><span class="s">&quot;/logout&quot;</span> <span class="na">target=</span><span class="s">&quot;/&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/firewall&gt;</span>
+    <span class="c">&lt;!-- ... --&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;firewalls&#39; =&gt; array(</span>
+<span class="x">        &#39;secured_area&#39; =&gt; array(</span>
+<span class="x">            // ...</span>
+<span class="x">            &#39;logout&#39; =&gt; array(&#39;path&#39; =&gt; &#39;logout&#39;, &#39;target&#39; =&gt; &#39;/&#39;),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">    // ...</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Une fois que c&#8217;est configuré au niveau de votre pare-feu, un utilisateur qui accèdera à <tt class="docutils literal"><span class="pre">/logout</span></tt>
+(ou quelle que soit la configuration de <tt class="docutils literal"><span class="pre">path``que</span> <span class="pre">vous</span> <span class="pre">avez)</span> <span class="pre">sera</span> <span class="pre">déconnecté.</span>
+<span class="pre">L'utilisateur</span> <span class="pre">sera</span> <span class="pre">redirigé</span> <span class="pre">à</span> <span class="pre">la</span> <span class="pre">page</span> <span class="pre">d'accueil</span> <span class="pre">(la</span> <span class="pre">valeur</span> <span class="pre">du</span> <span class="pre">paramètre</span> <span class="pre">``target</span></tt>).
+Les 2 paramètres de configuration <a href="#id9"><span class="problematic" id="id10">``</span></a>path``et <a href="#id11"><span class="problematic" id="id12">``</span></a>target``ont comme valeur par défaut ce qui est
+défini ici. En d&#8217;autres termes, sauf si vous voulez les changer, vous pouvez les omettre
+complètement et ainsi réduire votre configuration :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="l-Scalar-Plain">logout</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="nt">&lt;logout</span> <span class="nt">/&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">&#39;logout&#39; =&gt; array(),</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Veuillez noter que vous n&#8217;aurez <em>pas</em> à implémenter un contrôleur pour l&#8217;URL <tt class="docutils literal"><span class="pre">/logout</span></tt>
+car le pare-feu se charge de tout. Vous pouvez toutefois vouloir créer une route afin
+de l&#8217;utiliser pour générer l&#8217;URL :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/routing.yml</span>
+<span class="l-Scalar-Plain">logout</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">pattern</span><span class="p-Indicator">:</span>   <span class="l-Scalar-Plain">/logout</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/routing.xml --&gt;</span>
+<span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span>
+
+<span class="nt">&lt;routes</span> <span class="na">xmlns=</span><span class="s">&quot;http://symfony.com/schema/routing&quot;</span>
+    <span class="na">xmlns:xsi=</span><span class="s">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+    <span class="na">xsi:schemaLocation=</span><span class="s">&quot;http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd&quot;</span><span class="nt">&gt;</span>
+
+        <span class="nt">&lt;route</span> <span class="na">id=</span><span class="s">&quot;logout&quot;</span> <span class="na">pattern=</span><span class="s">&quot;/logout&quot;</span> <span class="nt">/&gt;</span>
+
+<span class="nt">&lt;/routes&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/routing.php</span>
+<span class="x">use Symfony\Component\Routing\RouteCollection;</span>
+<span class="x">use Symfony\Component\Routing\Route;</span>
+
+<span class="x">$collection = new RouteCollection();</span>
+<span class="x">$collection-&gt;add(&#39;logout&#39;, new Route(&#39;/logout&#39;, array()));</span>
+
+<span class="x">return $collection;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Une fois qu&#8217;un utilisateur s&#8217;est déconnecté, il sera redirigé à l&#8217;URL définie par le paramètre
+<tt class="docutils literal"><span class="pre">target</span></tt> (par exemple <tt class="docutils literal"><span class="pre">homepage</span></tt>). Pour plus d&#8217;informations sur la configuration de la
+déconnexion, veuillez lire
+<a class="reference internal" href="../reference/configuration/security.html"><em>Security Configuration Reference</em></a>.</p>
+</div>
+<div class="section" id="controle-d-acces-dans-les-templates">
+<h2>Contrôle d&#8217;accès dans les templates<a class="headerlink" href="#controle-d-acces-dans-les-templates" title="Permalink to this headline">¶</a></h2>
+<p>Si vous désirez vérifier dans un template si un utilisateur possède un rôle donné, utilisez
+la fonction helper intégrée :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>Twig</em><div class="highlight-html+jinja"><div class="highlight"><pre><span class="cp">{%</span> <span class="k">if</span> <span class="nv">is_granted</span><span class="o">(</span><span class="s1">&#39;ROLE_ADMIN&#39;</span><span class="o">)</span> <span class="cp">%}</span>
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;...&quot;</span><span class="nt">&gt;</span>Supprimer<span class="nt">&lt;/a&gt;</span>
+<span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-html+php"><div class="highlight"><pre><span class="cp">&lt;?php</span> <span class="k">if</span> <span class="p">(</span><span class="nv">$view</span><span class="p">[</span><span class="s1">&#39;security&#39;</span><span class="p">]</span><span class="o">-&gt;</span><span class="na">isGranted</span><span class="p">(</span><span class="s1">&#39;ROLE_ADMIN&#39;</span><span class="p">))</span><span class="o">:</span> <span class="cp">?&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">&quot;...&quot;</span><span class="nt">&gt;</span>Supprimer<span class="nt">&lt;/a&gt;</span>
+<span class="cp">&lt;?php</span> <span class="k">endif</span><span class="p">;</span> <span class="cp">?&gt;</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Si vous utilisez cette fonction et que vous ne vous trouvez pas à une URL pour laquelle
+un pare-feu est actif, une exception sera lancée. Encore une fois, c&#8217;est toujours une
+bonne idée d&#8217;avoir un pare-feu qui couvre toutes les URLs (que montré dans ce chapitre).</p>
+</div>
+</div>
+<div class="section" id="controle-d-acces-dans-les-controleurs">
+<h2>Contrôle d&#8217;accès dans les Contrôleurs<a class="headerlink" href="#controle-d-acces-dans-les-controleurs" title="Permalink to this headline">¶</a></h2>
+<p>Si vous désirez vérifier dans un contrôleur si l&#8217;utilisateur courant possède un rôle,
+utilisez la méthode <tt class="docutils literal"><span class="pre">isGranted</span></tt> du contexte de sécurité:</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">public function indexAction()</span>
+<span class="x">{</span>
+<span class="x">    // show different content to admin users</span>
+<span class="x">    if ($this-&gt;get(&#39;security.context&#39;)-&gt;isGranted(&#39;ADMIN&#39;)) {</span>
+<span class="x">        // Load admin content here</span>
+<span class="x">    }</span>
+<span class="x">    // load other regular content here</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Un pare-feu doit être actif, sinon une exception sera lancée lors de l&#8217;appel à la méthode
+<tt class="docutils literal"><span class="pre">isGranted</span></tt>. Référez-vous aux notes ci-dessus par rapport aux templates pour plus de
+détails.</p>
+</div>
+</div>
+<div class="section" id="usurper-l-identite-d-un-utilisateur">
+<h2>« Usurper l&#8217;identité » d&#8217;un utilisateur<a class="headerlink" href="#usurper-l-identite-d-un-utilisateur" title="Permalink to this headline">¶</a></h2>
+<p>Parfois, il peut être utile de pouvoir passer d&#8217;un utilisateur à un autre sans avoir
+à se déconnecter et à se reconnecter (par exemple si vous êtes en train de débugguer ou de
+comprendre un bug qu&#8217;un utilisateur obtient, mais que vous ne pouvez pas reproduire).
+Cela peut être facilement réalisé en activant l&#8217;auditeur (listener) <a href="#id13"><span class="problematic" id="id14">``</span></a>switch_user``du pare-feu :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">main</span><span class="p-Indicator">:</span>
+            <span class="c1"># ...</span>
+            <span class="l-Scalar-Plain">switch_user</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;firewall&gt;</span>
+        <span class="c">&lt;!-- ... --&gt;</span>
+        <span class="nt">&lt;switch-user</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/firewall&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;firewalls&#39; =&gt; array(</span>
+<span class="x">        &#39;main&#39;=&gt; array(</span>
+<span class="x">            // ...</span>
+<span class="x">            &#39;switch_user&#39; =&gt; true</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<p>Pour changer d&#8217;utilisateur, il suffit d&#8217;ajouter à la chaine de requête le paramètre
+<tt class="docutils literal"><span class="pre">_switch_user</span></tt> et le nom d&#8217;utilisateur comme valeur à l&#8217;URL en cours :</p>
+<blockquote>
+<div><a class="reference external" href="http://example.com/somewhere?_switch_user=thomas">http://example.com/somewhere?_switch_user=thomas</a></div></blockquote>
+<p>Pour revenir à l&#8217;utilisateur initial, utilisez le nom d&#8217;utilisateur spécial <tt class="docutils literal"><span class="pre">_exit</span></tt>:</p>
+<blockquote>
+<div><a class="reference external" href="http://example.com/somewhere?_switch_user=_exit">http://example.com/somewhere?_switch_user=_exit</a></div></blockquote>
+<p>Bien sûr, cette fonctionnalité ne doit être accessible qu&#8217;à un petit groupe d&#8217;utilisateurs.
+Par défaut, l&#8217;accès est limité aux utilisateurs ayant le rôle <tt class="docutils literal"><span class="pre">ROLE_ALLOWED_TO_SWITCH</span></tt>.
+Le nom de ce rôle peut être modifié grâce au paramètre <tt class="docutils literal"><span class="pre">role</span></tt>. Pour plus de sécurité,
+vous pouvez aussi changer le nom du paramètre de configuration grâce au paramètre``parameter``:</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">main</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">// ...</span>
+            <span class="l-Scalar-Plain">switch_user</span><span class="p-Indicator">:</span> <span class="p-Indicator">{</span> <span class="nv">role</span><span class="p-Indicator">:</span> <span class="nv">ROLE_ADMIN</span><span class="p-Indicator">,</span> <span class="nv">parameter</span><span class="p-Indicator">:</span> <span class="nv">_want_to_be_this_user</span> <span class="p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;firewall&gt;</span>
+        <span class="c">&lt;!-- ... --&gt;</span>
+        <span class="nt">&lt;switch-user</span> <span class="na">role=</span><span class="s">&quot;ROLE_ADMIN&quot;</span> <span class="na">parameter=</span><span class="s">&quot;_want_to_be_this_user&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/firewall&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;firewalls&#39; =&gt; array(</span>
+<span class="x">        &#39;main&#39;=&gt; array(</span>
+<span class="x">            // ...</span>
+<span class="x">            &#39;switch_user&#39; =&gt; array(&#39;role&#39; =&gt; &#39;ROLE_ADMIN&#39;, &#39;parameter&#39; =&gt; &#39;_want_to_be_this_user&#39;),</span>
+<span class="x">        ),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="authentification-sans-etat">
+<h2>Authentification sans état<a class="headerlink" href="#authentification-sans-etat" title="Permalink to this headline">¶</a></h2>
+<p>Par défaut, Symfony2 s&#8217;appuie sur cookie (la Session) pour garder
+le contexte de sécurité d&#8217;un utilisateur.
+Mais si vous utilisez des certificats ou l&#8217;authentification HTTP par exemple, la persistence
+n&#8217;est pas nécessaire car l&#8217;identité est disponible à chaque requête. Dans ce cas, et si vous
+n&#8217;avez pas besoin de sauvegarder quelque chose entre les requêtes, vous pouvez activer
+l&#8217;authentification sans état (stateless authentication), ce qui veut dire qu&#8217;aucun cookie
+ne sera jamais créé par Symfony2 :</p>
+<div class="configuration-block">
+<ul class="simple">
+<li><em>YAML</em><div class="highlight-yaml"><div class="highlight"><pre><span class="c1"># app/config/security.yml</span>
+<span class="l-Scalar-Plain">security</span><span class="p-Indicator">:</span>
+    <span class="l-Scalar-Plain">firewalls</span><span class="p-Indicator">:</span>
+        <span class="l-Scalar-Plain">main</span><span class="p-Indicator">:</span>
+            <span class="l-Scalar-Plain">http_basic</span><span class="p-Indicator">:</span> <span class="l-Scalar-Plain">~</span>
+            <span class="l-Scalar-Plain">stateless</span><span class="p-Indicator">:</span>  <span class="l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li><em>XML</em><div class="highlight-xml"><div class="highlight"><pre><span class="c">&lt;!-- app/config/security.xml --&gt;</span>
+<span class="nt">&lt;config&gt;</span>
+    <span class="nt">&lt;firewall</span> <span class="na">stateless=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;http-basic</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/firewall&gt;</span>
+<span class="nt">&lt;/config&gt;</span>
+</pre></div>
+</div>
+</li>
+<li><em>PHP</em><div class="highlight-php"><div class="highlight"><pre><span class="x">// app/config/security.php</span>
+<span class="x">$container-&gt;loadFromExtension(&#39;security&#39;, array(</span>
+<span class="x">    &#39;firewalls&#39; =&gt; array(</span>
+<span class="x">        &#39;main&#39; =&gt; array(&#39;http_basic&#39; =&gt; array(), &#39;stateless&#39; =&gt; true),</span>
+<span class="x">    ),</span>
+<span class="x">));</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Si vous utilisez un formulaire de connexion, Symfony2 va créer un cookie même si vous avez configuré
+<tt class="docutils literal"><span class="pre">stateless</span></tt> à <tt class="docutils literal"><span class="pre">true</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="derniers-mots">
+<h2>Derniers mots<a class="headerlink" href="#derniers-mots" title="Permalink to this headline">¶</a></h2>
+<p>La sécurité peut être un problème complexe à résoudre correctement dans une application.
+Heureusement, le composant de sécurité de Symfony se base un modèle bien éprouvé basé sur
+l&#8217;<em>authentification</em> et l&#8217;<em>autorisation</em>. L&#8217;authentification, qui arrive toujours en premier,
+est prise en charge par le pare-feu dont la responsabilité est de déterminer l&#8217;identité
+des utilisateurs grâce à différentes méthodes (par exemple l&#8217;authentification HTTP,
+les formulaires de connexion, etc.). Dans le cookbook, vous trouverez des exemples
+d&#8217;autres méthodes pour prendre en charge l&#8217;authentification, incluant une manière
+d&#8217;implémenter la fonction de cookie « se souvenir de moi » (« remember me »),</p>
+<p>Une fois l&#8217;utilisateur authentifié, la couche d&#8217;autorisation peut déterminer si l&#8217;utilisateur
+a accès ou non à des ressources spécifiques. Le plus souvent, des <em>rôles</em> sont appliqués
+aux URLs, classes ou méthodes et si l&#8217;utilisateur courant ne possède pas ce rôle, l&#8217;accès
+est refusé. La couche d&#8217;autorisation est toutefois beaucoup plus complexe, et suit un système
+de « vote » afin que plusieurs entités puissent déterminer si l&#8217;utilisateur courant devrait avoir
+accès à une ressource donnée.</p>
+<p>Apprenez en plus sur la sécurité et sur d&#8217;autres sujets dans le cookbook.</p>
+</div>
+<div class="section" id="apprenez-plus-grace-au-cookbook">
+<h2>Apprenez plus grâce au Cookbook<a class="headerlink" href="#apprenez-plus-grace-au-cookbook" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="../cookbook/security/force_https.html"><em>Forcer HTTP/HTTPS</em></a></li>
+<li><a class="reference internal" href="../cookbook/security/voters.html"><em>Blacklister des utilisateurs par adresse IP address grâce à un électeur personnalisé</em></a></li>
+<li><a class="reference internal" href="../cookbook/security/acl.html"><em>Liste d&#8217;accès de contrôle (ACLs)</em></a></li>
+<li><a class="reference internal" href="../cookbook/security/remember_me.html"><em>How to add &#8220;Remember Me&#8221; Login Functionality</em></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">La sécurité</a><ul>
+<li><a class="reference internal" href="#exemple-simple-l-authentification-http">Exemple simple: l&#8217;authentification HTTP</a></li>
+<li><a class="reference internal" href="#comment-fonctionne-la-securite-authentification-et-autorisation">Comment fonctionne la sécurité : authentification et autorisation</a><ul>
+<li><a class="reference internal" href="#pare-feu-authentification">Pare-feu (authentification)</a></li>
+<li><a class="reference internal" href="#controle-d-acces-autorisation">Contrôle d&#8217;accès (autorisation)</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utilisation-d-un-formulaire-de-connexion-traditionnel">Utilisation d&#8217;un formulaire de connexion traditionnel</a></li>
+<li><a class="reference internal" href="#autorisation">Autorisation</a><ul>
+<li><a class="reference internal" href="#securisation-d-urls-specifiques">Sécurisation d&#8217;URLs spécifiques</a></li>
+<li><a class="reference internal" href="#securiser-par-ip">Sécuriser par IP</a></li>
+<li><a class="reference internal" href="#securiser-par-canal">Sécuriser par canal</a></li>
+<li><a class="reference internal" href="#securiser-un-controleur">Sécuriser un contrôleur</a></li>
+<li><a class="reference internal" href="#securiser-d-autres-services">Sécuriser d&#8217;autres services</a></li>
+<li><a class="reference internal" href="#listes-de-controle-d-acces-acl-securiser-des-objets-de-la-base-de-donnees">Listes de contrôle d&#8217;accès (ACL): sécuriser des objets de la base de données</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#les-utilisateurs">Les utilisateurs</a><ul>
+<li><a class="reference internal" href="#d-ou-viennent-les-utilisateurs-fournisseurs-d-utilisateurs">D&#8217;où viennent les utilisateurs (<em>Fournisseurs d&#8217;utilisateurs</em>)</a><ul>
+<li><a class="reference internal" href="#specifier-les-utilisateurs-dans-un-fichier-de-configuration">Spécifier les utilisateurs dans un fichier de configuration</a></li>
+<li><a class="reference internal" href="#charger-les-utilisateurs-de-la-base-de-donnees">Charger les utilisateurs de la base de données</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#encoder-les-mots-de-passe">Encoder les mots de passe</a></li>
+<li><a class="reference internal" href="#recuperer-l-objet-user">Récupérer l&#8217;objet User</a></li>
+<li><a class="reference internal" href="#utiliser-plusieurs-fournisseurs-d-utilisateurs">Utiliser plusieurs fournisseurs d&#8217;utilisateurs</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#les-roles">Les rôles</a><ul>
+<li><a class="reference internal" href="#roles-hierarchiques">Rôles hiérarchiques</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#se-deconnecter">Se déconnecter</a></li>
+<li><a class="reference internal" href="#controle-d-acces-dans-les-templates">Contrôle d&#8217;accès dans les templates</a></li>
+<li><a class="reference internal" href="#controle-d-acces-dans-les-controleurs">Contrôle d&#8217;accès dans les Contrôleurs</a></li>
+<li><a class="reference internal" href="#usurper-l-identite-d-un-utilisateur">« Usurper l&#8217;identité » d&#8217;un utilisateur</a></li>
+<li><a class="reference internal" href="#authentification-sans-etat">Authentification sans état</a></li>
+<li><a class="reference internal" href="#derniers-mots">Derniers mots</a></li>
+<li><a class="reference internal" href="#apprenez-plus-grace-au-cookbook">Apprenez plus grâce au Cookbook</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="forms.html"
+                        title="previous chapter">Formulaires</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="http_cache.html"
+                        title="next chapter">Le Cache HTTP</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/book/security.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="http_cache.html" title="Le Cache HTTP"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="forms.html" title="Formulaires"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Book</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

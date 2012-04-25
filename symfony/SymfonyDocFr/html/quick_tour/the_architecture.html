@@ -1,0 +1,481 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>L’Architecture &mdash; sf2doc 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="sf2doc 1.0 documentation" href="../index.html" />
+    <link rel="up" title="Quick Tour" href="index.html" />
+    <link rel="next" title="Book" href="../book/index.html" />
+    <link rel="prev" title="Le Contrôleur" href="the_controller.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../book/index.html" title="Book"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="the_controller.html" title="Le Contrôleur"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">Quick Tour</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="l-architecture">
+<h1>L&#8217;Architecture<a class="headerlink" href="#l-architecture" title="Permalink to this headline">¶</a></h1>
+<p>Vous êtes mon héros ! Qui aurait pensé que vous seriez encore là après les trois
+premières parties ? Vos efforts seront récompensés dans un instant.</p>
+<p>Les trois premières parties n&#8217;explorent pas trop profondément l&#8217;architecture du
+framework. Comme Symfony2 se distingue des autres frameworks, nous allons
+nous y atteler dès maintenant.</p>
+<div class="section" id="comprendre-l-arborescence">
+<h2>Comprendre l&#8217;arborescence<a class="headerlink" href="#comprendre-l-arborescence" title="Permalink to this headline">¶</a></h2>
+<p>L&#8217;arborescence d&#8217;une <a class="reference internal" href="../glossary.html#term-application"><em class="xref std std-term">application</em></a> Symfony2 est plutôt flexible mais
+celle de la distribution <em>Standard Edition</em> reflète la structure typique et
+recommandée d&#8217;une application Symfony2 :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">app/</span></tt>:    La configuration de l&#8217;application,</li>
+<li><tt class="docutils literal"><span class="pre">src/</span></tt>:    Le code PHP du projet,</li>
+<li><tt class="docutils literal"><span class="pre">vendor/</span></tt>: Les librairies tierces,</li>
+<li><tt class="docutils literal"><span class="pre">web/</span></tt>:    Le répertoire Web racine.</li>
+</ul>
+<div class="section" id="le-repertoire-web">
+<h3>Le répertoire <tt class="docutils literal"><span class="pre">web/</span></tt><a class="headerlink" href="#le-repertoire-web" title="Permalink to this headline">¶</a></h3>
+<p>Le répertoire Web racine est l&#8217;endroit ou se situent tous les fichiers statiques
+et publics comme les images, les feuilles de styles et les fichiers javascript.
+C&#8217;est aussi ici que se situeront les <em class="xref std std-term">contrôleurs frontaux</em> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// web/app.php</span>
+<span class="x">require_once __DIR__.&#39;/../app/bootstrap.php.cache&#39;;</span>
+<span class="x">require_once __DIR__.&#39;/../app/AppKernel.php&#39;;</span>
+
+<span class="x">use Symfony\Component\HttpFoundation\Request;</span>
+
+<span class="x">$kernel = new AppKernel(&#39;prod&#39;, false);</span>
+<span class="x">$kernel-&gt;loadClassCache();</span>
+<span class="x">$kernel-&gt;handle(Request::createFromGlobals())-&gt;send();</span>
+</pre></div>
+</div>
+<p>Le noyau (kernel) requiert d&#8217;abord le fichier <tt class="docutils literal"><span class="pre">bootstrap.php.cache</span></tt>, qui amorce le
+framework et l&#8217;autoloader (voir ci-dessous).</p>
+<p>Comme tout contrôleur frontal, <tt class="docutils literal"><span class="pre">app.php</span></tt> utilise une classe Kernel <tt class="docutils literal"><span class="pre">AppKernel</span></tt>
+pour amorcer une application.</p>
+</div>
+<div class="section" id="le-repertoire-app">
+<span id="the-app-dir"></span><h3>Le répertoire <tt class="docutils literal"><span class="pre">app/</span></tt><a class="headerlink" href="#le-repertoire-app" title="Permalink to this headline">¶</a></h3>
+<p>La classe <tt class="docutils literal"><span class="pre">AppKernel</span></tt> est le point d&#8217;entrée principal de la configuration de
+l&#8217;application et, en tant que tel, il est placé dans le répertoire <tt class="docutils literal"><span class="pre">app/</span></tt>.</p>
+<p>Cette classe doit implémenter deux méthodes :</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">registerBundles()</span></tt> doit retourner un tableau de tous les Bundles nécessaires au
+fonctionnement de l&#8217;application.</li>
+<li><tt class="docutils literal"><span class="pre">registerContainerConfiguration()</span></tt> charge la configuration de l&#8217;application
+(cette partie sera détaillée ultérieurement).</li>
+</ul>
+<p>L&#8217;autoloading PHP peut être configuré via <tt class="docutils literal"><span class="pre">app/autoload.php</span></tt> :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// app/autoload.php</span>
+<span class="x">use Symfony\Component\ClassLoader\UniversalClassLoader;</span>
+
+<span class="x">$loader = new UniversalClassLoader();</span>
+<span class="x">$loader-&gt;registerNamespaces(array(</span>
+<span class="x">    &#39;Symfony&#39;          =&gt; array(__DIR__.&#39;/../vendor/symfony/src&#39;, __DIR__.&#39;/../vendor/bundles&#39;),</span>
+<span class="x">    &#39;Sensio&#39;           =&gt; __DIR__.&#39;/../vendor/bundles&#39;,</span>
+<span class="x">    &#39;JMS&#39;              =&gt; __DIR__.&#39;/../vendor/bundles&#39;,</span>
+<span class="x">    &#39;Doctrine\\Common&#39; =&gt; __DIR__.&#39;/../vendor/doctrine-common/lib&#39;,</span>
+<span class="x">    &#39;Doctrine\\DBAL&#39;   =&gt; __DIR__.&#39;/../vendor/doctrine-dbal/lib&#39;,</span>
+<span class="x">    &#39;Doctrine&#39;         =&gt; __DIR__.&#39;/../vendor/doctrine/lib&#39;,</span>
+<span class="x">    &#39;Monolog&#39;          =&gt; __DIR__.&#39;/../vendor/monolog/src&#39;,</span>
+<span class="x">    &#39;Assetic&#39;          =&gt; __DIR__.&#39;/../vendor/assetic/src&#39;,</span>
+<span class="x">    &#39;Metadata&#39;         =&gt; __DIR__.&#39;/../vendor/metadata/src&#39;,</span>
+<span class="x">));</span>
+<span class="x">$loader-&gt;registerPrefixes(array(</span>
+<span class="x">    &#39;Twig_Extensions_&#39; =&gt; __DIR__.&#39;/../vendor/twig-extensions/lib&#39;,</span>
+<span class="x">    &#39;Twig_&#39;            =&gt; __DIR__.&#39;/../vendor/twig/lib&#39;,</span>
+<span class="x">));</span>
+
+<span class="x">// ...</span>
+
+<span class="x">$loader-&gt;registerNamespaceFallbacks(array(</span>
+<span class="x">    __DIR__.&#39;/../src&#39;,</span>
+<span class="x">));</span>
+<span class="x">$loader-&gt;register();</span>
+</pre></div>
+</div>
+<p>La classe <tt class="xref py py-class docutils literal"><span class="pre">Symfony\Component\ClassLoader\UniversalClassLoader</span></tt> est utilisée
+pour charger automatiquement les fichiers qui respectent les <a class="reference external" href="http://groups.google.com/group/php-standards/web/psr-0-final-proposal">standards</a>
+d&#8217;interopérabilité technique pour les namespace PHP 5.3, ou les <a class="reference external" href="http://pear.php.net/">conventions</a>
+de nommage PEAR pour les classes. Comme vous pouvez le voir ici, toutes les
+dépendances sont stockées dans le répertoire <tt class="docutils literal"><span class="pre">vendor/</span></tt>, mais ce n&#8217;est juste
+qu&#8217;une convention. Vous pouvez les stocker où vous le souhaitez, sur votre
+serveur ou au sein même de vos projets.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Si vous voulez en savoir plus sur la flexibilité de l&#8217;autoloader de Symfony2,
+lisez l&#8217;article « <a class="reference internal" href="../components/class_loader.html"><em>The ClassLoader Component</em></a>» dans le cookbook.</p>
+</div>
+</div>
+</div>
+<div class="section" id="comprendre-le-systeme-de-bundles">
+<h2>Comprendre le système de bundles<a class="headerlink" href="#comprendre-le-systeme-de-bundles" title="Permalink to this headline">¶</a></h2>
+<p>Cette section présente une des plus géniales et puissantes fonctionnalités de
+Symfony2, le système de <em class="xref std std-term">Bundles</em>.</p>
+<p>Un bundle est une sorte de plugin comme on peut en trouver dans d&#8217;autres logiciels.
+Alors pourquoi l&#8217;a t-on nommé <em>bundle</em> et non pas <em>plugin</em> ? C&#8217;est parce que <em>tout</em>
+est un bundle dans Symfony2, des fonctionnalités du noyau du framework au code que
+vous écrirez pour votre application. Les bundles sont les citoyens de premier
+rang pour Symfony2. Ils vous donnent la flexibilité d&#8217;utiliser des fonctionnalités
+pré-construites dans des bundles tiers ou de distribuer vos propres bundles.
+Ils facilitent la synergie et le choix des fonctionnalités à activer pour votre
+application et les optimisent de la manière que vous désirez. Et après tout, le
+code de votre application est au moins aussi <em>important</em> que celui du framework.</p>
+<div class="section" id="definir-un-bundle">
+<h3>Définir un bundle<a class="headerlink" href="#definir-un-bundle" title="Permalink to this headline">¶</a></h3>
+<p>Une application est constituée de bundles définis dans la méthode
+<tt class="docutils literal"><span class="pre">registerBundles()</span></tt> de la classe <tt class="docutils literal"><span class="pre">AppKernel</span></tt>. Chaque bundle est un répertoire
+qui contient une unique classe <tt class="docutils literal"><span class="pre">Bundle</span></tt> qui le décrit :</p>
+<div class="highlight-php"><div class="highlight"><pre><span class="x">// app/AppKernel.php</span>
+<span class="x">public function registerBundles()</span>
+<span class="x">{</span>
+<span class="x">    $bundles = array(</span>
+<span class="x">        new Symfony\Bundle\FrameworkBundle\FrameworkBundle(),</span>
+<span class="x">        new Symfony\Bundle\SecurityBundle\SecurityBundle(),</span>
+<span class="x">        new Symfony\Bundle\TwigBundle\TwigBundle(),</span>
+<span class="x">        new Symfony\Bundle\MonologBundle\MonologBundle(),</span>
+<span class="x">        new Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),</span>
+<span class="x">        new Symfony\Bundle\DoctrineBundle\DoctrineBundle(),</span>
+<span class="x">        new Symfony\Bundle\AsseticBundle\AsseticBundle(),</span>
+<span class="x">        new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),</span>
+<span class="x">        new JMS\SecurityExtraBundle\JMSSecurityExtraBundle(),</span>
+<span class="x">    );</span>
+
+<span class="x">    if (in_array($this-&gt;getEnvironment(), array(&#39;dev&#39;, &#39;test&#39;))) {</span>
+<span class="x">        $bundles[] = new Acme\DemoBundle\AcmeDemoBundle();</span>
+<span class="x">        $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();</span>
+<span class="x">        $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();</span>
+<span class="x">        $bundles[] = new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle();</span>
+<span class="x">    }</span>
+
+<span class="x">    return $bundles;</span>
+<span class="x">}</span>
+</pre></div>
+</div>
+<p>En plus du bundle <tt class="docutils literal"><span class="pre">AcmeDemoBundle</span></tt> dont nous avons déjà parlé, notez que le
+noyau active aussi d&#8217;autres bundles comme les bundles <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>,
+<tt class="docutils literal"><span class="pre">DoctrineBundle</span></tt>, <tt class="docutils literal"><span class="pre">SwiftmailerBundle</span></tt> et <tt class="docutils literal"><span class="pre">AsseticBundle</span></tt>. Ils sont tous
+intégrés au framework.</p>
+</div>
+<div class="section" id="configurer-un-bundle">
+<h3>Configurer un bundle<a class="headerlink" href="#configurer-un-bundle" title="Permalink to this headline">¶</a></h3>
+<p>Chaque bundle peut être personnalisé via des fichiers de configuration écrits en
+YAML, XML ou PHP. Jetons un oeil à la configuration par défaut :</p>
+<div class="highlight-yaml"><pre># app/config/config.yml
+imports:
+    - { resource: parameters.yml }
+    - { resource: security.yml }
+
+framework:
+    #esi:            ~
+    #translator:     { fallback: %locale% }
+    secret:          %secret%
+    charset:         UTF-8
+    router:          { resource: "%kernel.root_dir%/config/routing.yml" }
+    form:            true
+    csrf_protection: true
+    validation:      { enable_annotations: true }
+    templating:      { engines: ['twig'] } #assets_version: SomeVersionScheme
+    default_locale:  %locale%
+    session:
+        auto_start:     true
+
+# Twig Configuration
+twig:
+    debug:            %kernel.debug%
+    strict_variables: %kernel.debug%
+
+# Assetic Configuration
+assetic:
+    debug:          %kernel.debug%
+    use_controller: false
+    bundles:        [ ]
+    # java: /usr/bin/java
+    filters:
+        cssrewrite: ~
+        # closure:
+        #     jar: %kernel.root_dir%/java/compiler.jar
+        # yui_css:
+        #     jar: %kernel.root_dir%/java/yuicompressor-2.4.2.jar
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver:   %database_driver%
+        host:     %database_host%
+        port:     %database_port%
+        dbname:   %database_name%
+        user:     %database_user%
+        password: %database_password%
+        charset:  UTF8
+
+    orm:
+        auto_generate_proxy_classes: %kernel.debug%
+        auto_mapping: true
+
+# Swiftmailer Configuration
+swiftmailer:
+    transport: %mailer_transport%
+    host:      %mailer_host%
+    username:  %mailer_user%
+    password:  %mailer_password%
+
+jms_security_extra:
+    secure_controllers:  true
+    secure_all_services: false</pre>
+</div>
+<p>Chaque entrée, comme <tt class="docutils literal"><span class="pre">framework</span></tt>, définit la configuration pour un
+bundle donné. Par exemple, <tt class="docutils literal"><span class="pre">framework</span></tt> configure le bundle <tt class="docutils literal"><span class="pre">FrameworkBundle</span></tt>,
+tandis que <tt class="docutils literal"><span class="pre">swiftmailer</span></tt> configure le bundle <tt class="docutils literal"><span class="pre">SwiftmailerBundle</span></tt>.</p>
+<p>Chaque <em class="xref std std-term">environnement</em> peut surcharger la configuration par défaut en
+apportant un fichier de configuration spécifique. Par exemple, l&#8217;environnement
+<tt class="docutils literal"><span class="pre">dev</span></tt> charge le fichier <tt class="docutils literal"><span class="pre">config_dev.yml</span></tt> qui va charger la configuration
+principale (i.e. <tt class="docutils literal"><span class="pre">config.yml</span></tt>) puis la modifier pour ajouter des outils de debug :</p>
+<div class="highlight-yaml"><pre># app/config/config_dev.yml
+imports:
+    - { resource: config.yml }
+
+framework:
+    router:   { resource: "%kernel.root_dir%/config/routing_dev.yml" }
+    profiler: { only_exceptions: false }
+
+web_profiler:
+    toolbar: true
+    intercept_redirects: false
+
+monolog:
+    handlers:
+        main:
+            type:  stream
+            path:  %kernel.logs_dir%/%kernel.environment%.log
+            level: debug
+        firephp:
+            type:  firephp
+            level: info
+
+assetic:
+    use_controller: true</pre>
+</div>
+</div>
+<div class="section" id="etendre-un-bundle">
+<h3>Etendre un bundle<a class="headerlink" href="#etendre-un-bundle" title="Permalink to this headline">¶</a></h3>
+<p>En plus d&#8217;être une façon sympathique d&#8217;organiser et de configurer votre code,
+les bundles peuvent étendre d&#8217;autres bundles. L&#8217;héritage entre bundle vous permet
+de surcharger n&#8217;importe quel bundle pour personnaliser ses contrôleurs, ses templates,
+ou n&#8217;importe lequel de ses fichiers.
+C&#8217;est ici que les noms logiques (ex <tt class="docutils literal"><span class="pre">&#64;AcmeDemoBundle/Controller/SecuredController.php</span></tt>)
+se revèlent pratiques : ils font abstraction de l&#8217;endroit où est stockée la ressource.</p>
+<div class="section" id="noms-logiques-de-fichiers">
+<h4>Noms logiques de fichiers<a class="headerlink" href="#noms-logiques-de-fichiers" title="Permalink to this headline">¶</a></h4>
+<p>Quand vous voulez faire référence à un fichier depuis un bundle, utilisez cette
+notation :
+<tt class="docutils literal"><span class="pre">&#64;NOM_DU_BUNDLE/path/to/file</span></tt>; Symfony2 remplacera <tt class="docutils literal"><span class="pre">&#64;NOM_DU_BUNDLE</span></tt> par le chemin
+du bundle. A titre d&#8217;exemple, le chemin logique
+<tt class="docutils literal"><span class="pre">&#64;AcmeDemoBundle/Controller/DemoController.php</span></tt> sera transformé en
+<tt class="docutils literal"><span class="pre">src/Acme/DemoBundle/Controller/DemoController.php</span></tt>, car Symfony connait la
+la location du bundle <tt class="docutils literal"><span class="pre">AcmeDemoBundle</span></tt>.</p>
+</div>
+<div class="section" id="noms-logiques-de-controleurs">
+<h4>Noms logiques de contrôleurs<a class="headerlink" href="#noms-logiques-de-controleurs" title="Permalink to this headline">¶</a></h4>
+<p>Pour les contrôleurs, vous aurez besoin de référencer les noms de méthode en
+utilisant le format suivant <tt class="docutils literal"><span class="pre">NOM_DU_BUNDLE:NOM_DU_CONTROLEUR:NOM_DE_ACTION</span></tt>.
+Par exemple, <tt class="docutils literal"><span class="pre">AcmeDemoBundle:Welcome:index</span></tt> référencera la méthode <tt class="docutils literal"><span class="pre">indexAction</span></tt>
+de la classe <tt class="docutils literal"><span class="pre">Acme\DemoBundle\Controller\WelcomeController</span></tt>.</p>
+</div>
+<div class="section" id="noms-logiques-de-templates">
+<h4>Noms logiques de templates<a class="headerlink" href="#noms-logiques-de-templates" title="Permalink to this headline">¶</a></h4>
+<p>Pour les templates, le nom logique <tt class="docutils literal"><span class="pre">AcmeDemoBundle:Welcome:index.html.twig</span></tt>
+mènera vers le fichier <tt class="docutils literal"><span class="pre">src/Acme/DemoBundle/Resources/views/Welcome/index.html.twig</span></tt>.
+Les templates deviennent encore plus intéressants quand on réalise qu&#8217;ils n&#8217;ont
+pas besoin d&#8217;être stockés sur le système de fichiers. Vous pouvez par exemple les
+stocker dans une base de données.</p>
+</div>
+<div class="section" id="etendre-les-bundles">
+<h4>Etendre les bundles<a class="headerlink" href="#etendre-les-bundles" title="Permalink to this headline">¶</a></h4>
+<p>Si vous suivez ces conventions, alors vous pouvez utiliser <a class="reference internal" href="../cookbook/bundles/inheritance.html"><em>l&#8217;héritage de bundle</em></a>
+pour «surcharger» les fichiers, les contrôleurs et les templates. Par exemple,
+vous pouvez créer un nouveau bundle (<tt class="docutils literal"><span class="pre">AcmeNewBundle</span></tt>) et spécifier que son parent
+est <tt class="docutils literal"><span class="pre">AcmeDemoBundle</span></tt>. Lorsque Symfony chargera le contrôleur <tt class="docutils literal"><span class="pre">AcmeDemoBundle:Welcome:index</span></tt>,
+il cherchera d&#8217;abord la classe <tt class="docutils literal"><span class="pre">WelcomeController</span></tt> dans le bundle <tt class="docutils literal"><span class="pre">AcmeNewBundle</span></tt>
+puis dans le bundle <tt class="docutils literal"><span class="pre">AcmeDemoBundle</span></tt>. Cela signifie qu&#8217;un bundle peut surcharger
+presque toutes les parties d&#8217;un autre bundle!</p>
+<p>Vous comprenez maintenant pourquoi Symfony2 est si flexible ? Partagez vos
+Bundles entre applications, stockez-les localement ou globalement, c&#8217;est vous
+qui décidez.</p>
+</div>
+</div>
+</div>
+<div class="section" id="utilisation-de-librairies-externes-vendors">
+<span id="using-vendors"></span><h2>Utilisation de librairies externes (Vendors)<a class="headerlink" href="#utilisation-de-librairies-externes-vendors" title="Permalink to this headline">¶</a></h2>
+<p>Il y a de fortes probabilités que votre application dépende de librairies tierces.
+Celles-ci doivent être stockées dans le répertoire <tt class="docutils literal"><span class="pre">vendor/</span></tt>. Ce
+répertoire contient déjà les librairies de Symfony2, la librairie SwiftMailer,
+l&#8217;ORM Doctrine, le système de template Twig et d&#8217;autres librairies et bundles.</p>
+</div>
+<div class="section" id="comprendre-le-cache-et-les-logs">
+<h2>Comprendre le Cache et les Logs<a class="headerlink" href="#comprendre-le-cache-et-les-logs" title="Permalink to this headline">¶</a></h2>
+<p>Symfony2 est probablement l&#8217;un des plus rapides framework full-stack existant.
+Mais comment peut-il être si rapide s&#8217;il analyse et interprète des dizaines de
+fichiers YAML et XML à chaque requête ? Cette rapidité est en partie due à son
+système de cache. La configuration de l&#8217;application est uniquement analysée
+lors de la première requête, puis compilée en PHP pur stocké dans le répertoire
+<tt class="docutils literal"><span class="pre">app/cache/</span></tt> de l&#8217;application. Dans l&#8217;environnement de développement, Symfony2 est
+assez intelligent pour vider le cache lorsque vous modifiez un fichier. Mais
+dans l&#8217;environnement de production, il est de votre ressort de vider le
+cache lorsque vous mettez à jour votre code ou modifiez sa configuration.</p>
+<p>Quand vous développez une application Web, les choses peuvent mal tourner, et
+ce de multiples façons. Le fichier log dans le répertoire <tt class="docutils literal"><span class="pre">app/logs/</span></tt> de votre
+application vous dira tout concernant les requêtes et vous aidera à résoudre
+vos soucis rapidement.</p>
+</div>
+<div class="section" id="utiliser-l-interface-en-ligne-de-commande-cli">
+<h2>Utiliser l&#8217;Interface en Ligne de Commande (CLI)<a class="headerlink" href="#utiliser-l-interface-en-ligne-de-commande-cli" title="Permalink to this headline">¶</a></h2>
+<p>Chaque application est fournie avec une interface en ligne de commandes
+(<tt class="docutils literal"><span class="pre">app/console</span></tt>) qui vous aidera à maintenir votre application. Cette interface
+met à votre disposition des commandes qui augmentent votre productivité en
+automatisant les tâches fastidieuses et répétitives.</p>
+<p>Lancez-la sans aucun argument pour en apprendre plus sur ses possibilités :</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>php app/console
+</pre></div>
+</div>
+<p>L&#8217;option <tt class="docutils literal"><span class="pre">--help</span></tt> vous renseignera sur une commande précise :</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="nv">$ </span>php app/console router:debug --help
+</pre></div>
+</div>
+</div>
+<div class="section" id="le-mot-de-la-fin">
+<h2>Le mot de la fin<a class="headerlink" href="#le-mot-de-la-fin" title="Permalink to this headline">¶</a></h2>
+<p>Vous pouvez trouver ça insensé mais après avoir lu cette partie, vous
+devriez être suffisament à l&#8217;aise pour faire vos premières griffes et laisser
+Symfony2 travailler pour vous. Tout est fait dans Symfony2 pour que vous traciez
+votre voie. Alors, n&#8217;hésitez pas à renommer et déplacer des répertoires comme
+bon vous semble.</p>
+<p>C&#8217;en est tout pour ce Quick Tour. Des tests à l&#8217;envoi d&#8217;e-mails, vous
+avez encore besoin d&#8217;en apprendre beaucoup pour devenir un expert Symfony2. Prêt
+à plonger dans ces thèmes maintenant ? Ne cherchez plus, consultez le
+<a class="reference internal" href="../book/index.html"><em>Book</em></a> et choisissez le sujet qui vous intéresse.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">L&#8217;Architecture</a><ul>
+<li><a class="reference internal" href="#comprendre-l-arborescence">Comprendre l&#8217;arborescence</a><ul>
+<li><a class="reference internal" href="#le-repertoire-web">Le répertoire <tt class="docutils literal"><span class="pre">web/</span></tt></a></li>
+<li><a class="reference internal" href="#le-repertoire-app">Le répertoire <tt class="docutils literal"><span class="pre">app/</span></tt></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#comprendre-le-systeme-de-bundles">Comprendre le système de bundles</a><ul>
+<li><a class="reference internal" href="#definir-un-bundle">Définir un bundle</a></li>
+<li><a class="reference internal" href="#configurer-un-bundle">Configurer un bundle</a></li>
+<li><a class="reference internal" href="#etendre-un-bundle">Etendre un bundle</a><ul>
+<li><a class="reference internal" href="#noms-logiques-de-fichiers">Noms logiques de fichiers</a></li>
+<li><a class="reference internal" href="#noms-logiques-de-controleurs">Noms logiques de contrôleurs</a></li>
+<li><a class="reference internal" href="#noms-logiques-de-templates">Noms logiques de templates</a></li>
+<li><a class="reference internal" href="#etendre-les-bundles">Etendre les bundles</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#utilisation-de-librairies-externes-vendors">Utilisation de librairies externes (Vendors)</a></li>
+<li><a class="reference internal" href="#comprendre-le-cache-et-les-logs">Comprendre le Cache et les Logs</a></li>
+<li><a class="reference internal" href="#utiliser-l-interface-en-ligne-de-commande-cli">Utiliser l&#8217;Interface en Ligne de Commande (CLI)</a></li>
+<li><a class="reference internal" href="#le-mot-de-la-fin">Le mot de la fin</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="the_controller.html"
+                        title="previous chapter">Le Contrôleur</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../book/index.html"
+                        title="next chapter">Book</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/quick_tour/the_architecture.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../book/index.html" title="Book"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="the_controller.html" title="Le Contrôleur"
+             >previous</a> |</li>
+        <li><a href="../index.html">sf2doc 1.0 documentation</a> &raquo;</li>
+          <li><a href="index.html" >Quick Tour</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, sf2.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
