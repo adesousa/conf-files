@@ -7,6 +7,6 @@ Steps to setup a new linux install
 
     cd /home/adesousa/Bureau
     apt-get install -qq -y git-core
-    git clone http://github.com/adesousa/conf-files.git
+    git clone git@github.com:adesousa/conf-files.git
     cp conf-files/install.sh .
     sh install.sh
