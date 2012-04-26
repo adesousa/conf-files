@@ -2,6 +2,8 @@
 alias ll='ls -lh'
 alias la='ls -ahl'
 alias v='vim'
+alias bureau='cd /home/adesousa/Bureau'
+alias web='cd /var/www/'
 
 # sf1.4
 alias scc='php symfony cc'
@@ -14,7 +16,7 @@ alias sfdoctrinerebuild='php symfony doctrine:build --all --and-load --no-confir
 alias scc='php app/console cache:clear'
 alias sccp='scc --env=prod'
 alias scct='scc --env=test'
-alias sfassets='php app/console assets:install web'
+alias sfassets='php app/console assets:install web --symlink'
 alias sfdoctrinerebuild='php app/console doctrine:database:drop --force; php app/console doctrine:database:create; php app/console doctrine:schema:create'
 
 # cd aliases
