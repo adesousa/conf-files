@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#Version v1.0.0
+#Version v1.1.1
 #Script d’installation d’un nouvel environnement Debian-based (install.sh)
 #Exécuter ce script en root, sinon cela ne fonctionne pas.
 #Pour plus d'optimisations système lire ici : http://doc.ubuntu-fr.org/optimisation
@@ -125,13 +125,13 @@ sudo update-rc.d -f pcmciautils remove | tee -a ./log_install_dd.txt
 echo "# Chown de /var/www pour que Nginx puisse lire comme il se doit dans les dossiers web et éviter des pb de droits" | tee -a ./log_install_dd.txt
 chown -R www-data:www-data /var/www | tee -a ./log_install_dd.txt
 
-echo "# Purger l'ensemble des fichiers de configurations suites aux installations - désinstallations" | tee -a ./log_install_dd.txt
-sudo dpkg --purge $(COLUMNS=200 dpkg -l | grep "^rc" | tr -s ' ' | cut -d ' ' -f 2)  | tee -a ./log_install_dd.txt
-
 # Installation de phpunit pour Symfony2
 sudo pear upgrade PEAR  | tee -a ./log_install_dd.txt
 pear config-set auto_discover 1 | tee -a ./log_install_dd.txt
 pear install pear.phpunit.de/PHPUnit | tee -a ./log_install_dd.txt
+
+echo "# Installation des plugins de gedit" | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y gedit-plugins
 
 echo "# Installation des différents bureaux Mint sous linux ou debian, ya plus qu'à choisir au démarrage celui que je préfère" | tee -a ./log_install_dd.txt
 sudo add-apt-repository ppa:webupd8team/gnome3 | tee -a ./log_install_dd.txt
@@ -145,14 +145,18 @@ sudo add-apt-repository ppa:webupd8team/gnome3 | tee -a ./log_install_dd.txt
 sudo apt-get update -qq | tee -a ./log_install_dd.txt
 sudo apt-get install -qq -y gnome-shell gnome-session mgse-bottompanel mgse-menu mgse-windowlist gnome-tweak-tool | tee -a ./log_install_dd.txt
 
+echo "# Purger l'ensemble des fichiers de configurations suites aux installations - désinstallations" | tee -a ./log_install_dd.txt
+sudo dpkg --purge $(COLUMNS=200 dpkg -l | grep "^rc" | tr -s ' ' | cut -d ' ' -f 2)  | tee -a ./log_install_dd.txt
+
+read -p "Avant de continuer l'installation, veuillez récuperer les clés SSH qui permettront de se connecter aux différents projets existants"
 echo "# Configuration des projets et autres éléments" | tee -a ./log_install_dd.txt
 sudo mkdir Workspaces
 cd Workspaces
 subversion http://svn2.xp-dev.com/svn/ppc ppc1.4
 subversion http://svn2.xp-dev.com/svn/vivalur vivalur
-git@git.assembla.com:code-chouchou.git chouchou
-git@git.assembla.com:lusidade.git lusidade
-git@github.com:odolbeau/ppc.git ppc
+git clone git@git.assembla.com:code-chouchou.git chouchou
+git clone git@git.assembla.com:lusidade.git lusidade
+git clone git@github.com:odolbeau/ppc.git ppc
 echo "Penser à récuperer le script amazon et sa clé ssh"
 echo "Installation done: Reboot to enjoy the power!"
 
