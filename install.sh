@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#Version v1.1.1
+#Version v1.1.2
 #Script d’installation d’un nouvel environnement Debian-based (install.sh)
 #Exécuter ce script en root, sinon cela ne fonctionne pas.
 #Pour plus d'optimisations système lire ici : http://doc.ubuntu-fr.org/optimisation
@@ -69,6 +69,7 @@ echo "# Installation de rhytmbox" | tee -a ./log_install_dd.txt
 sudo apt-get install -qq -y rhythmbox | tee -a ./log_install_dd.txt
 
 echo "# Installation de Netbeans pour php - Méthode via l'installeur depuis leur site qui fonctionne mieux que l'apt-get..." | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y openjdk-7-jre | tee -a ./log_install_dd.txt
 wget http://bits.netbeans.org/netbeans/7.1/community/latest/bundles/netbeans-7.1-ml-php-linux.sh | tee -a ./log_install_dd.txt
 sh netbeans-7.1-ml-php-linux.sh  | tee -a ./log_install_dd.txt
 sudo cp -r conf-files/netbeans/ ./ | tee -a ./log_install_dd.txt
@@ -148,15 +149,16 @@ sudo apt-get install -qq -y gnome-shell gnome-session mgse-bottompanel mgse-menu
 echo "# Purger l'ensemble des fichiers de configurations suites aux installations - désinstallations" | tee -a ./log_install_dd.txt
 sudo dpkg --purge $(COLUMNS=200 dpkg -l | grep "^rc" | tr -s ' ' | cut -d ' ' -f 2)  | tee -a ./log_install_dd.txt
 
-read -p "Avant de continuer l'installation, veuillez récuperer les clés SSH qui permettront de se connecter aux différents projets existants"
+read -p "Avant de continuer l'installation, récuperer les clés SSH pour github et assembla qui permettront de se connecter aux différents projets existants"
 echo "# Configuration des projets et autres éléments" | tee -a ./log_install_dd.txt
 sudo mkdir Workspaces
 cd Workspaces
-subversion http://svn2.xp-dev.com/svn/ppc ppc1.4
-subversion http://svn2.xp-dev.com/svn/vivalur vivalur
+svn checkout http://svn2.xp-dev.com/svn/ppc ppc1.4
+svn checkout http://svn2.xp-dev.com/svn/vivalur vivalur
 git clone git@git.assembla.com:code-chouchou.git chouchou
 git clone git@git.assembla.com:lusidade.git lusidade
 git clone git@github.com:odolbeau/ppc.git ppc
+ln -s /home/adesousa/Bureau/Workspaces/* /var/www/
 echo "Penser à récuperer le script amazon et sa clé ssh"
 echo "Installation done: Reboot to enjoy the power!"
 
