@@ -2,7 +2,7 @@
 alias ll='ls -lh'
 alias la='ls -ahl'
 alias v='vim'
-alias bureau='cd /home/adesousa/Bureau'
+alias bureau='cd /home/adesousa/Bureau/'
 alias web='cd /var/www/'
 
 # sf1.4
