@@ -59,6 +59,12 @@ sudo cp conf-files/git/.git* ~/ | tee -a ./log_install_dd.txt
 sudo cp conf-files/git/.git* /home/adesousa/ | tee -a ./log_install_dd.txt
 
 echo "################# Installations diverses ################" | tee -a ./log_install_dd.txt
+echo "# Installation de Google Chrome" | tee -a ./log_install_dd.txt
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - | tee -a ./log_install_dd.txt
+sudo sh -c 'echo "deb https://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' | tee -a ./log_install_dd.txt
+sudo apt-get update -qq > /dev/null
+sudo apt-get install -qq -y google-chrome-stable | tee -a ./log_install_dd.txt
+
 echo "# Installation de Spotify" | tee -a ./log_install_dd.txt
 echo "deb http://repository.spotify.com stable non-free" >> /etc/apt/sources.list
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4E9CFF4E | tee -a ./log_install_dd.txt
