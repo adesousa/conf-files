@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#Version v1.2.3
+#Version v1.2.4
 #Script d’installation d’un nouvel environnement Debian-based (install.sh)
 #Exécuter ce script en root, sinon cela ne fonctionne pas.
 #Pour plus d'optimisations système lire ici : http://doc.ubuntu-fr.org/optimisation
@@ -35,6 +35,10 @@ echo 'apc.shm_size=100' >> /etc/php5/fpm/conf.d/apc.ini
 
 echo "# Installation de Memcached et de son extension php5" | tee -a ./log_install_dd.txt
 sudo apt-get install memcached php5-memcache -qq -y | tee -a ./log_install_dd.txt
+
+echo "# Installation de capifony" | tee -a ./log_install_dd.txt
+apt-get install rubygems -qq -y | tee -a ./log_install_dd.txt
+gem install capifony | tee -a ./log_install_dd.txt
 
 echo "# Installation et reconfiguration de phpmyadmin"  | tee -a ./log_install_dd.txt
 sudo mkdir /var/www | tee -a ./log_install_dd.txt
