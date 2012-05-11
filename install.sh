@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#Version v1.1.2
+#Version v1.2.2
 #Script d’installation d’un nouvel environnement Debian-based (install.sh)
 #Exécuter ce script en root, sinon cela ne fonctionne pas.
 #Pour plus d'optimisations système lire ici : http://doc.ubuntu-fr.org/optimisation
@@ -54,6 +54,17 @@ sudo /etc/init.d/php5-fpm start
 " >> ./start_server_web.sh
 sudo chmod 777 ./start_server_web.sh | tee -a ./log_install_dd.txt
 
+echo "# Installation de curl et de composer.phar" | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y curl | tee -a ./log_install_dd.txt
+sudo curl -s http://getcomposer.org/installer | php -- --install-dir=/usr/bin
+
+echo "# Installation de nodeJs et less" | tee -a ./log_install_dd.txt
+sudo apt-get install python-software-properties -qq -y | tee -a ./log_install_dd.txt
+sudo apt-add-repository ppa:chris-lea/node.js
+sudo apt-get update -qq > /dev/null
+sudo apt-get install -qq -y nodejs npm | tee -a ./log_install_dd.txt
+sudo npm install -g less | tee -a ./log_install_dd.txt
+
 echo "# Configuration de git" | tee -a ./log_install_dd.txt
 sudo cp conf-files/git/.git* /root/ | tee -a ./log_install_dd.txt
 sudo cp conf-files/git/.git* /home/adesousa/ | tee -a ./log_install_dd.txt
@@ -67,7 +78,7 @@ sudo apt-get install -qq -y google-chrome-stable | tee -a ./log_install_dd.txt
 
 echo "# Installation de Spotify" | tee -a ./log_install_dd.txt
 echo "deb http://repository.spotify.com stable non-free" >> /etc/apt/sources.list
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4E9CFF4E | tee -a ./log_install_dd.txt
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4E9CFF4E
 sudo apt-get update -qq > /dev/null
 sudo apt-get install -qq -y spotify-client-qt | tee -a ./log_install_dd.txt
 
@@ -165,6 +176,10 @@ git clone git@git.assembla.com:code-chouchou.git chouchou
 git clone git@git.assembla.com:lusidade.git lusidade
 git clone git@github.com:odolbeau/ppc.git ppc
 ln -s /home/adesousa/Bureau/Workspaces/* /var/www/
+# Config of ppc project
+cd /home/adesousa/Bureau/Workspaces/ppc
+composer.phar install
+cd /home/adesousa/Bureau
 echo "Penser à récuperer le script amazon et sa clé ssh"
 echo "Installation done: Reboot to enjoy the power!"
 
