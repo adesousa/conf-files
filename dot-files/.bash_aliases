@@ -6,11 +6,11 @@ alias bureau='cd /home/adesousa/Bureau/'
 alias web='cd /var/www/'
 
 # sf1.4
-alias scc='php symfony cc'
-alias sccp='scc --env=prod'
-alias sccd='scc --env=dev'
-alias sfassets='php symfony plugin:publish:assets'
-alias sfdoctrinerebuild='php symfony doctrine:build --all --and-load --no-confirmation'
+alias scc1='php symfony cc'
+alias sccp1='scc --env=prod'
+alias sccd1='scc --env=dev'
+alias sfassets1='php symfony plugin:publish:assets'
+alias sfdoctrinerebuild1='php symfony doctrine:build --all --and-load --no-confirmation'
 
 # sf2
 alias scc='php app/console cache:clear'
