@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#Version v1.2.2
+#Version v1.2.3
 #Script d’installation d’un nouvel environnement Debian-based (install.sh)
 #Exécuter ce script en root, sinon cela ne fonctionne pas.
 #Pour plus d'optimisations système lire ici : http://doc.ubuntu-fr.org/optimisation
@@ -178,6 +178,7 @@ git clone git@github.com:odolbeau/ppc.git ppc
 ln -s /home/adesousa/Bureau/Workspaces/* /var/www/
 # Config of ppc project
 cd /home/adesousa/Bureau/Workspaces/ppc
+cp app/config/parameters-dist.yml parameters.yml
 composer.phar install
 cd /home/adesousa/Bureau
 echo "Penser à récuperer le script amazon et sa clé ssh"
