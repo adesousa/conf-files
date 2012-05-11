@@ -19,6 +19,3 @@ alias scct='scc --env=test'
 alias sfassets='php app/console assets:install web --symlink'
 alias sfdoctrinerebuild='php app/console doctrine:database:drop --force; php app/console doctrine:database:create; php app/console doctrine:schema:create'
 
-# cd aliases
-alias bureau='/home/adesousa/Bureau'
-

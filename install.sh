@@ -55,7 +55,7 @@ sudo /etc/init.d/php5-fpm start
 sudo chmod 777 ./start_server_web.sh | tee -a ./log_install_dd.txt
 
 echo "# Configuration de git" | tee -a ./log_install_dd.txt
-sudo cp conf-files/git/.git* ~/ | tee -a ./log_install_dd.txt
+sudo cp conf-files/git/.git* /root/ | tee -a ./log_install_dd.txt
 sudo cp conf-files/git/.git* /home/adesousa/ | tee -a ./log_install_dd.txt
 
 echo "################# Installations diverses ################" | tee -a ./log_install_dd.txt
