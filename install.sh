@@ -17,7 +17,7 @@ echo "# Installation de Nginx: Linux Nginx Mysql Php (LNMP) + PHP5-fpm" | tee -a
 sudo apt-get install -qq -y nginx php5-fpm | tee -a ./log_install_dd.txt
 sudo cp -r conf-files/nginx/* /etc/nginx/
 echo "# On ajoute un lien symbolique de sites-available vers sites-enabled pour rendre les sites accessibles" | tee -a ./log_install_dd.txt
-sudo ln -s /etc/nginx/sites-available/* /etc/nginx/sites-enabled/ &>> -a ./log_install_dd.txt
+sudo ln -s /etc/nginx/sites-available/* /etc/nginx/sites-enabled/ | -a ./log_install_dd.txt
 echo "# Paramétrage des dossiers www + Reload de la conf du serveur après la mise à jour de la conf" | tee -a ./log_install_dd.txt
 sudo mkdir /var/www/errors/global/ | tee -a ./log_install_dd.txt
 sudo cp /var/run/nginx/www/50x.html /var/www/errors/global/50x.html | tee -a ./log_install_dd.txt
@@ -103,7 +103,7 @@ sudo cp conf-files/dot-files/.bash_aliases /root/ | tee -a ./log_install_dd.txt
 sudo cp conf-files/dot-files/.bash_aliases /home/adesousa/ | tee -a ./log_install_dd.txt
 
 echo "# Installation de Jupiter pour la gestion de l’alimentation d’un pc portable -> ATTENTION, il n'est peut-être pas si efficace que cela si l'on utilise bien powertop !" | tee -a ./log_install_dd.txt
-sudo add-apt-repository -y ppa:webupd8team/jupiter &>> ./log_install_dd.txt
+sudo add-apt-repository -y ppa:webupd8team/jupiter | tee -a ./log_install_dd.txt
 sudo apt-get update -qq > /dev/null
 sudo apt-get install -qq -y jupiter | tee -a ./log_install_dd.txt
 
@@ -131,7 +131,7 @@ echo "# Désinstallation de quelques services ou logiciels non nécessaires" | t
 echo "# Remove Apache2 et Lighttpd pour éviter les conflits avec les différents serveurs web existants sur le poste" | tee -a ./log_install_dd.txt
 sudo apt-get remove -qq -y --purge apache2 | tee -a ./log_install_dd.txt
 sudo apt-get remove -qq -y --purge lighttpd | tee -a ./log_install_dd.txt
-sudo rm -r /etc/init.d/apache2 &>> ./log_install_dd.txt
+sudo rm -r /etc/init.d/apache2 | tee -a ./log_install_dd.txt
 
 echo "# Suppression des services mysql,Nginx, php5, rsync, bluetooth et Apache2 (qui vient d'être supprimé) au démarrage" | tee -a ./log_install_dd.txt
 sudo update-rc.d -f mysql remove | tee -a ./log_install_dd.txt
