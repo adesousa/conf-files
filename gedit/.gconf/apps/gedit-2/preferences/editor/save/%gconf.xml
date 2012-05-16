@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<gconf>
-	<entry name="create_backup_copy" mtime="1337165290" type="bool" value="false"/>
-	<entry name="auto_save" mtime="1337165287" type="bool" value="true"/>
-	<entry name="auto_save_interval" mtime="1337167994" type="int" value="0"/>
-</gconf>

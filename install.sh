@@ -158,9 +158,17 @@ sudo apt-get install -qq -y gedit-plugins | tee -a ./log_install_dd.txt
 sudo apt-add-repository ppa:ubuntu-on-rails/ppa
 sudo apt-get update -qq > /dev/null
 sudo apt-get install -qq -y gedit-gmate | tee -a ./log_install_dd.txt
-sudo cp conf-files/twig/twig.lang /usr/share/gtksourceview-3.0/language-specs/ | tee -a ./log_install_dd.txt
-sudo cp -r conf-files/gedit/.gconf /home/adesousa/ | tee -a ./log_install_dd.txt
-sudo cp -r conf-files/gedit/.config /home/adesousa/ | tee -a ./log_install_dd.txt
+# installation de vigedit ...
+# installation de editShortcuts ...
+# installation de tabSwitcher ...
+sudo cp conf-files/gedit/twig.lang /usr/share/gtksourceview-3.0/language-specs/ | tee -a ./log_install_dd.txt
+sudo dconf load /org/gnome/gedit/ < conf-files/gedit/gedit.settings | tee -a ./log_install_dd.txt
+sudo cp -r /root/.config/dconf /home/adesousa/.config/ | tee -a ./log_install_dd.txt
+
+#### S'il y a des changements dans la conf gedit : voici une méthode pour regénerer un dump des settings de gedit
+#sudo dconf dump /org/gnome/gedit/ > gedit.settings
+#sudo dconf load /org/gnome/gedit/ < gedit.settings
+#sudo cp -r /root/.config/dconf /home/adesousa/.config/
 
 echo "# Installation des différents bureaux Mint sous linux ou debian, ya plus qu'à choisir au démarrage celui que je préfère" | tee -a ./log_install_dd.txt
 sudo add-apt-repository ppa:webupd8team/gnome3 | tee -a ./log_install_dd.txt

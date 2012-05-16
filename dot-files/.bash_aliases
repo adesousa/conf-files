@@ -2,6 +2,7 @@
 alias ll='ls -lh'
 alias la='ls -ahl'
 alias v='vim'
+alias g='gedit'
 alias bureau='cd /home/adesousa/Bureau/'
 alias web='cd /var/www/'
 
