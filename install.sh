@@ -159,6 +159,8 @@ sudo apt-add-repository ppa:ubuntu-on-rails/ppa
 sudo apt-get update -qq > /dev/null
 sudo apt-get install -qq -y gedit-gmate | tee -a ./log_install_dd.txt
 sudo cp conf-files/twig/twig.lang /usr/share/gtksourceview-3.0/language-specs/ | tee -a ./log_install_dd.txt
+sudo cp -r conf-files/gedit/.gconf /home/adesousa/ | tee -a ./log_install_dd.txt
+sudo cp -r conf-files/gedit/.config /home/adesousa/ | tee -a ./log_install_dd.txt
 
 echo "# Installation des différents bureaux Mint sous linux ou debian, ya plus qu'à choisir au démarrage celui que je préfère" | tee -a ./log_install_dd.txt
 sudo add-apt-repository ppa:webupd8team/gnome3 | tee -a ./log_install_dd.txt
@@ -192,4 +194,3 @@ composer.phar install
 cd /home/adesousa/Bureau
 echo "Penser à récuperer le script amazon et sa clé ssh"
 echo "Installation done: Reboot to enjoy the power!"
-
