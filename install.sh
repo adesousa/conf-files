@@ -152,8 +152,13 @@ sudo pear upgrade PEAR  | tee -a ./log_install_dd.txt
 pear config-set auto_discover 1 | tee -a ./log_install_dd.txt
 pear install pear.phpunit.de/PHPUnit | tee -a ./log_install_dd.txt
 
-echo "# Installation des plugins de gedit" | tee -a ./log_install_dd.txt
-sudo apt-get install -qq -y gedit-plugins
+echo "# Installation de Gedit et de quelques plugins" | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y gedit | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y gedit-plugins | tee -a ./log_install_dd.txt
+sudo apt-add-repository ppa:ubuntu-on-rails/ppa
+sudo apt-get update -qq > /dev/null
+sudo apt-get install -qq -y gedit-gmate | tee -a ./log_install_dd.txt
+sudo cp conf-files/twig/twig.lang /usr/share/gtksourceview-3.0/language-specs/ | tee -a ./log_install_dd.txt
 
 echo "# Installation des différents bureaux Mint sous linux ou debian, ya plus qu'à choisir au démarrage celui que je préfère" | tee -a ./log_install_dd.txt
 sudo add-apt-repository ppa:webupd8team/gnome3 | tee -a ./log_install_dd.txt
