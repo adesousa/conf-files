@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="toolbar_visible" mtime="1337165819" type="bool" value="false"/>
+</gconf>

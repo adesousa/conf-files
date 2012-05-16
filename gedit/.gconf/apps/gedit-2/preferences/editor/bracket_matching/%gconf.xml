@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<gconf>
+	<entry name="bracket_matching" mtime="1337165280" type="bool" value="true"/>
+</gconf>
