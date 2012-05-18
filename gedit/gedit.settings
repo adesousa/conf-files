@@ -1,0 +1,38 @@
+
+[plugins]
+active-plugins=['smartspaces', 'drawspaces', 'filebrowser', 'bracketcompletion', 'sessionsaver', 'docinfo', 'snippets', 'wordcompletion', 'modelines', 'whitespaceterminator']
+
+[plugins/drawspaces]
+enable=true
+
+[plugins/filebrowser]
+filter-mode=['hide-binary']
+root='file:///'
+tree-view=true
+virtual-root='file:///home/adesousa/Bureau/Workspaces'
+
+[preferences/editor]
+auto-indent=true
+auto-save=true
+auto-save-interval=uint32 4
+bracket-matching=true
+create-backup-copy=false
+display-line-numbers=true
+display-right-margin=false
+highlight-current-line=true
+insert-spaces=true
+scheme='merbivore'
+tabs-size=uint32 2
+
+[preferences/ui]
+notebook-show-tabs-mode='always'
+side-panel-visible=true
+statusbar-visible=true
+toolbar-visible=false
+
+[state/window]
+bottom-panel-size=140
+side-panel-active-page=-1012866266
+side-panel-size=246
+size=(650, 500)
+state=132
