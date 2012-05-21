@@ -1,6 +1,6 @@
 
 [plugins]
-active-plugins=['smartspaces', 'drawspaces', 'filebrowser', 'bracketcompletion', 'sessionsaver', 'docinfo', 'snippets', 'wordcompletion', 'modelines', 'whitespaceterminator']
+active-plugins=['textsize', 'changecase', 'controlyourtabs', 'wordcompletion', 'drawspaces', 'smart_highlight', 'restoretabs', 'smartspaces', 'charmap', 'filebrowser', 'sessionsaver', 'whitespaceterminator', 'colorpicker', 'bracketcompletion', 'modelines', 'docinfo', 'snippets', 'snapopen']
 
 [plugins/drawspaces]
 enable=true
@@ -9,7 +9,10 @@ enable=true
 filter-mode=['hide-binary']
 root='file:///'
 tree-view=true
-virtual-root='file:///home/adesousa/Bureau/Workspaces'
+virtual-root='file:///home/adesousa/Bureau/Workspaces/ppc/src/WDB/Bundle/MainBundle/Controller'
+
+[plugins/restoretabs]
+uris=['file:///home/adesousa/Bureau/Workspaces/ppc/src/WDB/Bundle/MainBundle/Controller/HomeController.php', 'file:///home/adesousa/Bureau/Workspaces/ppc/src/WDB/Bundle/MainBundle/Resources/views/Home/index.html.twig']
 
 [preferences/editor]
 auto-indent=true
@@ -25,14 +28,21 @@ scheme='merbivore'
 tabs-size=uint32 2
 
 [preferences/ui]
+bottom-panel-visible=false
 notebook-show-tabs-mode='always'
 side-panel-visible=true
 statusbar-visible=true
 toolbar-visible=false
 
+[state/file-filter]
+filter-id=1
+
+[state/history-entry]
+search-for-entry=['test']
+
 [state/window]
-bottom-panel-size=140
+bottom-panel-size=472
 side-panel-active-page=-1012866266
 side-panel-size=246
-size=(650, 500)
-state=132
+size=(1278, 768)
+state=128
