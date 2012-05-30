@@ -5,6 +5,9 @@ alias v='vim'
 alias g='gedit'
 alias bureau='cd /home/adesousa/Bureau/'
 alias web='cd /var/www/'
+alias chouchou='cd /var/www/chouchou/'
+alias ppc='cd /var/www/ppc/'
+alias lusidade='cd /var/www/lusidade/'
 
 # sf1.4
 alias scc1='php symfony cc'
@@ -19,4 +22,3 @@ alias sccp='scc --env=prod'
 alias scct='scc --env=test'
 alias sfassets='php app/console assets:install web --symlink'
 alias sfdoctrinerebuild='php app/console doctrine:database:drop --force; php app/console doctrine:database:create; php app/console doctrine:schema:create'
-
