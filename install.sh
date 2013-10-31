@@ -19,6 +19,9 @@ git clone git@github.com:adesousa/conf-files.git conf-files
 echo "# Installation de VIM" | tee -a ./log_install_dd.txt
 sudo apt-get install -qq -y vim | tee -a ./log_install_dd.txt
 
+echo "# Installation de Guake (dropdown terminal), pensez à remplacer le raccourci F12 par 2 superio" | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y guake | tee -a ./log_install_dd.txt
+
 echo "# Mise à jour des paquets du nouvel OS installé (apt-get update + upgrade)" | tee -a ./log_install_dd.txt
 sudo apt-get update -qq | tee -a ./log_install_dd.txt
 sudo apt-get upgrade -qq | tee -a ./log_install_dd.txt
