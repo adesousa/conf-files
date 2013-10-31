@@ -1,0 +1,13 @@
+{
+	"color_scheme": "Packages/User/Merbivore.tmTheme",
+	"font_size": 10,
+	"ignored_packages":
+	[
+		"C#",
+		"Vintage",
+		"Search in Browser",
+		"ASP",
+		"Erlang"
+	],
+	"trim_trailing_white_space_on_save": true
+}

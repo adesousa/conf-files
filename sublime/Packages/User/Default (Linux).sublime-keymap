@@ -1,0 +1,5 @@
+[
+    { "keys": ["ctrl+alt+g"], "command": "open_browser", "args" : {"url" : "http://google.fr/?q=%s"}},
+    { "keys": ["ctrl+alt+p"], "command": "open_browser", "args" : {"url" : "http://fr.php.net/manual-lookup.php?pattern=%s"}},
+    { "keys": ["ctrl+space"], "command": "code_intel_auto_complete" }
+]

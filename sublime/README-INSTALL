@@ -1,0 +1,25 @@
+Dossier de configuration de sublime à copier dans /home/adesousa/.config/sublime-text-2/Packages/ ou laisser faire l'install.sh
+
+Création d'un lanceur pour sublime:
+sudo vim /usr/share/applications/sublime-text.desktop
+et copier coller :
+
+    Type=Application
+    Icon=/Data/Linux/Setups/SublimeText2/Icon/128x128
+    Comment=Éditeur Sublime
+    GenericName=Sublime Text 2
+    Exec=/Data/Linux/Setups/SublimeText2/sublime_text
+    Terminal=false
+    Categories=Development;
+
+
+Liste des packages à installer:
+- Package control
+- Emmet (div#page > ul*5 pour de la génération rapide d'HTML)
+- Emmet css snippets (pour raccourcis du genre tdu + tab => text-decoration: underline;)
+- Alignment (ctrl+alt+a)
+- open_browser : Mais ne marchais pas lors de mes tests, a creuser... (https://github.com/Grafikart/Open-Browser-SublimeText2-Plugin - selection de texte + ctrl+g ou ctrl+p)
+- SublimeCodeIntel (ctrl+click pour la définition d'une méthode...)
+- DocBlockr (taper /** + tab pour générer la doc de méthode)
+- Trailing Spaces (en enregistrant il enlève les espaces blancs)
+- Sublime Prefixr API (rendre compatible un css avec tous les navigateurs : ctrl + alt + x)
