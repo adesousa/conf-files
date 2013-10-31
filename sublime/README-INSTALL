@@ -23,3 +23,8 @@ Liste des packages à installer:
 - DocBlockr (taper /** + tab pour générer la doc de méthode)
 - Trailing Spaces (en enregistrant il enlève les espaces blancs)
 - Sublime Prefixr API (rendre compatible un css avec tous les navigateurs : ctrl + alt + x)
+
+Quelques liens d'explications supplémentaires si besoin pour l'install de ces packages...
+-> http://www.grafikart.fr/blog/sublime-text-2-les-plugins-que-jutilise
+-> http://blog.stuartherbert.com/php/2012/02/28/setting-up-sublime-text-2-for-php-development/
+-> http://www.impermanenceweb.fr/sublime.text
