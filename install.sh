@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#Version v1.3.1
+#Version v1.3.2
 #Script d’installation d’un nouvel environnement Debian-based (install.sh)
 #Exécuter ce script en root, sinon cela ne fonctionne pas.
 #Pour plus d'optimisations système lire ici : http://doc.ubuntu-fr.org/optimisation
@@ -44,7 +44,7 @@ sudo apt-get install mysql-server php5-mysql -qq -y | tee -a ./log_install_dd.tx
 
 
 echo "# Installation des extensions php nécessaires au développement php" | tee -a ./log_install_dd.txt
-sudo apt-get install -qq -y php5-curl php5-gd php5-intl php-pear php5-imagick php5-imap php5-mcrypt php5-ming php5-ps php5-pspell php5-recode php5-snmp php5-sqlite php5-tidy php5-xmlrpc php5-xsl | tee -a ./log_install_dd.txt
+sudo apt-get install -qq -y php5-curl php5-gd php5-intl php-pear php5-imagick php5-imap php5-mcrypt php5-ming php5-ps php5-pspell php5-recode php5-sqlite php5-tidy php5-xmlrpc php5-xsl | tee -a ./log_install_dd.txt
 
 
 echo "# Installation de APC" | tee -a ./log_install_dd.txt
