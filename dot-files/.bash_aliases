@@ -8,7 +8,7 @@ alias web='cd /var/www/'
 alias chouchou='cd /var/www/chouchou/'
 alias ppc='cd /var/www/ppc/'
 alias lusidade='cd /var/www/lusidade/'
-
+alias home='cd /Users/andre.desousa/'
 alias fuck='sudo $(history -p \!\!)'
 
 # Git
