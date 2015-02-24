@@ -10,3 +10,5 @@ export PS1='\[\033[1;34m\]\!\[\033[0m\] \[\033[1;35m\]\u\[\033[0m\]:\[\033[1;35m
 if [ -f ~/.bash_aliases ]; then
     . ~/.bash_aliases
 fi
+
+export PATH="$(brew --prefix homebrew/php/php55)/sbin:$PATH"
